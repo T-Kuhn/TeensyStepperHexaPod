@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace IK
+namespace UniversalJointCheck.Ik
 {
     public static class SphereCircleIntersectIK
     {
@@ -47,7 +47,7 @@ namespace IK
             // y_0, y_1
             var y0 = (bigC - bigA * x0) / bigB;
             var y1 = (bigC - bigA * x1) / bigB;
-            
+
             return new IkResult
             {
                 Success = true,
