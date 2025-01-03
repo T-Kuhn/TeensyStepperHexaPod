@@ -51,12 +51,6 @@ public class SingleArmMover : MonoBehaviour
             var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
             _joint2.localRotation = Quaternion.Euler(angle, 0f, 0f);
 
-            // TODO: Need a TODO file.
-            // TODO: Need to create a git repo.
-            //       name ideas:
-            //         - u-joint. The UJ-Table
-            //         - hexapod. The Hexa Bot.
-            // TODO: cleanup and add some sort of path/animation for target position maybe
             _joint2Dir = -_joint2.forward;
             _joint2Dir2 = _joint2.up;
             var containerLocalx = _container.InverseTransformDirection(-_joint2.forward);
