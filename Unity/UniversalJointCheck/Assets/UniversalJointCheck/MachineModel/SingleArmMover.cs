@@ -24,7 +24,8 @@ namespace UniversalJointCheck.MachineModel
 
         void Update()
         {
-            //var localTarget = _container.InverseTransformPoint(_target.position);
+            // TODO: make this work.
+            // var localTarget = _container.InverseTransformPoint(_target.position);
 
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: _target.position,
