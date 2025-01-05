@@ -14,7 +14,7 @@ namespace UniversalJointCheck.MachineModel
 
         [SerializeField] private Transform _joint1Tip;
 
-        private Vector3 _dir;
+        private Vector3 _link2Dir;
         private Vector3 _joint2Dir;
         private Vector3 _joint2Dir2;
 
@@ -30,20 +30,28 @@ namespace UniversalJointCheck.MachineModel
 
             var intersectionPoint = ikResult.P1;
 
-            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
-            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
 
-            // Joint2: X Rot
-            // Joint3: Y Rot
+            RotateJoint1(intersectionPoint);
+            var link2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint);
+            var containerLocalDir = _container.InverseTransformDirection(link2Dir);
+            RotateJoint2(containerLocalDir);
+            RotateJoint3(containerLocalDir);
+        }
+
+        private Vector3 MoveLink2ToJoint1TipAndGetLink2Dir(Vector3 intersectionPoint)
+        {
             var diff = _target.position - intersectionPoint;
 
             var joint1TipWorldPos = _joint1Tip.position;
             var containerLocalJoint1TipPos = _container.InverseTransformPoint(joint1TipWorldPos);
             _joint2.localPosition = containerLocalJoint1TipPos;
             var dir = diff.normalized;
-            _dir = dir;
+            _link2Dir = dir;
+            return dir;
+        }
 
-            var containerLocalDir = _container.InverseTransformDirection(dir);
+        private void RotateJoint2(Vector3 containerLocalDir)
+        {
             var containerLocalDirInXPlaneOnly = new Vector3(0f, containerLocalDir.y, containerLocalDir.z).normalized;
             var containerLocalRight = _container.InverseTransformDirection(Vector3.right);
             var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
@@ -51,16 +59,26 @@ namespace UniversalJointCheck.MachineModel
 
             _joint2Dir = -_joint2.forward;
             _joint2Dir2 = _joint2.up;
+        }
+
+        private void RotateJoint3(Vector3 containerLocalDir)
+        {
             var containerLocalx = _container.InverseTransformDirection(-_joint2.forward);
             var angle2 = Vector3.SignedAngle(containerLocalx, containerLocalDir, _joint2.up);
             _joint3.localRotation = Quaternion.Euler(0f, angle2, 0f);
+        }
+
+        private void RotateJoint1(Vector3 intersectionPoint)
+        {
+            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
+            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
         }
 
         void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
             var origin = _joint2.position;
-            var target = origin + _dir * 0.1f;
+            var target = origin + _link2Dir * 0.1f;
             Gizmos.DrawLine(origin, target);
 
             Gizmos.color = Color.blue;
