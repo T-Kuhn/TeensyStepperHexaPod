@@ -14,6 +14,9 @@ namespace UniversalJointCheck.MachineModel
 
         [SerializeField] private Transform _joint1Tip;
 
+        [SerializeField] private bool _showJoin2Gizmos;
+        [SerializeField] private bool _showJoin3Gizmos;
+
         private Vector3 _link2Dir;
         private Vector3 _joint2Dir;
         private Vector3 _joint2Dir2;
@@ -30,10 +33,11 @@ namespace UniversalJointCheck.MachineModel
 
             var intersectionPoint = ikResult.P1;
 
-
             RotateJoint1(intersectionPoint);
+
             var link2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint);
             var containerLocalDir = _container.InverseTransformDirection(link2Dir);
+
             RotateJoint2(containerLocalDir);
             RotateJoint3(containerLocalDir);
         }
@@ -56,16 +60,16 @@ namespace UniversalJointCheck.MachineModel
             var containerLocalRight = _container.InverseTransformDirection(Vector3.right);
             var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
             _joint2.localRotation = Quaternion.Euler(angle, 0f, 0f);
-
-            _joint2Dir = -_joint2.forward;
-            _joint2Dir2 = _joint2.up;
         }
 
         private void RotateJoint3(Vector3 containerLocalDir)
         {
+            _joint2Dir = -_joint2.forward;
+            _joint2Dir2 = _joint2.up;
+
             var containerLocalx = _container.InverseTransformDirection(-_joint2.forward);
-            var angle2 = Vector3.SignedAngle(containerLocalx, containerLocalDir, _joint2.up);
-            _joint3.localRotation = Quaternion.Euler(0f, angle2, 0f);
+            var angle = Vector3.SignedAngle(containerLocalx, containerLocalDir, _joint2.up);
+            _joint3.localRotation = Quaternion.Euler(0f, angle, 0f);
         }
 
         private void RotateJoint1(Vector3 intersectionPoint)
@@ -81,20 +85,37 @@ namespace UniversalJointCheck.MachineModel
             var target = origin + _link2Dir * 0.1f;
             Gizmos.DrawLine(origin, target);
 
+            DrawJoint2Gizmos();
+            DrawJoint3Gizmos();
+        }
+
+        private void DrawJoint3Gizmos()
+        {
+            if (!_showJoin3Gizmos) return;
+
+            {
+                Gizmos.color = Color.red;
+                var origin = _joint2.position;
+                var target = origin + _joint2Dir * 0.1f;
+                Gizmos.DrawLine(origin, target);
+            }
+
+            {
+                Gizmos.color = Color.yellow;
+                var origin = _joint2.position;
+                var target = origin + _joint2Dir2 * 0.1f;
+                Gizmos.DrawLine(origin, target);
+            }
+        }
+
+        private void DrawJoint2Gizmos()
+        {
+            if (!_showJoin2Gizmos) return;
+
             Gizmos.color = Color.blue;
-            var origin2 = _joint2.position;
-            var target2 = origin2 + Vector3.right * 0.1f;
-            Gizmos.DrawLine(origin2, target2);
-
-            Gizmos.color = Color.red;
-            var origin3 = _joint2.position;
-            var target3 = origin3 + _joint2Dir * 0.1f;
-            Gizmos.DrawLine(origin3, target3);
-
-            Gizmos.color = Color.yellow;
-            var origin4 = _joint2.position;
-            var target4 = origin4 + _joint2Dir2 * 0.1f;
-            Gizmos.DrawLine(origin4, target4);
+            var origin = _joint2.position;
+            var target = origin + Vector3.right * 0.1f;
+            Gizmos.DrawLine(origin, target);
         }
     }
 }
