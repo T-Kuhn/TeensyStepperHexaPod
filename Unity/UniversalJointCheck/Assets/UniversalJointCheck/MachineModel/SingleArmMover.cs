@@ -18,8 +18,8 @@ namespace UniversalJointCheck.MachineModel
         [SerializeField] private bool _showJoin3Gizmos;
 
         private Vector3 _link2Dir;
-        private Vector3 _joint2Dir;
-        private Vector3 _joint2Dir2;
+        private Vector3 _joint2ForwardDir;
+        private Vector3 _joint2UpDir;
 
         void Update()
         {
@@ -44,14 +44,12 @@ namespace UniversalJointCheck.MachineModel
 
         private Vector3 MoveLink2ToJoint1TipAndGetLink2Dir(Vector3 intersectionPoint)
         {
-            var diff = _target.position - intersectionPoint;
-
             var joint1TipWorldPos = _joint1Tip.position;
             var containerLocalJoint1TipPos = _container.InverseTransformPoint(joint1TipWorldPos);
             _joint2.localPosition = containerLocalJoint1TipPos;
-            var dir = diff.normalized;
-            _link2Dir = dir;
-            return dir;
+            _link2Dir = (_target.position - intersectionPoint).normalized;
+
+            return _link2Dir;
         }
 
         private void RotateJoint2(Vector3 containerLocalDir)
@@ -64,8 +62,8 @@ namespace UniversalJointCheck.MachineModel
 
         private void RotateJoint3(Vector3 containerLocalDir)
         {
-            _joint2Dir = -_joint2.forward;
-            _joint2Dir2 = _joint2.up;
+            _joint2ForwardDir = -_joint2.forward;
+            _joint2UpDir = _joint2.up;
 
             var containerLocalx = _container.InverseTransformDirection(-_joint2.forward);
             var angle = Vector3.SignedAngle(containerLocalx, containerLocalDir, _joint2.up);
@@ -96,14 +94,14 @@ namespace UniversalJointCheck.MachineModel
             {
                 Gizmos.color = Color.red;
                 var origin = _joint2.position;
-                var target = origin + _joint2Dir * 0.1f;
+                var target = origin + _joint2ForwardDir * 0.1f;
                 Gizmos.DrawLine(origin, target);
             }
 
             {
                 Gizmos.color = Color.yellow;
                 var origin = _joint2.position;
-                var target = origin + _joint2Dir2 * 0.1f;
+                var target = origin + _joint2UpDir * 0.1f;
                 Gizmos.DrawLine(origin, target);
             }
         }
