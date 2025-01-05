@@ -26,35 +26,34 @@ namespace UniversalJointCheck.MachineModel
                 sphereRadius: 0.124f,
                 circleRadius: 0.112f);
 
-            if (ikResult.Success)
-            {
-                var intersectionPoint = ikResult.P1;
+            if (!ikResult.Success) return;
 
-                var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
-                _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
+            var intersectionPoint = ikResult.P1;
 
-                // Joint2: X Rot
-                // Joint3: Y Rot
-                var diff = _target.position - intersectionPoint;
+            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
+            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
 
-                var joint1TipWorldPos = _joint1Tip.position;
-                var containerLocalJoint1TipPos = _container.InverseTransformPoint(joint1TipWorldPos);
-                _joint2.localPosition = containerLocalJoint1TipPos;
-                var dir = diff.normalized;
-                _dir = dir;
+            // Joint2: X Rot
+            // Joint3: Y Rot
+            var diff = _target.position - intersectionPoint;
 
-                var containerLocalDir = _container.InverseTransformDirection(dir);
-                var containerLocalDirInXPlaneOnly = new Vector3(0f, containerLocalDir.y, containerLocalDir.z).normalized;
-                var containerLocalRight = _container.InverseTransformDirection(Vector3.right);
-                var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
-                _joint2.localRotation = Quaternion.Euler(angle, 0f, 0f);
+            var joint1TipWorldPos = _joint1Tip.position;
+            var containerLocalJoint1TipPos = _container.InverseTransformPoint(joint1TipWorldPos);
+            _joint2.localPosition = containerLocalJoint1TipPos;
+            var dir = diff.normalized;
+            _dir = dir;
 
-                _joint2Dir = -_joint2.forward;
-                _joint2Dir2 = _joint2.up;
-                var containerLocalx = _container.InverseTransformDirection(-_joint2.forward);
-                var angle2 = Vector3.SignedAngle(containerLocalx, containerLocalDir, _joint2.up);
-                _joint3.localRotation = Quaternion.Euler(0f, angle2, 0f);
-            }
+            var containerLocalDir = _container.InverseTransformDirection(dir);
+            var containerLocalDirInXPlaneOnly = new Vector3(0f, containerLocalDir.y, containerLocalDir.z).normalized;
+            var containerLocalRight = _container.InverseTransformDirection(Vector3.right);
+            var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
+            _joint2.localRotation = Quaternion.Euler(angle, 0f, 0f);
+
+            _joint2Dir = -_joint2.forward;
+            _joint2Dir2 = _joint2.up;
+            var containerLocalx = _container.InverseTransformDirection(-_joint2.forward);
+            var angle2 = Vector3.SignedAngle(containerLocalx, containerLocalDir, _joint2.up);
+            _joint3.localRotation = Quaternion.Euler(0f, angle2, 0f);
         }
 
         void OnDrawGizmos()
