@@ -22,7 +22,7 @@ namespace UniversalJointCheck.MachineModel
         private Vector3 _worldLink2Dir;
 
         private Vector3 _transformRight;
-        private Vector3 _joint2ForwardDir;
+        private Vector3 _joint2BackDir;
         private Vector3 _joint2UpDir;
 
         void Update()
@@ -48,16 +48,16 @@ namespace UniversalJointCheck.MachineModel
             var worldLink2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint, localTarget);
             var containerLocalDir = _viewContainer.InverseTransformDirection(worldLink2Dir);
             var transformRight = RotateJoint2(containerLocalDir);
-            var (joint2ForwardDir, joint2UpDir) = RotateJoint3(containerLocalDir);
+            var (joint2BackDir, joint2UpDir) = RotateJoint3(containerLocalDir);
 
-            UpdateGizmoData(worldLink2Dir, transformRight, joint2ForwardDir, joint2UpDir);
+            UpdateGizmoData(worldLink2Dir, transformRight, joint2BackDir, joint2UpDir);
         }
 
-        private void UpdateGizmoData(Vector3 worldLink2Dir, Vector3 transformRight, Vector3 joint2ForwardDir, Vector3 joint2UpDir)
+        private void UpdateGizmoData(Vector3 worldLink2Dir, Vector3 transformRight, Vector3 joint2BackDir, Vector3 joint2UpDir)
         {
             _worldLink2Dir = worldLink2Dir;
             _transformRight = transformRight;
-            _joint2ForwardDir = joint2ForwardDir;
+            _joint2BackDir = joint2BackDir;
             _joint2UpDir = joint2UpDir;
         }
 
@@ -87,14 +87,15 @@ namespace UniversalJointCheck.MachineModel
 
         private (Vector3, Vector3) RotateJoint3(Vector3 containerLocalDir)
         {
-            var joint2ForwardDir = -_joint2.forward;
+            var joint2BackDir = -_joint2.forward;
             var joint2UpDir = _joint2.up;
 
-            var containerLocalx = _viewContainer.InverseTransformDirection(joint2ForwardDir);
-            var angle = Vector3.SignedAngle(containerLocalx, containerLocalDir, joint2UpDir);
+            var localJoint2ForwardDir = _viewContainer.InverseTransformDirection(joint2BackDir);
+            var localJoint2UpDir = _viewContainer.InverseTransformDirection(joint2UpDir);
+            var angle = Vector3.SignedAngle(localJoint2ForwardDir, containerLocalDir, localJoint2UpDir);
             _joint3.localRotation = Quaternion.Euler(0f, angle, 0f);
 
-            return (joint2ForwardDir, joint2UpDir);
+            return (joint2BackDir, joint2UpDir);
         }
 
         private void RotateJoint1(Vector3 intersectionPoint)
@@ -125,10 +126,10 @@ namespace UniversalJointCheck.MachineModel
             {
                 Gizmos.color = Color.red;
                 var origin = _joint2.position;
-                var target = origin + _joint2ForwardDir * 0.1f;
+                var target = origin + _joint2BackDir * 0.1f;
                 Gizmos.DrawLine(origin, target);
             }
-            
+
             {
                 Gizmos.color = Color.yellow;
                 var origin = _joint2.position;
