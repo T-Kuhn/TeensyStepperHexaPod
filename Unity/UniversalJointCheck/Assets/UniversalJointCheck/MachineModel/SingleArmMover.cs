@@ -15,6 +15,7 @@ namespace UniversalJointCheck.MachineModel
 
         [SerializeField] private Transform _joint1Tip;
 
+        [SerializeField] private bool _useSecondSolution;
         [SerializeField] private bool _showJoin2Gizmos;
         [SerializeField] private bool _showJoin3Gizmos;
         [SerializeField] private bool _debugLog;
@@ -29,13 +30,13 @@ namespace UniversalJointCheck.MachineModel
 
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
-                circleCenter: Vector3.zero,
+                circleCenter: transform.position,
                 sphereRadius: 0.124f,
                 circleRadius: 0.112f);
 
             if (!ikResult.Success) return;
 
-            var intersectionPoint = ikResult.P1;
+            var intersectionPoint = _useSecondSolution ? ikResult.P2 : ikResult.P1;
 
             if (_debugLog)
             {
