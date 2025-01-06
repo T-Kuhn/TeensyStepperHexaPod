@@ -27,10 +27,10 @@ namespace UniversalJointCheck.MachineModel
         void Update()
         {
             var localTarget = _container.InverseTransformPoint(_target.position);
-
+            
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
-                circleCenter: transform.position,
+                circleCenter: Vector3.zero,
                 sphereRadius: 0.124f,
                 circleRadius: 0.112f);
 
