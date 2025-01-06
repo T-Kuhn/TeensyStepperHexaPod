@@ -17,6 +17,7 @@ namespace UniversalJointCheck.MachineModel
 
         [SerializeField] private bool _showJoin2Gizmos;
         [SerializeField] private bool _showJoin3Gizmos;
+        [SerializeField] private bool _debugLog;
 
         private Vector3 _link2Dir;
         private Vector3 _joint2ForwardDir;
@@ -24,11 +25,10 @@ namespace UniversalJointCheck.MachineModel
 
         void Update()
         {
-            // TODO: make this work.
-            // var localTarget = _container.InverseTransformPoint(_target.position);
+            var localTarget = _container.InverseTransformPoint(_target.position);
 
             var ikResult = SphereCircleIntersectIK.Solve(
-                sphereCenter: _target.position,
+                sphereCenter: localTarget,
                 circleCenter: Vector3.zero,
                 sphereRadius: 0.124f,
                 circleRadius: 0.112f);
@@ -37,21 +37,26 @@ namespace UniversalJointCheck.MachineModel
 
             var intersectionPoint = ikResult.P1;
 
+            if (_debugLog)
+            {
+                Debug.Log("frame: " + Time.frameCount + "  localTarget: " + localTarget + "  intersectionPoint: " + intersectionPoint);
+            }
+
             RotateJoint1(intersectionPoint);
 
-            var link2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint);
+            var link2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint, localTarget);
             var containerLocalDir = _viewContainer.InverseTransformDirection(link2Dir);
 
             RotateJoint2(containerLocalDir);
             RotateJoint3(containerLocalDir);
         }
 
-        private Vector3 MoveLink2ToJoint1TipAndGetLink2Dir(Vector3 intersectionPoint)
+        private Vector3 MoveLink2ToJoint1TipAndGetLink2Dir(Vector3 intersectionPoint, Vector3 localTarget)
         {
             var joint1TipWorldPos = _joint1Tip.position;
             var containerLocalJoint1TipPos = _viewContainer.InverseTransformPoint(joint1TipWorldPos);
             _joint2.localPosition = containerLocalJoint1TipPos;
-            _link2Dir = (_target.position - intersectionPoint).normalized;
+            _link2Dir = (localTarget - intersectionPoint).normalized;
 
             return _link2Dir;
         }
