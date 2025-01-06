@@ -105,13 +105,17 @@ namespace UniversalJointCheck.MachineModel
 
         void OnDrawGizmos()
         {
+            DrawLink2DirGizmos();
+            DrawJoint2Gizmos();
+            DrawJoint3Gizmos();
+        }
+
+        private void DrawLink2DirGizmos()
+        {
             Gizmos.color = Color.green;
             var origin = _joint2.position;
             var target = origin + _worldLink2Dir * 0.1f;
             Gizmos.DrawLine(origin, target);
-
-            DrawJoint2Gizmos();
-            DrawJoint3Gizmos();
         }
 
         private void DrawJoint3Gizmos()
