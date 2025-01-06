@@ -133,7 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 412485916}
   m_Layer: 0
-  m_Name: Container
+  m_Name: Joints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -248,7 +248,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 596570655}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.42261845, z: -0, w: -0.9063077}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -256,7 +256,7 @@ Transform:
   - {fileID: 6278730758479026923}
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 310, z: 0}
 --- !u!114 &596570657
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269,13 +269,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4702d1fcb5bf124bbe5d57bc5c13013, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _container: {fileID: 596570656}
   _viewContainer: {fileID: 6278730758479026923}
   _target: {fileID: 2070707864}
   _joint1: {fileID: 1461666240}
   _joint2: {fileID: 574363452}
   _joint3: {fileID: 1962062289}
   _joint1Tip: {fileID: 1448959913}
+  _useSecondSolution: 0
   _showJoin2Gizmos: 1
   _showJoin3Gizmos: 1
   _debugLog: 1
@@ -782,7 +782,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2070707861}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0825, y: 0.1591, z: 0}
+  m_LocalPosition: {x: 0.083, y: 0.1591, z: 0}
   m_LocalScale: {x: 0.005, y: 0.005, z: 0.005}
   m_ConstrainProportionsScale: 0
   m_Children: []
