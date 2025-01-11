@@ -274,6 +274,8 @@ MonoBehaviour:
   _joint1: {fileID: 1461666240}
   _joint2: {fileID: 574363452}
   _joint3: {fileID: 1962062289}
+  _joint4: {fileID: 554520618}
+  _joint5: {fileID: 1449294037}
   _joint1Tip: {fileID: 1448959913}
   _useSecondSolution: 0
   _showJoin2Gizmos: 1

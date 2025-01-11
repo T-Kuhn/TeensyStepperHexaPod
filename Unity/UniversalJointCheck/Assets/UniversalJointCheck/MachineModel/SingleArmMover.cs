@@ -11,6 +11,8 @@ namespace UniversalJointCheck.MachineModel
         [SerializeField] private Transform _joint1;
         [SerializeField] private Transform _joint2;
         [SerializeField] private Transform _joint3;
+        [SerializeField] private Transform _joint4;
+        [SerializeField] private Transform _joint5;
 
         [SerializeField] private Transform _joint1Tip;
 
@@ -49,6 +51,7 @@ namespace UniversalJointCheck.MachineModel
             var containerLocalDir = _viewContainer.InverseTransformDirection(worldLink2Dir);
             var transformRight = RotateJoint2(containerLocalDir);
             var (joint2BackDir, joint2UpDir) = RotateJoint3(containerLocalDir);
+            RotateJoint4();
 
             UpdateGizmoData(worldLink2Dir, transformRight, joint2BackDir, joint2UpDir);
         }
@@ -73,6 +76,13 @@ namespace UniversalJointCheck.MachineModel
             return transform.TransformDirection(localLink2Dir);
         }
 
+        private void RotateJoint1(Vector3 intersectionPoint)
+        {
+            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
+            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
+        }
+
+        // NOTE: Joint2 rotates around the X-axis
         private Vector3 RotateJoint2(Vector3 containerLocalDir)
         {
             var transformRight = transform.right;
@@ -85,6 +95,7 @@ namespace UniversalJointCheck.MachineModel
             return transformRight;
         }
 
+        // NOTE: Joint3 rotates around the Y-axis
         private (Vector3, Vector3) RotateJoint3(Vector3 containerLocalDir)
         {
             var joint2BackDir = -_joint2.forward;
@@ -98,10 +109,16 @@ namespace UniversalJointCheck.MachineModel
             return (joint2BackDir, joint2UpDir);
         }
 
-        private void RotateJoint1(Vector3 intersectionPoint)
+        // NOTE: Joint4 rotates around the Y-axis
+        private void RotateJoint4()
         {
-            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
-            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
+            var joint3LocalRot = _joint3.localRotation;
+            _joint4.localRotation = Quaternion.Euler(0f, -joint3LocalRot.eulerAngles.y, 0f);
+        }
+
+        // NOTE: Joint4 rotates around the X-axis
+        private void RotateJoint5()
+        {
         }
 
         void OnDrawGizmos()
