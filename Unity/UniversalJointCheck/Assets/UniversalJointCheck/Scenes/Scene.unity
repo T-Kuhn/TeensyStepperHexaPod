@@ -278,8 +278,8 @@ MonoBehaviour:
   _joint5: {fileID: 1449294037}
   _joint1Tip: {fileID: 1448959913}
   _useSecondSolution: 0
-  _showJoin2Gizmos: 1
-  _showJoin3Gizmos: 1
+  _showJoin2Gizmos: 0
+  _showJoin3Gizmos: 0
   _debugLog: 0
 --- !u!1 &705507993
 GameObject:

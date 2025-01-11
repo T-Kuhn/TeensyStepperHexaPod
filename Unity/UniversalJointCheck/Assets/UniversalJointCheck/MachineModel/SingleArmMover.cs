@@ -19,6 +19,7 @@ namespace UniversalJointCheck.MachineModel
         [SerializeField] private bool _useSecondSolution;
         [SerializeField] private bool _showJoin2Gizmos;
         [SerializeField] private bool _showJoin3Gizmos;
+        [SerializeField] private bool _showJoin4Gizmos;
         [SerializeField] private bool _debugLog;
 
         private Vector3 _worldLink2Dir;
@@ -29,7 +30,8 @@ namespace UniversalJointCheck.MachineModel
 
         void Update()
         {
-            var localTarget = transform.InverseTransformPoint(_target.position);
+            var realTarget = _target.position - Vector3.up * 0.02f;
+            var localTarget = transform.InverseTransformPoint(realTarget);
 
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
@@ -52,6 +54,7 @@ namespace UniversalJointCheck.MachineModel
             var transformRight = RotateJoint2(containerLocalDir);
             var (joint2BackDir, joint2UpDir) = RotateJoint3(containerLocalDir);
             RotateJoint4();
+            RotateJoint5();
 
             UpdateGizmoData(worldLink2Dir, transformRight, joint2BackDir, joint2UpDir);
         }
@@ -119,6 +122,10 @@ namespace UniversalJointCheck.MachineModel
         // NOTE: Joint4 rotates around the X-axis
         private void RotateJoint5()
         {
+            var joint4BackDir = -_joint4.forward;
+            var worldUp = Vector3.up;
+            var angle = Vector3.SignedAngle(joint4BackDir, worldUp, _joint4.right);
+            _joint5.localRotation = Quaternion.Euler(angle, 0f, 0f);
         }
 
         void OnDrawGizmos()
@@ -126,13 +133,25 @@ namespace UniversalJointCheck.MachineModel
             DrawLink2DirGizmos();
             DrawJoint2Gizmos();
             DrawJoint3Gizmos();
+            DrawJoint4Gizmos();
         }
+
 
         private void DrawLink2DirGizmos()
         {
             Gizmos.color = Color.green;
             var origin = _joint2.position;
             var target = origin + _worldLink2Dir * 0.1f;
+            Gizmos.DrawLine(origin, target);
+        }
+
+        private void DrawJoint2Gizmos()
+        {
+            if (!_showJoin2Gizmos) return;
+
+            Gizmos.color = Color.blue;
+            var origin = _joint2.position;
+            var target = origin + _transformRight * 0.1f;
             Gizmos.DrawLine(origin, target);
         }
 
@@ -155,13 +174,13 @@ namespace UniversalJointCheck.MachineModel
             }
         }
 
-        private void DrawJoint2Gizmos()
+        private void DrawJoint4Gizmos()
         {
-            if (!_showJoin2Gizmos) return;
-
-            Gizmos.color = Color.blue;
-            var origin = _joint2.position;
-            var target = origin + _transformRight * 0.1f;
+            if (!_showJoin4Gizmos) return;
+            
+            Gizmos.color = Color.green;
+            var origin = _joint4.position;
+            var target = origin - _joint4.forward * 0.1f;
             Gizmos.DrawLine(origin, target);
         }
     }
