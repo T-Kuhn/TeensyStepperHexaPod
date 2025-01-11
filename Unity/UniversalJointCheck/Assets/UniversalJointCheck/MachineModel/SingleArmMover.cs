@@ -136,7 +136,6 @@ namespace UniversalJointCheck.MachineModel
             DrawJoint4Gizmos();
         }
 
-
         private void DrawLink2DirGizmos()
         {
             Gizmos.color = Color.green;
@@ -177,7 +176,7 @@ namespace UniversalJointCheck.MachineModel
         private void DrawJoint4Gizmos()
         {
             if (!_showJoin4Gizmos) return;
-            
+
             Gizmos.color = Color.green;
             var origin = _joint4.position;
             var target = origin - _joint4.forward * 0.1f;
