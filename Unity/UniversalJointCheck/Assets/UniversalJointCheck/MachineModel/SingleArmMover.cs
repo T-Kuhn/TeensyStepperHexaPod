@@ -28,6 +28,8 @@ namespace UniversalJointCheck.MachineModel
         private Vector3 _joint2BackDir;
         private Vector3 _joint2UpDir;
 
+        public void SetupTargetRef(Transform target) => _target = target;
+
         void Update()
         {
             var realTarget = _target.position - Vector3.up * 0.02f;
