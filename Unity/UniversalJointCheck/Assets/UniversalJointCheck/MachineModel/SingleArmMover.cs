@@ -29,6 +29,8 @@ namespace UniversalJointCheck.MachineModel
         private Vector3 _joint2UpDir;
 
         public void SetupTargetRef(Transform target) => _target = target;
+        
+        public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
 
         void Update()
         {

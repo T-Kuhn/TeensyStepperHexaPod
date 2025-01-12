@@ -18,3 +18,6 @@
 //   - u-joint. The UJ-Table
 //   - hexapod. The Hexa Bot.
 
+// Thing to check:
+// - Wouldn't it also work if the 6 arms were placed one at a time at 60deg intervals instead of pairwise in 120deg intervals?
+

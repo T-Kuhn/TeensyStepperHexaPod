@@ -445,10 +445,10 @@ MonoBehaviour:
   _singleArmPrefab: {fileID: 7589448562700065535, guid: dc27176599d2fdf4ba6b012ae4dd1bda, type: 3}
   _targetPrefab: {fileID: 6219973025524430872, guid: 25fd268e02c585141990530602273c9f, type: 3}
   _hexaPlate: {fileID: 3488597009604858441}
-  _distanceFromCenterMotorPairs: 0.15
-  _distanceFromCenterTargetPairs: 0.15
-  _distanceApartMotorPairs: 0.1
-  _distanceApartTargetPairs: 0.1
+  _distanceFromCenterMotorPairs: 0.125
+  _distanceFromCenterTargetPairs: 0.125
+  _distanceApartMotorPairs: 0.05
+  _distanceApartTargetPairs: 0.025
 --- !u!4 &2070707864 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6219973025524430869, guid: 25fd268e02c585141990530602273c9f, type: 3}
