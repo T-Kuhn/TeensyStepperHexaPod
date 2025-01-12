@@ -4,10 +4,10 @@
 // - [X] make our current arm work no matter where it is placed
 // - [X] would be nice if we had gizmo lines for all joints maybe?
 // - [X] also make upper joint move (keep this one parallel to floor)
-// - [ ] automatically instanciate arms at sensible positions
-//     - [ ] instantiate end effector platform on play
-//     - [ ] instantiate 6 arms on play (setup target positions inside end effector platform)
-//     - [ ] parameters for easy experimentation:
+// - [X] automatically instanciate arms at sensible positions
+//     - [X] instantiate end effector platform on play
+//     - [X] instantiate 6 arms on play (setup target positions inside end effector platform)
+//     - [X] parameters for easy experimentation:
 //           - distance from center for motors pairs at midpoint
 //           - distance apart of motor pair
 //           - distance from center for target pairs below endeffector at midpoint
