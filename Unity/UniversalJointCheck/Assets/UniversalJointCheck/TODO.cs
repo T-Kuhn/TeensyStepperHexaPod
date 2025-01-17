@@ -13,13 +13,15 @@
 //           - distance from center for target pairs below endeffector at midpoint
 //           - distance apart of target pair
 // - [ ] add some sort of animation for end effector platform
-//     - [ ] moving up and down
-//     - [ ] moving left and right
-//     - [ ] moving forward and backward
+//     - [X] moving up and down
+//     - [X] moving left and right
+//     - [X] moving forward and backward
 //     - [ ] tilting around the X-Axis
 //     - [ ] tilting around the Z-Axis
 //     - [ ] circling (position)
 //     - [ ] circling (tilt)
+//     - [ ] moving up and down at left/right/front/back position
+// - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
 // - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] iterate on arm design based on what we'll see in the simulated machine
 // - [ ] Need a name for the thing. Some ideas:
