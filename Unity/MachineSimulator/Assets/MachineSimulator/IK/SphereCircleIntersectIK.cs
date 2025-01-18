@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UniversalJointCheck.Ik
+namespace MachineSimulator.Ik
 {
     public static class SphereCircleIntersectIK
     {

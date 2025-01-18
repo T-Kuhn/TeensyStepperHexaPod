@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace UniversalJointCheck.MachineModel
+namespace MachineSimulator.MachineModel
 {
     public sealed class HexaplateMover : MonoBehaviour
     {
