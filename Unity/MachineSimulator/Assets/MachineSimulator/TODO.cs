@@ -16,14 +16,16 @@
 //     - [X] moving up and down
 //     - [X] moving left and right
 //     - [X] moving forward and backward
-//     - [ ] tilting around the X-Axis
+//     - [X] circling (position)
+//     - [X] circling + up/down (position)
+//     - [X] tilting around the X-Axis
 //     - [ ] tilting around the Z-Axis
-//     - [ ] circling (position)
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
 // - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
 // - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] iterate on arm design based on what we'll see in the simulated machine
+// - [ ] maybe switch project to the High Definition Render Pipeline (HDRP) with demo scene as base for better visual look
 // - [ ] Need a name for the thing. Some ideas:
 //   - u-joint. The UJ-Table
 //   - hexapod. The Hexa Bot.
