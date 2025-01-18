@@ -57,7 +57,7 @@ namespace UniversalJointCheck.MachineModel
         private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition)
         {
             var target = Instantiate(_targetPrefab);
-            target.transform.position = targetPosition + Vector3.up * 0.2f;
+            target.transform.position = targetPosition + Vector3.up * 0.15f;
             target.transform.parent = _hexaPlate.transform;
             arm.SetupTargetRef(target.transform);
         }
