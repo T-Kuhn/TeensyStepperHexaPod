@@ -568,6 +568,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Hexaplate
       objectReference: {fileID: 0}
+    - target: {fileID: 6398719974125399676, guid: 26ed9cc647b3c084aa6b3411e94922be, type: 3}
+      propertyPath: CurrentStrategy
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 6525438491747904202, guid: 26ed9cc647b3c084aa6b3411e94922be, type: 3}
       propertyPath: m_RootOrder
       value: 5

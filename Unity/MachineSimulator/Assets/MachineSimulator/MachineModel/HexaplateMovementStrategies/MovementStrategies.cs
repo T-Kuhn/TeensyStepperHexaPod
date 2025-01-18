@@ -8,7 +8,8 @@ namespace MachineSimulator.MachineModel
         BackForth,
         LeftRight,
         MoveInCircle,
-        MoveInCircleCombinedWithUpDown
+        MoveInCircleCombinedWithUpDown,
+        TiltArountX
     }
 
     public sealed class UpDownStrategy : IHexaplateMovementStrategy
@@ -56,6 +57,15 @@ namespace MachineSimulator.MachineModel
             var x = Mathf.Sin(time) * 0.05f;
             var z = Mathf.Cos(time) * 0.05f;
             return (new Vector3(x, height, z), Quaternion.identity);
+        }
+    }
+
+    public sealed class TiltAroundXStrategy : IHexaplateMovementStrategy
+    {
+        public (Vector3 Position, Quaternion Rotation) Move(float time)
+        {
+            var tilt = Mathf.Sin(time) * 15f;
+            return (Vector3.zero, Quaternion.Euler(tilt, 0, 0));
         }
     }
 }

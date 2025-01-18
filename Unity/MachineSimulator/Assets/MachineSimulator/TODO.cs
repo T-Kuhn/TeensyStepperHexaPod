@@ -18,7 +18,7 @@
 //     - [X] moving forward and backward
 //     - [X] circling (position)
 //     - [X] circling + up/down (position)
-//     - [ ] tilting around the X-Axis
+//     - [X] tilting around the X-Axis
 //     - [ ] tilting around the Z-Axis
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
