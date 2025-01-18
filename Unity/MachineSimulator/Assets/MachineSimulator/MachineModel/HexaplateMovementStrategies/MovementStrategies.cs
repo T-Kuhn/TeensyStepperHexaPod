@@ -36,14 +36,14 @@ namespace MachineSimulator.MachineModel
             return (new Vector3(offset, 0, 0), Quaternion.identity);
         }
     }
-    
+
     public sealed class MoveInCircleStrategy : IHexaplateMovementStrategy
+    {
+        public (Vector3 Position, Quaternion Rotation) Move(float time)
         {
-            public (Vector3 Position, Quaternion Rotation) Move(float time)
-            {
-                var x = Mathf.Sin(time) * 0.1f;
-                var z = Mathf.Cos(time) * 0.1f;
-                return (new Vector3(x, 0, z), Quaternion.identity);
-            }
+            var x = Mathf.Sin(time) * 0.1f;
+            var z = Mathf.Cos(time) * 0.1f;
+            return (new Vector3(x, 0, z), Quaternion.identity);
         }
+    }
 }
