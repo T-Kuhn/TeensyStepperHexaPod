@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UniversalJointCheck.Ik
+namespace MachineSimulator.Ik
 {
     public class IkTest : MonoBehaviour
     {

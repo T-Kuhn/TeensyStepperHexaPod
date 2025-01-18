@@ -1,7 +1,7 @@
-using UniversalJointCheck.Ik;
+using MachineSimulator.Ik;
 using UnityEngine;
 
-namespace UniversalJointCheck.MachineModel
+namespace MachineSimulator.MachineModel
 {
     public class SingleArmMover : MonoBehaviour
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace UniversalJointCheck.MachineModel
+namespace MachineSimulator.MachineModel
 {
     public interface IHexaplateMovementStrategy
     {
