@@ -34,7 +34,7 @@ namespace MachineSimulator.MachineModel
 
         void Update()
         {
-            var realTarget = _target.position - Vector3.up * 0.02f;
+            var realTarget = _target.position - Vector3.up * 0.03f;
             var localTarget = transform.InverseTransformPoint(realTarget);
 
             var ikResult = SphereCircleIntersectIK.Solve(

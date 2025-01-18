@@ -16,9 +16,10 @@
 //     - [X] moving up and down
 //     - [X] moving left and right
 //     - [X] moving forward and backward
+//     - [X] circling (position)
+//     - [X] circling + up/down (position)
 //     - [ ] tilting around the X-Axis
 //     - [ ] tilting around the Z-Axis
-//     - [ ] circling (position)
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
 // - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
