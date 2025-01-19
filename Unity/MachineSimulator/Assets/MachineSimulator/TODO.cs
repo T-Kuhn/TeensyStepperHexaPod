@@ -22,6 +22,10 @@
 //     - [ ] tilting around the Z-Axis
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
+// - [ ] Fix joints-can't-handle-tilt-problem (need more degrees of freedom for top most joint)
+//     - it seems like turning the top U-joint by 90/45 degrees and adding a single rotating joint along the direction of the
+//       connection should solve our issue.
+// - [ ] Fix last joint not rotating together with tilted platform problem
 // - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
 // - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] iterate on arm design based on what we'll see in the simulated machine
