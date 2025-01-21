@@ -21,12 +21,18 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private bool _showJoin3Gizmos;
         [SerializeField] private bool _showJoin4Gizmos;
         [SerializeField] private bool _debugLog;
+        [SerializeField] private bool _showDebugGizmos;
 
         private Vector3 _worldLink2Dir;
 
         private Vector3 _transformRight;
         private Vector3 _joint2BackDir;
         private Vector3 _joint2UpDir;
+
+        // NOTE: For debugging
+        private (Vector3 Origin, Vector3 Dir) _greenDebugGizmoLine;
+        private (Vector3 Origin, Vector3 Dir) _redDebugGizmoLine;
+        private (Vector3 Origin, Vector3 Dir) _blueDebugGizmoLineThree;
 
         public void SetupTargetRef(Transform target) => _target = target;
 
@@ -119,17 +125,39 @@ namespace MachineSimulator.MachineModel
         // NOTE: Joint4 rotates around the Y-axis
         private void RotateJoint4()
         {
-            var joint3LocalRot = _joint3.localRotation;
-            _joint4.localRotation = Quaternion.Euler(0f, -joint3LocalRot.eulerAngles.y, 0f);
+            var joint3ForwardDir = -_joint3.forward;
+            // var origin = _joint4.position;
+            // _greenDebugGizmoLine = (origin, joint3ForwardDir);
+
+            var _viewContainerForward = _viewContainer.right;
+            // _redDebugGizmoLine = (origin, _viewContainerForward);
+
+            var joint3UpDir = _joint4.up;
+            // _blueDebugGizmoLineThree = (origin, joint3UpDir);
+
+            var angle = Vector3.SignedAngle(joint3ForwardDir, _viewContainerForward, joint3UpDir);
+
+            _joint4.localRotation = Quaternion.Euler(0f, angle, 0f);
         }
 
         // NOTE: Joint4 rotates around the X-axis
         private void RotateJoint5()
         {
+            // NOTE: This joint will rotate accoring to targetRotation
+            var joint3ForwardDir = -_joint4.forward;
+            var origin = _joint4.position;
+            _greenDebugGizmoLine = (origin, joint3ForwardDir);
+
+            var _viewContainerForward = _viewContainer.right;
+            // _redDebugGizmoLine = (origin, _viewContainerForward);
+
+            var joint3UpDir = _joint4.up;
+            // _blueDebugGizmoLineThree = (origin, joint3UpDir);
+
             var joint4BackDir = -_joint4.forward;
             var worldUp = Vector3.up;
             var angle = Vector3.SignedAngle(joint4BackDir, worldUp, _joint4.right);
-            _joint5.localRotation = Quaternion.Euler(angle, 0f, 0f);
+            _joint5.localRotation = Quaternion.Euler(0f, 0f, 0f);
         }
 
         void OnDrawGizmos()
@@ -138,6 +166,7 @@ namespace MachineSimulator.MachineModel
             DrawJoint2Gizmos();
             DrawJoint3Gizmos();
             DrawJoint4Gizmos();
+            DrawDebugGizmoLines();
         }
 
         private void DrawLink2DirGizmos()
@@ -185,6 +214,30 @@ namespace MachineSimulator.MachineModel
             var origin = _joint4.position;
             var target = origin - _joint4.forward * 0.1f;
             Gizmos.DrawLine(origin, target);
+        }
+
+        private void DrawDebugGizmoLines()
+        {
+            if (!_showDebugGizmos) return;
+
+            {
+                Gizmos.color = Color.green;
+                var (origin, dir) = _greenDebugGizmoLine;
+                var target = origin + dir * 0.1f;
+                Gizmos.DrawLine(origin, target);
+            }
+            {
+                Gizmos.color = Color.red;
+                var (origin, dir) = _redDebugGizmoLine;
+                var target = origin + dir * 0.1f;
+                Gizmos.DrawLine(origin, target);
+            }
+            {
+                Gizmos.color = Color.blue;
+                var (origin, dir) = _blueDebugGizmoLineThree;
+                var target = origin + dir * 0.1f;
+                Gizmos.DrawLine(origin, target);
+            }
         }
     }
 }
