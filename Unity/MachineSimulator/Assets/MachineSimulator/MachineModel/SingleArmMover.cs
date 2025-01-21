@@ -143,7 +143,7 @@ namespace MachineSimulator.MachineModel
         // NOTE: Joint4 rotates around the X-axis
         private void RotateJoint5()
         {
-            // NOTE: This joint will rotate accoring to targetRotation
+            // NOTE: This joint will rotate accoring to hexaplate rotation to make sure we can handle the tilt!
             var joint3ForwardDir = -_joint4.forward;
             var origin = _joint4.position;
             _greenDebugGizmoLine = (origin, joint3ForwardDir);
