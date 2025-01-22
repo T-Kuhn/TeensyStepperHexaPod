@@ -1,5 +1,6 @@
 using MachineSimulator.Ik;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace MachineSimulator.MachineModel
 {
@@ -17,17 +18,10 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private Transform _joint1Tip;
 
         [SerializeField] private bool _useSecondSolution;
-        [SerializeField] private bool _showJoin2Gizmos;
-        [SerializeField] private bool _showJoin3Gizmos;
-        [SerializeField] private bool _showJoin4Gizmos;
-        [SerializeField] private bool _debugLog;
+        [SerializeField] private bool _showDebugLog;
         [SerializeField] private bool _showDebugGizmos;
 
         private Vector3 _worldLink2Dir;
-
-        private Vector3 _transformRight;
-        private Vector3 _joint2BackDir;
-        private Vector3 _joint2UpDir;
 
         // NOTE: For debugging
         private (Vector3 Origin, Vector3 Dir) _greenDebugGizmoLine;
@@ -53,7 +47,7 @@ namespace MachineSimulator.MachineModel
 
             var intersectionPoint = _useSecondSolution ? ikResult.P2 : ikResult.P1;
 
-            if (_debugLog)
+            if (_showDebugLog)
             {
                 Debug.Log("frame: " + Time.frameCount + "  localTarget: " + localTarget + "  intersectionPoint: " + intersectionPoint);
             }
@@ -61,20 +55,17 @@ namespace MachineSimulator.MachineModel
             RotateJoint1(intersectionPoint);
             var worldLink2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint, localTarget);
             var containerLocalDir = _viewContainer.InverseTransformDirection(worldLink2Dir);
-            var transformRight = RotateJoint2(containerLocalDir);
-            var (joint2BackDir, joint2UpDir) = RotateJoint3(containerLocalDir);
+            RotateJoint2(containerLocalDir);
+            RotateJoint3(containerLocalDir);
             RotateJoint4();
             RotateJoint5();
 
-            UpdateGizmoData(worldLink2Dir, transformRight, joint2BackDir, joint2UpDir);
+            UpdateGizmoData(worldLink2Dir);
         }
 
-        private void UpdateGizmoData(Vector3 worldLink2Dir, Vector3 transformRight, Vector3 joint2BackDir, Vector3 joint2UpDir)
+        private void UpdateGizmoData(Vector3 worldLink2Dir)
         {
             _worldLink2Dir = worldLink2Dir;
-            _transformRight = transformRight;
-            _joint2BackDir = joint2BackDir;
-            _joint2UpDir = joint2UpDir;
         }
 
         private Vector3 MoveLink2ToJoint1TipAndGetLink2Dir(Vector3 intersectionPoint, Vector3 localTarget)
@@ -96,30 +87,21 @@ namespace MachineSimulator.MachineModel
         }
 
         // NOTE: Joint2 rotates around the X-axis
-        private Vector3 RotateJoint2(Vector3 containerLocalDir)
+        private void RotateJoint2(Vector3 containerLocalDir)
         {
-            var transformRight = transform.right;
-
             var containerLocalDirInXPlaneOnly = new Vector3(0f, containerLocalDir.y, containerLocalDir.z).normalized;
-            var containerLocalRight = _viewContainer.InverseTransformDirection(_transformRight);
+            var containerLocalRight = _viewContainer.InverseTransformDirection(transform.right);
             var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
             _joint2.localRotation = Quaternion.Euler(angle, 0f, 0f);
-
-            return transformRight;
         }
 
         // NOTE: Joint3 rotates around the Y-axis
-        private (Vector3, Vector3) RotateJoint3(Vector3 containerLocalDir)
+        private void RotateJoint3(Vector3 containerLocalDir)
         {
-            var joint2BackDir = -_joint2.forward;
-            var joint2UpDir = _joint2.up;
-
-            var localJoint2ForwardDir = _viewContainer.InverseTransformDirection(joint2BackDir);
-            var localJoint2UpDir = _viewContainer.InverseTransformDirection(joint2UpDir);
+            var localJoint2ForwardDir = _viewContainer.InverseTransformDirection(-_joint2.forward);
+            var localJoint2UpDir = _viewContainer.InverseTransformDirection(_joint2.up);
             var angle = Vector3.SignedAngle(localJoint2ForwardDir, containerLocalDir, localJoint2UpDir);
             _joint3.localRotation = Quaternion.Euler(0f, angle, 0f);
-
-            return (joint2BackDir, joint2UpDir);
         }
 
         // NOTE: Joint4 rotates around the Y-axis
@@ -163,9 +145,6 @@ namespace MachineSimulator.MachineModel
         void OnDrawGizmos()
         {
             DrawLink2DirGizmos();
-            DrawJoint2Gizmos();
-            DrawJoint3Gizmos();
-            DrawJoint4Gizmos();
             DrawDebugGizmoLines();
         }
 
@@ -174,45 +153,6 @@ namespace MachineSimulator.MachineModel
             Gizmos.color = Color.green;
             var origin = _joint2.position;
             var target = origin + _worldLink2Dir * 0.1f;
-            Gizmos.DrawLine(origin, target);
-        }
-
-        private void DrawJoint2Gizmos()
-        {
-            if (!_showJoin2Gizmos) return;
-
-            Gizmos.color = Color.blue;
-            var origin = _joint2.position;
-            var target = origin + _transformRight * 0.1f;
-            Gizmos.DrawLine(origin, target);
-        }
-
-        private void DrawJoint3Gizmos()
-        {
-            if (!_showJoin3Gizmos) return;
-
-            {
-                Gizmos.color = Color.red;
-                var origin = _joint2.position;
-                var target = origin + _joint2BackDir * 0.1f;
-                Gizmos.DrawLine(origin, target);
-            }
-
-            {
-                Gizmos.color = Color.yellow;
-                var origin = _joint2.position;
-                var target = origin + _joint2UpDir * 0.1f;
-                Gizmos.DrawLine(origin, target);
-            }
-        }
-
-        private void DrawJoint4Gizmos()
-        {
-            if (!_showJoin4Gizmos) return;
-
-            Gizmos.color = Color.green;
-            var origin = _joint4.position;
-            var target = origin - _joint4.forward * 0.1f;
             Gizmos.DrawLine(origin, target);
         }
 
