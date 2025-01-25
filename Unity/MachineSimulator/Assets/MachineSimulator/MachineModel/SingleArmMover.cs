@@ -1,6 +1,5 @@
 using MachineSimulator.Ik;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace MachineSimulator.MachineModel
 {
@@ -21,7 +20,9 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private bool _showDebugLog;
         [SerializeField] private bool _showDebugGizmos;
 
+        // NOTE: For debugging
         private Vector3 _worldLink2Dir;
+        private Vector3 _realTarget;
 
         // NOTE: For debugging
         private (Vector3 Origin, Vector3 Dir) _greenDebugGizmoLine;
@@ -34,7 +35,8 @@ namespace MachineSimulator.MachineModel
 
         void Update()
         {
-            var realTarget = _target.position - Vector3.up * 0.03f;
+            var worldOffsetDir = transform.TransformDirection(Vector3.forward);
+            var realTarget = _target.position - worldOffsetDir * 0.02f;
             var localTarget = transform.InverseTransformPoint(realTarget);
 
             var ikResult = SphereCircleIntersectIK.Solve(
@@ -60,12 +62,13 @@ namespace MachineSimulator.MachineModel
             RotateJoint4();
             RotateJoint5();
 
-            UpdateGizmoData(worldLink2Dir);
+            UpdateGizmoData(worldLink2Dir, realTarget);
         }
 
-        private void UpdateGizmoData(Vector3 worldLink2Dir)
+        private void UpdateGizmoData(Vector3 worldLink2Dir, Vector3 realTarget)
         {
             _worldLink2Dir = worldLink2Dir;
+            _realTarget = realTarget;
         }
 
         private Vector3 MoveLink2ToJoint1TipAndGetLink2Dir(Vector3 intersectionPoint, Vector3 localTarget)
@@ -145,7 +148,14 @@ namespace MachineSimulator.MachineModel
         void OnDrawGizmos()
         {
             DrawLink2DirGizmos();
+            DrawRealTargetGizmos();
             DrawDebugGizmoLines();
+        }
+
+        private void DrawRealTargetGizmos()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(_realTarget, 0.001f);
         }
 
         private void DrawLink2DirGizmos()
