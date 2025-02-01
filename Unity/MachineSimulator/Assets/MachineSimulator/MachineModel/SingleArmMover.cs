@@ -111,17 +111,19 @@ namespace MachineSimulator.MachineModel
         private void RotateJoint4()
         {
             var joint3ForwardDir = -_joint3.forward;
-            // var origin = _joint4.position;
-            // _greenDebugGizmoLine = (origin, joint3ForwardDir);
-
             var _viewContainerForward = _viewContainer.right;
-            // _redDebugGizmoLine = (origin, _viewContainerForward);
-
             var joint3UpDir = _joint4.up;
-            // _blueDebugGizmoLineThree = (origin, joint3UpDir);
+
+            /*
+            SetupDebugGizmoData(
+                origin: _joint4.position,
+                greenDir: joint3ForwardDir,
+                redDir: _viewContainerForward,
+                blueDir: joint3UpDir
+            );
+            */
 
             var angle = Vector3.SignedAngle(joint3ForwardDir, _viewContainerForward, joint3UpDir);
-
             _joint4.localRotation = Quaternion.Euler(0f, angle, 0f);
         }
 
@@ -131,7 +133,7 @@ namespace MachineSimulator.MachineModel
             // NOTE: This joint will rotate accoring to hexaplate rotation to make sure we can handle the tilt!
             var joint3ForwardDir = -_joint4.forward;
             var origin = _joint4.position;
-            _greenDebugGizmoLine = (origin, joint3ForwardDir);
+            // _greenDebugGizmoLine = (origin, joint3ForwardDir);
 
             var _viewContainerForward = _viewContainer.right;
             // _redDebugGizmoLine = (origin, _viewContainerForward);
@@ -143,6 +145,13 @@ namespace MachineSimulator.MachineModel
             var worldUp = Vector3.up;
             var angle = Vector3.SignedAngle(joint4BackDir, worldUp, _joint4.right);
             _joint5.localRotation = Quaternion.Euler(0f, 0f, 0f);
+        }
+
+        private void SetupDebugGizmoData(Vector3 origin, Vector3 greenDir, Vector3 redDir, Vector3 blueDir)
+        {
+            _greenDebugGizmoLine = (origin, greenDir);
+            _redDebugGizmoLine = (origin, redDir);
+            _blueDebugGizmoLineThree = (origin, blueDir);
         }
 
         void OnDrawGizmos()

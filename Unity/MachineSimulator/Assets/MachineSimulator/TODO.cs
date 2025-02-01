@@ -23,6 +23,7 @@
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
 // - [ ] Fix joints-can't-handle-tilt-problem (need more degrees of freedom for top most joint)
+//     - [X] add that debugGizmo method -> (origin, redDir, greenDir, blueDir)
 //     - [ ] pass in end effector (hexaplate) tilt
 //     - [ ] FirtStep: Calculate correct realTarget according to tilt
 //     - [ ] SecondStep: Calculate correct joint angles for joints 4 and 5 according to endEffector tilt
