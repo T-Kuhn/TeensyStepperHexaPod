@@ -12,6 +12,12 @@
 //           - distance apart of motor pair
 //           - distance from center for target pairs below endeffector at midpoint
 //           - distance apart of target pair
+// - [X] Fix joints-can't-handle-tilt-problem (need more degrees of freedom for top most joint)
+//     - [X] add that debugGizmo method -> (origin, redDir, greenDir, blueDir)
+//     - [X] pass in end effector (hexaplate) tilt
+//     - [X] FirtStep: Calculate correct realTarget according to tilt
+//     - [X] SecondStep: Calculate correct joint angles for joints 4 and 5 according to endEffector tilt
+// - [X] Fix last joint not rotating together with tilted platform problem
 // - [ ] add some sort of animation for end effector platform
 //     - [X] moving up and down
 //     - [X] moving left and right
@@ -22,9 +28,9 @@
 //     - [ ] tilting around the Z-Axis
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
-// - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
 // - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] iterate on arm design based on what we'll see in the simulated machine
+// - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
 // - [ ] maybe switch project to the High Definition Render Pipeline (HDRP) with demo scene as base for better visual look
 // - [ ] Need a name for the thing. Some ideas:
 //   - u-joint. The UJ-Table

@@ -41,8 +41,9 @@ namespace MachineSimulator.MachineModel
                 var centerPosition = dir * _distanceFromCenterMotorPairs;
                 var leftPosition = centerPosition + leftDir * _distanceApartMotorPairs;
                 var rightPosition = centerPosition + rightDir * _distanceApartMotorPairs;
-                var leftTargetPosition = centerPosition + leftDir * _distanceApartTargetPairs;
-                var rightTargetPosition = centerPosition + rightDir * _distanceApartTargetPairs;
+                var targetCenterPosition = dir * _distanceFromCenterTargetPairs;
+                var leftTargetPosition = targetCenterPosition+ leftDir * _distanceApartTargetPairs;
+                var rightTargetPosition = targetCenterPosition+ rightDir * _distanceApartTargetPairs;
 
                 var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true);
                 InstantiateTarget(leftArm, leftTargetPosition);
@@ -57,9 +58,10 @@ namespace MachineSimulator.MachineModel
         private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition)
         {
             var target = Instantiate(_targetPrefab);
-            target.transform.position = targetPosition + Vector3.up * 0.15f;
+            target.transform.position = targetPosition + Vector3.up * 0.14f;
             target.transform.parent = _hexaPlate.transform;
             arm.SetupTargetRef(target.transform);
+            arm.SetupCenterRef(_hexaPlate.transform);
         }
 
         private SingleArmMover InstantiateArm(Vector3 position, Quaternion quaternion, string name, bool useSecondSolution)
