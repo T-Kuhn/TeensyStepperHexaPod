@@ -41,8 +41,9 @@ namespace MachineSimulator.MachineModel
                 var centerPosition = dir * _distanceFromCenterMotorPairs;
                 var leftPosition = centerPosition + leftDir * _distanceApartMotorPairs;
                 var rightPosition = centerPosition + rightDir * _distanceApartMotorPairs;
-                var leftTargetPosition = centerPosition + leftDir * _distanceApartTargetPairs;
-                var rightTargetPosition = centerPosition + rightDir * _distanceApartTargetPairs;
+                var targetCenterPosition = dir * _distanceFromCenterTargetPairs;
+                var leftTargetPosition = targetCenterPosition+ leftDir * _distanceApartTargetPairs;
+                var rightTargetPosition = targetCenterPosition+ rightDir * _distanceApartTargetPairs;
 
                 var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true);
                 InstantiateTarget(leftArm, leftTargetPosition);

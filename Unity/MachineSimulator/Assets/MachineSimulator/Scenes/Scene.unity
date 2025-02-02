@@ -613,6 +613,10 @@ PrefabInstance:
       propertyPath: _hexaPlate
       value: 
       objectReference: {fileID: 3488597009604858441}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _distanceFromCenterTargetPairs
+      value: 0.13
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
 --- !u!1001 &6219973027246458509

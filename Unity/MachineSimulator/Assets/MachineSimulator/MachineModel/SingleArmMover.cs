@@ -51,7 +51,6 @@ namespace MachineSimulator.MachineModel
                 blueDir: null
             );
             */
-
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
                 circleCenter: Vector3.zero,
@@ -143,21 +142,15 @@ namespace MachineSimulator.MachineModel
         // NOTE: Joint4 rotates around the X-axis
         private void RotateJoint5(Vector3 linkDir)
         {
-            // NOTE: This joint will rotate accoring to hexaplate rotation to make sure we can handle the tilt!
-            var joint3ForwardDir = -_joint4.forward;
-            var origin = _joint4.position;
-            var _viewContainerForward = _viewContainer.right;
-            var joint3UpDir = _joint4.up;
-            var joint4BackDir = -_joint4.forward;
-
+            /*
             SetupDebugGizmoData(
                 origin: _joint4.position,
                 greenDir: linkDir,
                 redDir: -_joint4.right,
                 blueDir: -_joint4.forward
             );
+            */
             var angle = -Vector3.SignedAngle(-_joint4.forward, linkDir, -_joint4.right);
-
             _joint5.localRotation = Quaternion.Euler(angle, 0f, 0f);
         }
 
