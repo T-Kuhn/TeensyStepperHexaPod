@@ -8,6 +8,8 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private Transform _viewContainer;
 
         [SerializeField] private Transform _target;
+        [SerializeField] private Transform _center;
+
         [SerializeField] private Transform _joint1;
         [SerializeField] private Transform _joint2;
         [SerializeField] private Transform _joint3;
@@ -30,13 +32,21 @@ namespace MachineSimulator.MachineModel
         private (Vector3 Origin, Vector3 Dir) _blueDebugGizmoLineThree;
 
         public void SetupTargetRef(Transform target) => _target = target;
+        public void SetupCenterRef(Transform centerRef) => _center = centerRef;
 
         public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
 
         void Update()
         {
             var worldOffsetDir = transform.TransformDirection(Vector3.forward);
-            var realTarget = _target.position - worldOffsetDir * 0.02f;
+            var rotatedWorldOffsetDir = _center.rotation * worldOffsetDir;
+            SetupDebugGizmoData(
+                origin: _target.position,
+                greenDir: worldOffsetDir,
+                redDir: rotatedWorldOffsetDir,
+                blueDir: Vector3.zero
+            );
+            var realTarget = _target.position - rotatedWorldOffsetDir * 0.02f;
             var localTarget = transform.InverseTransformPoint(realTarget);
 
             var ikResult = SphereCircleIntersectIK.Solve(

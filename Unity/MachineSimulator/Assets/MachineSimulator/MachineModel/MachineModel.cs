@@ -60,6 +60,7 @@ namespace MachineSimulator.MachineModel
             target.transform.position = targetPosition + Vector3.up * 0.15f;
             target.transform.parent = _hexaPlate.transform;
             arm.SetupTargetRef(target.transform);
+            arm.SetupCenterRef(_hexaPlate.transform);
         }
 
         private SingleArmMover InstantiateArm(Vector3 position, Quaternion quaternion, string name, bool useSecondSolution)
