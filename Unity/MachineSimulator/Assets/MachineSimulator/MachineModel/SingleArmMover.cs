@@ -40,14 +40,17 @@ namespace MachineSimulator.MachineModel
         {
             var worldOffsetDir = transform.TransformDirection(Vector3.forward);
             var rotatedWorldOffsetDir = _center.rotation * worldOffsetDir;
-            SetupDebugGizmoData(
-                origin: _target.position,
-                greenDir: worldOffsetDir,
-                redDir: rotatedWorldOffsetDir,
-                blueDir: Vector3.zero
-            );
             var realTarget = _target.position - rotatedWorldOffsetDir * 0.02f;
             var localTarget = transform.InverseTransformPoint(realTarget);
+            var realTargetToTarget = _target.position - realTarget;
+            /*
+            SetupDebugGizmoData(
+                origin: _target.position,
+                greenDir: -realTargetToTarget,
+                redDir: null,
+                blueDir: null
+            );
+            */
 
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
@@ -69,8 +72,8 @@ namespace MachineSimulator.MachineModel
             var containerLocalDir = _viewContainer.InverseTransformDirection(worldLink2Dir);
             RotateJoint2(containerLocalDir);
             RotateJoint3(containerLocalDir);
-            RotateJoint4();
-            RotateJoint5();
+            RotateJoint4(realTargetToTarget);
+            RotateJoint5(realTargetToTarget);
 
             UpdateGizmoData(worldLink2Dir, realTarget);
         }
@@ -118,50 +121,51 @@ namespace MachineSimulator.MachineModel
         }
 
         // NOTE: Joint4 rotates around the Y-axis
-        private void RotateJoint4()
+        private void RotateJoint4(Vector3 linkDir)
         {
             var joint3ForwardDir = -_joint3.forward;
             var _viewContainerForward = _viewContainer.right;
             var joint3UpDir = _joint4.up;
+            var projectedVector = Vector3.ProjectOnPlane(linkDir, _joint3.up);
+            var angle = Vector3.SignedAngle(joint3ForwardDir, projectedVector, _joint3.up);
 
             /*
             SetupDebugGizmoData(
                 origin: _joint4.position,
                 greenDir: joint3ForwardDir,
-                redDir: _viewContainerForward,
-                blueDir: joint3UpDir
+                redDir: projectedVector,
+                blueDir: _joint3.up
             );
             */
-
-            var angle = Vector3.SignedAngle(joint3ForwardDir, _viewContainerForward, joint3UpDir);
             _joint4.localRotation = Quaternion.Euler(0f, angle, 0f);
         }
 
         // NOTE: Joint4 rotates around the X-axis
-        private void RotateJoint5()
+        private void RotateJoint5(Vector3 linkDir)
         {
             // NOTE: This joint will rotate accoring to hexaplate rotation to make sure we can handle the tilt!
             var joint3ForwardDir = -_joint4.forward;
             var origin = _joint4.position;
-            // _greenDebugGizmoLine = (origin, joint3ForwardDir);
-
             var _viewContainerForward = _viewContainer.right;
-            // _redDebugGizmoLine = (origin, _viewContainerForward);
-
             var joint3UpDir = _joint4.up;
-            // _blueDebugGizmoLineThree = (origin, joint3UpDir);
-
             var joint4BackDir = -_joint4.forward;
-            var worldUp = Vector3.up;
-            var angle = Vector3.SignedAngle(joint4BackDir, worldUp, _joint4.right);
-            _joint5.localRotation = Quaternion.Euler(0f, 0f, 0f);
+
+            SetupDebugGizmoData(
+                origin: _joint4.position,
+                greenDir: linkDir,
+                redDir: -_joint4.right,
+                blueDir: -_joint4.forward
+            );
+            var angle = -Vector3.SignedAngle(-_joint4.forward, linkDir, -_joint4.right);
+
+            _joint5.localRotation = Quaternion.Euler(angle, 0f, 0f);
         }
 
-        private void SetupDebugGizmoData(Vector3 origin, Vector3 greenDir, Vector3 redDir, Vector3 blueDir)
+        private void SetupDebugGizmoData(Vector3 origin, Vector3? greenDir, Vector3? redDir, Vector3? blueDir)
         {
-            _greenDebugGizmoLine = (origin, greenDir);
-            _redDebugGizmoLine = (origin, redDir);
-            _blueDebugGizmoLineThree = (origin, blueDir);
+            _greenDebugGizmoLine = greenDir != null ? (origin, greenDir.Value) : _greenDebugGizmoLine;
+            _redDebugGizmoLine = redDir != null ? (origin, redDir.Value) : _redDebugGizmoLine;
+            _blueDebugGizmoLineThree = blueDir != null ? (origin, blueDir.Value) : _blueDebugGizmoLineThree;
         }
 
         void OnDrawGizmos()
@@ -192,19 +196,19 @@ namespace MachineSimulator.MachineModel
             {
                 Gizmos.color = Color.green;
                 var (origin, dir) = _greenDebugGizmoLine;
-                var target = origin + dir * 0.1f;
+                var target = origin + dir;
                 Gizmos.DrawLine(origin, target);
             }
             {
                 Gizmos.color = Color.red;
                 var (origin, dir) = _redDebugGizmoLine;
-                var target = origin + dir * 0.1f;
+                var target = origin + dir;
                 Gizmos.DrawLine(origin, target);
             }
             {
                 Gizmos.color = Color.blue;
                 var (origin, dir) = _blueDebugGizmoLineThree;
-                var target = origin + dir * 0.1f;
+                var target = origin + dir;
                 Gizmos.DrawLine(origin, target);
             }
         }
