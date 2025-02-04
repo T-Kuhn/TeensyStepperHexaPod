@@ -12,6 +12,7 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private float _distanceFromCenterTargetPairs;
         [SerializeField] private float _distanceApartMotorPairs;
         [SerializeField] private float _distanceApartTargetPairs;
+        [SerializeField] private float _downwardOffsetForTargetPairs;
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
@@ -58,7 +59,8 @@ namespace MachineSimulator.MachineModel
         private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition)
         {
             var target = Instantiate(_targetPrefab);
-            target.transform.position = targetPosition + Vector3.up * 0.14f;
+            var hexaPlateHeight = _hexaPlate.transform.position.y;
+            target.transform.position = targetPosition + (hexaPlateHeight - _downwardOffsetForTargetPairs) * Vector3.up;
             target.transform.parent = _hexaPlate.transform;
             arm.SetupTargetRef(target.transform);
             arm.SetupCenterRef(_hexaPlate.transform);

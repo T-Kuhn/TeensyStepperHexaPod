@@ -614,6 +614,14 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3488597009604858441}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _distanceFromCenterMotorPairs
+      value: 0.13
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _downwardOffsetForTargetPairs
+      value: 0.03
+      objectReference: {fileID: 0}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _distanceFromCenterTargetPairs
       value: 0.13
       objectReference: {fileID: 0}
