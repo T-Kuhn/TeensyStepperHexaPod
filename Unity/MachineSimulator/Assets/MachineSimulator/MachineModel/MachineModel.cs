@@ -4,7 +4,8 @@ namespace MachineSimulator.MachineModel
 {
     public class MachineModel : MonoBehaviour
     {
-        [SerializeField] private SingleArmMover _singleArmPrefab;
+        [SerializeField] private SingleArmMover _armLeftPrefab;
+        [SerializeField] private SingleArmMover _armRightPrefab;
         [SerializeField] private GameObject _targetPrefab;
         [SerializeField] private HexaplateMover _hexaPlatePrefab;
 
@@ -56,11 +57,11 @@ namespace MachineSimulator.MachineModel
                 var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
                 var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
-                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true);
+                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true, true);
                 InstantiateTarget(leftArm, leftTargetPosition);
                 _arms[armIndex++] = leftArm;
 
-                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false);
+                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false, false);
                 InstantiateTarget(rightArm, rightTargetPosition);
                 _arms[armIndex++] = rightArm;
             }
@@ -76,9 +77,14 @@ namespace MachineSimulator.MachineModel
             arm.SetupCenterRef(_hexaPlate.transform);
         }
 
-        private SingleArmMover InstantiateArm(Vector3 position, Quaternion quaternion, string name, bool useSecondSolution)
+        private SingleArmMover InstantiateArm(
+            Vector3 position,
+            Quaternion quaternion,
+            string name,
+            bool useSecondSolution,
+            bool isLeftArm)
         {
-            var arm = Instantiate(_singleArmPrefab, transform);
+            var arm = Instantiate(isLeftArm ? _armLeftPrefab : _armRightPrefab, transform);
             arm.SetupUseSecondSolution(useSecondSolution);
             arm.transform.localPosition = position;
             arm.transform.localRotation = quaternion;
