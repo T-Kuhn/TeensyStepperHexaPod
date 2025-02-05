@@ -6,8 +6,9 @@ namespace MachineSimulator.MachineModel
     {
         [SerializeField] private SingleArmMover _singleArmPrefab;
         [SerializeField] private GameObject _targetPrefab;
-        [SerializeField] private GameObject _hexaPlate;
+        [SerializeField] private HexaplateMover _hexaPlatePrefab;
 
+        [SerializeField] private float _hexaplateDefaultHeight;
         [SerializeField] private float _distanceFromCenterMotorPairs;
         [SerializeField] private float _distanceFromCenterTargetPairs;
         [SerializeField] private float _distanceApartMotorPairs;
@@ -16,6 +17,15 @@ namespace MachineSimulator.MachineModel
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
+        private HexaplateMover _hexaPlate;
+
+
+        private void Start()
+        {
+            _hexaPlate = Instantiate(_hexaPlatePrefab);
+            _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
+            _hexaPlate.transform.position = Vector3.up * _hexaplateDefaultHeight;
+        }
 
         private void Update()
         {
@@ -43,8 +53,8 @@ namespace MachineSimulator.MachineModel
                 var leftPosition = centerPosition + leftDir * _distanceApartMotorPairs;
                 var rightPosition = centerPosition + rightDir * _distanceApartMotorPairs;
                 var targetCenterPosition = dir * _distanceFromCenterTargetPairs;
-                var leftTargetPosition = targetCenterPosition+ leftDir * _distanceApartTargetPairs;
-                var rightTargetPosition = targetCenterPosition+ rightDir * _distanceApartTargetPairs;
+                var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
+                var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
                 var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true);
                 InstantiateTarget(leftArm, leftTargetPosition);

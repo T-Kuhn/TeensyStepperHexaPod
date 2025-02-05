@@ -2090,7 +2090,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7589448561818315105}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2187,7 +2187,7 @@ GameObject:
   - component: {fileID: 7589448562700065534}
   - component: {fileID: 7589448562700065535}
   m_Layer: 0
-  m_Name: SingleArm
+  m_Name: Arm v0.1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2223,6 +2223,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _viewContainer: {fileID: 4499565631484391989}
   _target: {fileID: 0}
+  _center: {fileID: 0}
   _joint1: {fileID: 7589448561818315038}
   _joint2: {fileID: 7589448562709430242}
   _joint3: {fileID: 7589448561338243343}
@@ -2230,10 +2231,9 @@ MonoBehaviour:
   _joint5: {fileID: 7589448561834233867}
   _joint1Tip: {fileID: 7589448561830770551}
   _useSecondSolution: 0
-  _showJoin2Gizmos: 0
-  _showJoin3Gizmos: 0
-  _showJoin4Gizmos: 0
-  _debugLog: 0
+  _showDebugLog: 0
+  _showDebugGizmos: 1
+  _finalJointOffset: 0.02
 --- !u!1 &7589448562709430245
 GameObject:
   m_ObjectHideFlags: 0

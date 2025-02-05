@@ -22,6 +22,8 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private bool _showDebugLog;
         [SerializeField] private bool _showDebugGizmos;
 
+        [SerializeField] private float _finalJointOffset;
+
         // NOTE: For debugging
         private Vector3 _worldLink2Dir;
         private Vector3 _realTarget;
@@ -40,7 +42,7 @@ namespace MachineSimulator.MachineModel
         {
             var worldOffsetDir = transform.TransformDirection(Vector3.forward);
             var rotatedWorldOffsetDir = _center.rotation * worldOffsetDir;
-            var realTarget = _target.position - rotatedWorldOffsetDir * 0.02f;
+            var realTarget = _target.position - rotatedWorldOffsetDir * _finalJointOffset;
             var localTarget = transform.InverseTransformPoint(realTarget);
             var realTargetToTarget = _target.position - realTarget;
             /*
@@ -54,8 +56,8 @@ namespace MachineSimulator.MachineModel
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
                 circleCenter: Vector3.zero,
-                sphereRadius: 0.124f,
-                circleRadius: 0.112f);
+                sphereRadius: Mathf.Abs(_joint4.localPosition.z),
+                circleRadius: Mathf.Abs(_joint1Tip.localPosition.z));
 
             if (!ikResult.Success) return;
 
@@ -106,7 +108,16 @@ namespace MachineSimulator.MachineModel
         {
             var containerLocalDirInXPlaneOnly = new Vector3(0f, containerLocalDir.y, containerLocalDir.z).normalized;
             var containerLocalRight = _viewContainer.InverseTransformDirection(transform.right);
-            var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, Vector3.forward);
+            var containerLocalForward = _viewContainer.InverseTransformDirection(transform.forward);
+            var angle = Vector3.SignedAngle(containerLocalRight, containerLocalDirInXPlaneOnly, containerLocalForward);
+            /*
+            SetupDebugGizmoData(
+                origin: _joint1Tip.position,
+                greenDir: _viewContainer.TransformDirection(containerLocalRight),
+                redDir: _viewContainer.TransformDirection(containerLocalDirInXPlaneOnly),
+                blueDir: _viewContainer.TransformDirection(containerLocalForward)
+            );
+            */
             _joint2.localRotation = Quaternion.Euler(angle, 0f, 0f);
         }
 
