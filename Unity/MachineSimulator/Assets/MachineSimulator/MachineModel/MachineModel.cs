@@ -4,17 +4,29 @@ namespace MachineSimulator.MachineModel
 {
     public class MachineModel : MonoBehaviour
     {
-        [SerializeField] private SingleArmMover _singleArmPrefab;
+        [SerializeField] private SingleArmMover _armLeftPrefab;
+        [SerializeField] private SingleArmMover _armRightPrefab;
         [SerializeField] private GameObject _targetPrefab;
-        [SerializeField] private GameObject _hexaPlate;
+        [SerializeField] private HexaplateMover _hexaPlatePrefab;
 
+        [SerializeField] private float _hexaplateDefaultHeight;
         [SerializeField] private float _distanceFromCenterMotorPairs;
         [SerializeField] private float _distanceFromCenterTargetPairs;
         [SerializeField] private float _distanceApartMotorPairs;
         [SerializeField] private float _distanceApartTargetPairs;
+        [SerializeField] private float _downwardOffsetForTargetPairs;
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
+        private HexaplateMover _hexaPlate;
+
+
+        private void Start()
+        {
+            _hexaPlate = Instantiate(_hexaPlatePrefab);
+            _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
+            _hexaPlate.transform.position = Vector3.up * _hexaplateDefaultHeight;
+        }
 
         private void Update()
         {
@@ -42,14 +54,14 @@ namespace MachineSimulator.MachineModel
                 var leftPosition = centerPosition + leftDir * _distanceApartMotorPairs;
                 var rightPosition = centerPosition + rightDir * _distanceApartMotorPairs;
                 var targetCenterPosition = dir * _distanceFromCenterTargetPairs;
-                var leftTargetPosition = targetCenterPosition+ leftDir * _distanceApartTargetPairs;
-                var rightTargetPosition = targetCenterPosition+ rightDir * _distanceApartTargetPairs;
+                var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
+                var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
-                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true);
+                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true, true);
                 InstantiateTarget(leftArm, leftTargetPosition);
                 _arms[armIndex++] = leftArm;
 
-                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false);
+                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false, false);
                 InstantiateTarget(rightArm, rightTargetPosition);
                 _arms[armIndex++] = rightArm;
             }
@@ -58,15 +70,21 @@ namespace MachineSimulator.MachineModel
         private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition)
         {
             var target = Instantiate(_targetPrefab);
-            target.transform.position = targetPosition + Vector3.up * 0.14f;
+            var hexaPlateHeight = _hexaPlate.transform.position.y;
+            target.transform.position = targetPosition + (hexaPlateHeight - _downwardOffsetForTargetPairs) * Vector3.up;
             target.transform.parent = _hexaPlate.transform;
             arm.SetupTargetRef(target.transform);
             arm.SetupCenterRef(_hexaPlate.transform);
         }
 
-        private SingleArmMover InstantiateArm(Vector3 position, Quaternion quaternion, string name, bool useSecondSolution)
+        private SingleArmMover InstantiateArm(
+            Vector3 position,
+            Quaternion quaternion,
+            string name,
+            bool useSecondSolution,
+            bool isLeftArm)
         {
-            var arm = Instantiate(_singleArmPrefab, transform);
+            var arm = Instantiate(isLeftArm ? _armLeftPrefab : _armRightPrefab, transform);
             arm.SetupUseSecondSolution(useSecondSolution);
             arm.transform.localPosition = position;
             arm.transform.localRotation = quaternion;
