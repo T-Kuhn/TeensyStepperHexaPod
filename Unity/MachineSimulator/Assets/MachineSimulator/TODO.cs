@@ -18,6 +18,7 @@
 //     - [X] FirtStep: Calculate correct realTarget according to tilt
 //     - [X] SecondStep: Calculate correct joint angles for joints 4 and 5 according to endEffector tilt
 // - [X] Fix last joint not rotating together with tilted platform problem
+// - [ ] NEXTUP: change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] add some sort of animation for end effector platform
 //     - [X] moving up and down
 //     - [X] moving left and right
@@ -28,7 +29,6 @@
 //     - [ ] tilting around the Z-Axis
 //     - [ ] circling (tilt)
 //     - [ ] moving up and down at left/right/front/back position
-// - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] iterate on arm design based on what we'll see in the simulated machine
 // - [ ] center gizmo would be nice, so we can tell how far away from center the hexaplate is
 // - [ ] maybe switch project to the High Definition Render Pipeline (HDRP) with demo scene as base for better visual look
