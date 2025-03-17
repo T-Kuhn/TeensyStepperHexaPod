@@ -25,7 +25,7 @@ namespace MachineSimulator.MachineModel
 
         private void Update()
         {
-            var time = Time.time;
+            var time = Time.time * 3f;
             var (position, rotation) = _strategies[CurrentStrategy].Move(time);
             transform.position = position + Vector3.up * DefaultHeight;
             transform.rotation = rotation;
