@@ -16,7 +16,7 @@ namespace MachineSimulator.MachineModel
     {
         public (Vector3 Position, Quaternion Rotation) Move(float time)
         {
-            var height = Mathf.Sin(time) * 0.05f;
+            var height = Mathf.Sin(time) * 0.1f;
             return (new Vector3(0, height, 0), Quaternion.identity);
         }
     }
