@@ -20,7 +20,6 @@ namespace MachineSimulator.MachineModel
         private SingleArmMover[] _arms = null;
         private HexaplateMover _hexaPlate;
 
-
         private void Start()
         {
             _hexaPlate = Instantiate(_hexaPlatePrefab);
