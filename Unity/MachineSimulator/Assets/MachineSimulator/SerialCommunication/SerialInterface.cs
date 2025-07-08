@@ -2,6 +2,7 @@
 using System.Threading;
 using UnityEngine;
 using System.IO.Ports;
+using System.Linq;
 
 namespace MachineSimulator.SerialCommunication
 {
@@ -17,6 +18,10 @@ namespace MachineSimulator.SerialCommunication
         private void Awake()
         {
             _availablePorts = SerialPort.GetPortNames();
+            // NOTE: There is of course no guarantee that the last port is the one we want,
+            //       but the last port here happens to BE the want I want on my PC.
+            //       That's why we're getting the last portName here.
+            _portName = _availablePorts.Last();
         }
 
         private void Open()

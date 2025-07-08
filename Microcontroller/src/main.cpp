@@ -17,6 +17,8 @@ SineStepper sineStepper1(STEPPER1_STEP_PIN, STEPPER1_DIR_PIN, /*id:*/ 0);
 SineStepper sineStepper2(STEPPER2_STEP_PIN, STEPPER2_DIR_PIN, /*id:*/ 1);
 SineStepper sineStepper3(STEPPER3_STEP_PIN, STEPPER3_DIR_PIN, /*id:*/ 2);
 SineStepper sineStepper4(STEPPER4_STEP_PIN, STEPPER4_DIR_PIN, /*id:*/ 3);
+SineStepper sineStepper5(STEPPER5_STEP_PIN, STEPPER5_DIR_PIN, /*id:*/ 4);
+SineStepper sineStepper6(STEPPER6_STEP_PIN, STEPPER6_DIR_PIN, /*id:*/ 5);
 
 SineStepperController sineStepperController(/*endlessRepeat:*/ false);
 IntervalTimer myTimer;
@@ -51,6 +53,8 @@ void setup()
     sineStepperController.attach(&sineStepper2);
     sineStepperController.attach(&sineStepper3);
     sineStepperController.attach(&sineStepper4);
+    sineStepperController.attach(&sineStepper5);
+    sineStepperController.attach(&sineStepper6);
 }
 
 void loop()
@@ -78,8 +82,8 @@ void loop()
 
             currentMode = idle;
             int index = 0;
-            double instructionData[MAX_NUM_OF_MOVEBATCHES * 6];
-            for (int i = 0; i < MAX_NUM_OF_MOVEBATCHES * 6; i++)
+            double instructionData[MAX_NUM_OF_MOVEBATCHES * 8];
+            for (int i = 0; i < MAX_NUM_OF_MOVEBATCHES * 8; i++)
             {
                 instructionData[i] = 0;
             }
@@ -94,10 +98,10 @@ void loop()
                 index++;
             }
 
-            int numOfMoveBatches = index / 6;
+            int numOfMoveBatches = index / 8;
             for (int i = 0; i < numOfMoveBatches; i++)
             {
-                int offset = i * 6;
+                int offset = i * 8;
                 MoveBatch* mb = &sineStepperController.moveBatches[i];
                 if (instructionData[offset] > ((i + 1) * 11.0) - 0.1 && instructionData[offset] < ((i + 1) * 11) + 0.1)
                 {
@@ -105,7 +109,9 @@ void loop()
                     mb->addMove(/*id:*/ 1, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 2] / (M_PI * 2))));
                     mb->addMove(/*id:*/ 2, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 3] / (M_PI * 2))));
                     mb->addMove(/*id:*/ 3, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 4] / (M_PI * 2))));
-                    mb->moveDuration = instructionData[offset + 5];
+                    mb->addMove(/*id:*/ 4, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 5] / (M_PI * 2))));
+                    mb->addMove(/*id:*/ 5, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 6] / (M_PI * 2))));
+                    mb->moveDuration = instructionData[offset + 7];
                 }
             }
 

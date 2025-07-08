@@ -8,14 +8,18 @@
 #define Constants_h
 #include "Arduino.h"
 
-#define STEPPER1_DIR_PIN 5
-#define STEPPER1_STEP_PIN 6
-#define STEPPER2_DIR_PIN 1
-#define STEPPER2_STEP_PIN 2
+#define STEPPER1_DIR_PIN 1
+#define STEPPER1_STEP_PIN 2
+#define STEPPER2_DIR_PIN 5
+#define STEPPER2_STEP_PIN 6
 #define STEPPER3_DIR_PIN 3
 #define STEPPER3_STEP_PIN 4
 #define STEPPER4_DIR_PIN 7
 #define STEPPER4_STEP_PIN 8
+#define STEPPER5_DIR_PIN 14
+#define STEPPER5_STEP_PIN 15
+#define STEPPER6_DIR_PIN 16
+#define STEPPER6_STEP_PIN 17
 
 #define NAN_ALERT_LED 25
 #define EXECUTING_ISR_CODE 13
@@ -38,8 +42,9 @@
 #define MOVE_DURATION 1.0f
 #define PAUSE_DURATION 0.2f
 
-#define FREQUENCY_MULTIPLIER 0.000002f
-#define TIMER_US 2
+// NOTE: Our pulse generation timer runs at 4μs and thus our max pulses per second is 125kHz.
+#define FREQUENCY_MULTIPLIER 0.000004f
+#define TIMER_US 4
 
 // NOTE: SineStepper and MoveBatch ids must be lower then MAX_NUM_OF_STEPPERS
 #define MAX_NUM_OF_STEPPERS 10

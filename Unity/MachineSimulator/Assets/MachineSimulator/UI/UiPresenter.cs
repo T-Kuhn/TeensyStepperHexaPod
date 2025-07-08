@@ -15,7 +15,7 @@ namespace MachineSimulator.UI
             _view.OnUpButtonClicked
                 .Subscribe(_ =>
                 {
-                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(20f, -20f, 20f, 20f, 0.0f, 0.0f, 0.0f, 0.0f), 1f, false) };
+                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(-20f, 20f, -20f, 20f, -20f, 20f), 1f, false) };
                     _realMachine.Instruct(commands);
                 })
                 .AddTo(this);
@@ -23,7 +23,7 @@ namespace MachineSimulator.UI
             _view.OnDownButtonClicked
                 .Subscribe(_ =>
                 {
-                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(0f, 0f, 0f, 0f, 0.0f, 0.0f, 0.0f, 0.0f), 1f, false) };
+                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(0f, 0f, 0f, 0f, 0f, 0f), 1f, false) };
                     _realMachine.Instruct(commands);
                 })
                 .AddTo(this);
