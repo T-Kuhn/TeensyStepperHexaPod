@@ -42,8 +42,9 @@
 #define MOVE_DURATION 1.0f
 #define PAUSE_DURATION 0.2f
 
-#define FREQUENCY_MULTIPLIER 0.000002f
-#define TIMER_US 2
+// NOTE: Our pulse generation timer runs at 4μs and thus our max pulses per second is 125kHz.
+#define FREQUENCY_MULTIPLIER 0.000004f
+#define TIMER_US 4
 
 // NOTE: SineStepper and MoveBatch ids must be lower then MAX_NUM_OF_STEPPERS
 #define MAX_NUM_OF_STEPPERS 10
