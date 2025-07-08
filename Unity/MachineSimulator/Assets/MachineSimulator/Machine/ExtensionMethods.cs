@@ -19,6 +19,10 @@ namespace MachineSimulator.Machine
             builder.Append(":");
             builder.Append((llInstruction.TargetMachineState.Motor4Rotation).ToString("0.00000"));
             builder.Append(":");
+            builder.Append((llInstruction.TargetMachineState.Motor5Rotation).ToString("0.00000"));
+            builder.Append(":");
+            builder.Append((llInstruction.TargetMachineState.Motor6Rotation).ToString("0.00000"));
+            builder.Append(":");
             builder.Append(llInstruction.MoveTime.ToString("0.00000"));
 
             return builder.ToString();
