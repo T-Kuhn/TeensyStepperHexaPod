@@ -15,6 +15,8 @@ char inputBuffer[INPUT_SIZE + 1];
 
 SineStepper sineStepper1(STEPPER1_STEP_PIN, STEPPER1_DIR_PIN, /*id:*/ 0);
 SineStepper sineStepper2(STEPPER2_STEP_PIN, STEPPER2_DIR_PIN, /*id:*/ 1);
+SineStepper sineStepper3(STEPPER3_STEP_PIN, STEPPER3_DIR_PIN, /*id:*/ 2);
+SineStepper sineStepper4(STEPPER4_STEP_PIN, STEPPER4_DIR_PIN, /*id:*/ 3);
 
 SineStepperController sineStepperController(/*endlessRepeat:*/ false);
 IntervalTimer myTimer;
@@ -42,10 +44,13 @@ void setup()
     Serial.begin(921600);
     Serial.setTimeout(1);
     myTimer.begin(onTimer, TIMER_US);
+
     pinMode(EXECUTING_ISR_CODE, OUTPUT);
 
     sineStepperController.attach(&sineStepper1);
     sineStepperController.attach(&sineStepper2);
+    sineStepperController.attach(&sineStepper3);
+    sineStepperController.attach(&sineStepper4);
 }
 
 void loop()
@@ -98,8 +103,8 @@ void loop()
                 {
                     mb->addMove(/*id:*/ 0, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 1] / (M_PI * 2))));
                     mb->addMove(/*id:*/ 1, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 2] / (M_PI * 2))));
-                    // mb->addMove(/*id:*/ 2, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 3] / (M_PI * 2))));
-                    // mb->addMove(/*id:*/ 3, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 4] / (M_PI * 2))));
+                    mb->addMove(/*id:*/ 2, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 3] / (M_PI * 2))));
+                    mb->addMove(/*id:*/ 3, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 4] / (M_PI * 2))));
                     mb->moveDuration = instructionData[offset + 5];
                 }
             }

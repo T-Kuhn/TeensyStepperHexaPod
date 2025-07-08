@@ -42,8 +42,8 @@
 #define TIMER_US 2
 
 // NOTE: SineStepper and MoveBatch ids must be lower then MAX_NUM_OF_STEPPERS
-#define MAX_NUM_OF_STEPPERS 6
-#define MAX_NUM_OF_MOVEBATCHES 10
+#define MAX_NUM_OF_STEPPERS 10
+#define MAX_NUM_OF_MOVEBATCHES 100
 
 // Max input size for the list of incoming instructions
 #define INPUT_SIZE 5120

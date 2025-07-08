@@ -33,6 +33,8 @@ namespace MachineSimulator.SerialCommunication
         {
             if (!_isOpen) Open();
             
+            Debug.Log("Sending: " + s);
+            
             _port.Write(s);
         }
         
