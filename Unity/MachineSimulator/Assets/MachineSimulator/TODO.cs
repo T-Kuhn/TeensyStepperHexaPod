@@ -1,5 +1,5 @@
 // - [X] cleanup code
-// - [X] Add a thing that let's us quickly switch between witch solution is used
+// - [X] Add a thing that let's us quickly switch between which solution is used
 // - [X] make our current arm work no matter how it is rotated (calculations need to be in local space)
 // - [X] make our current arm work no matter where it is placed
 // - [X] would be nice if we had gizmo lines for all joints maybe?
@@ -18,6 +18,10 @@
 //     - [X] FirtStep: Calculate correct realTarget according to tilt
 //     - [X] SecondStep: Calculate correct joint angles for joints 4 and 5 according to endEffector tilt
 // - [X] Fix last joint not rotating together with tilted platform problem
+// - [ ] send 6 values instead of 4 to microcontroller
+// - [ ] handle 6 values and 6 sineSteppers on microcontroller
+// - [ ] add two more OUTPUTS (for the additional two motors) to the constants file on the microcontroller
+// - [ ] connect the 6 stepper controllers accordingly
 // - [ ] NEXTUP: change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] add some sort of animation for end effector platform
 //     - [X] moving up and down
