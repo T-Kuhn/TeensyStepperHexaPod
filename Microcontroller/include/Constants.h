@@ -8,10 +8,10 @@
 #define Constants_h
 #include "Arduino.h"
 
-#define STEPPER1_DIR_PIN 5
-#define STEPPER1_STEP_PIN 6
-#define STEPPER2_DIR_PIN 1
-#define STEPPER2_STEP_PIN 2
+#define STEPPER1_DIR_PIN 1
+#define STEPPER1_STEP_PIN 2
+#define STEPPER2_DIR_PIN 5
+#define STEPPER2_STEP_PIN 6
 #define STEPPER3_DIR_PIN 3
 #define STEPPER3_STEP_PIN 4
 #define STEPPER4_DIR_PIN 7
