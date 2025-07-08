@@ -78,8 +78,8 @@ void loop()
 
             currentMode = idle;
             int index = 0;
-            double instructionData[MAX_NUM_OF_MOVEBATCHES * 6];
-            for (int i = 0; i < MAX_NUM_OF_MOVEBATCHES * 6; i++)
+            double instructionData[MAX_NUM_OF_MOVEBATCHES * 8];
+            for (int i = 0; i < MAX_NUM_OF_MOVEBATCHES * 8; i++)
             {
                 instructionData[i] = 0;
             }
@@ -94,10 +94,10 @@ void loop()
                 index++;
             }
 
-            int numOfMoveBatches = index / 6;
+            int numOfMoveBatches = index / 8;
             for (int i = 0; i < numOfMoveBatches; i++)
             {
-                int offset = i * 6;
+                int offset = i * 8;
                 MoveBatch* mb = &sineStepperController.moveBatches[i];
                 if (instructionData[offset] > ((i + 1) * 11.0) - 0.1 && instructionData[offset] < ((i + 1) * 11) + 0.1)
                 {
@@ -105,7 +105,9 @@ void loop()
                     mb->addMove(/*id:*/ 1, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 2] / (M_PI * 2))));
                     mb->addMove(/*id:*/ 2, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 3] / (M_PI * 2))));
                     mb->addMove(/*id:*/ 3, /*pos:*/ (int32_t)(PULSES_PER_REV * (instructionData[offset + 4] / (M_PI * 2))));
-                    mb->moveDuration = instructionData[offset + 5];
+                    // add offset + 5 guy
+                    // add offset + 6 guy
+                    mb->moveDuration = instructionData[offset + 7];
                 }
             }
 
