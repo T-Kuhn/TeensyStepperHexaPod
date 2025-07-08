@@ -1,4 +1,5 @@
-using MachineSimulator.SerialCommunication;
+using System.Collections.Generic;
+using MachineSimulator.Machine;
 using UniRx;
 using UnityEngine;
 
@@ -7,16 +8,24 @@ namespace MachineSimulator.UI
     public sealed class UiPresenter : MonoBehaviour
     {
         [SerializeField] private UiView _view;
-        [SerializeField] private SerialInterface _serialInterface;
+        [SerializeField] private RealMachine _realMachine;
 
         private void Awake()
         {
             _view.OnUpButtonClicked
-                .Subscribe(_ => _serialInterface.Send("0.11941:0.11941:0.11941:0.11941:1.15000\n"))
+                .Subscribe(_ =>
+                {
+                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(20f, -20f, 20f, 20f, 0.0f, 0.0f, 0.0f, 0.0f), 1f, false) };
+                    _realMachine.Instruct(commands);
+                })
                 .AddTo(this);
 
             _view.OnDownButtonClicked
-                .Subscribe(_ => _serialInterface.Send("0.0:0.0:0.0:0.0:1.15000\n"))
+                .Subscribe(_ =>
+                {
+                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(0f, 0f, 0f, 0f, 0.0f, 0.0f, 0.0f, 0.0f), 1f, false) };
+                    _realMachine.Instruct(commands);
+                })
                 .AddTo(this);
         }
     }

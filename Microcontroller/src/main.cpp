@@ -71,8 +71,8 @@ void loop()
         else
         {
             // We have received a LF or CR character
-            //Serial.print("RECEIVED MSG: ");
-            //Serial.println(inputBuffer);
+            // Serial.print("RECEIVED MSG: ");
+            // Serial.println(inputBuffer);
 
             inputBuffer[s_len] = 0;
 

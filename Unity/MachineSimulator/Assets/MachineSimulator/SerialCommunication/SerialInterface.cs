@@ -43,6 +43,10 @@ namespace MachineSimulator.SerialCommunication
             while (_port.IsOpen)
             {
                 var str = _port.ReadLine();
+                if (!string.IsNullOrEmpty(str))
+                {
+                    Debug.Log("Received: " + str);
+                }
             }
         }
 
