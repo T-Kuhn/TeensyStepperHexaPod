@@ -22,6 +22,7 @@
 #define STEPPER6_STEP_PIN 17
 
 #define NAN_ALERT_LED 25
+#define RESET_BUTTON_PIN 12
 #define EXECUTING_ISR_CODE 13
 
   // gear: 26.85:1

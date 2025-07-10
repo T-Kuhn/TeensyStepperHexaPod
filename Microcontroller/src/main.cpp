@@ -30,9 +30,23 @@ void onTimer()
     switch (currentMode)
     {
     case idle:
+        if (digitalRead(RESET_BUTTON_PIN) == HIGH) {
+            digitalWrite(EXECUTING_ISR_CODE, LOW);
+            // Reset the controller and all steppers
+            sineStepper1.currentPos = 0;
+            sineStepper2.currentPos = 0;
+            sineStepper3.currentPos = 0;
+            sineStepper4.currentPos = 0;
+            sineStepper5.currentPos = 0;
+            sineStepper6.currentPos = 0;
+        }
+
         break;
     case doingControlledMovements:
-        sineStepperController.update();
+        if (sineStepperController.update() == false) {
+            currentMode = idle;
+        }
+
         digitalWrite(EXECUTING_ISR_CODE, LOW);
         break;
     default:
@@ -48,6 +62,7 @@ void setup()
     myTimer.begin(onTimer, TIMER_US);
 
     pinMode(EXECUTING_ISR_CODE, OUTPUT);
+    pinMode(RESET_BUTTON_PIN, INPUT_PULLDOWN);
 
     sineStepperController.attach(&sineStepper1);
     sineStepperController.attach(&sineStepper2);
