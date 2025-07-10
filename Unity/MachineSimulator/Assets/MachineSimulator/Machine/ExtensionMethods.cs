@@ -29,11 +29,11 @@ namespace MachineSimulator.Machine
             return builder.ToString();
         }
 
-        public static List<LLInstruction> ToList(this LLMachineState machineState, float moveTime = 1f, bool isRelative = false)
+        public static List<LLInstruction> ToList(this LLMachineState machineState, float moveTime = 1f, bool isLevelingInstruction = false)
         {
             return new List<LLInstruction>
             {
-                new LLInstruction(machineState, moveTime, isRelative)
+                new LLInstruction(machineState, moveTime, isLevelingInstruction)
             };
         }
     }

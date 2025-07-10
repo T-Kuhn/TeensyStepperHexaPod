@@ -4,37 +4,38 @@
         <ui:VisualElement name="CommandUI" style="align-items: center; width: 120px;">
             <ui:Label text="Move" display-tooltip-when-elided="true" name="MoveLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
             <ui:Button text="up" display-tooltip-when-elided="true" name="UpButton" class="CommandButton" />
+            <ui:Button text="origin" display-tooltip-when-elided="true" name="OriginButton" class="CommandButton" />
             <ui:Button text="down" display-tooltip-when-elided="true" name="DownButton" class="CommandButton" />
         </ui:VisualElement>
         <ui:VisualElement name="CalibrationUI" style="align-items: center;">
             <ui:Label text="Calibrate" display-tooltip-when-elided="true" name="CalibrateLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
             <ui:VisualElement name="M1" style="flex-direction: row;">
-                <ui:Label text="M1" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-left; color: rgb(255, 255, 255); font-size: 24px;" />
+                <ui:Label text="M1" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px; align-items: center;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
             <ui:VisualElement name="M2" style="flex-direction: row;">
-                <ui:Label text="M2" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-left; color: rgb(255, 255, 255); font-size: 24px;" />
+                <ui:Label text="M2" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
             <ui:VisualElement name="M3" style="flex-direction: row;">
-                <ui:Label text="M3" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-left; color: rgb(255, 255, 255); font-size: 24px;" />
+                <ui:Label text="M3" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
             <ui:VisualElement name="M4" style="flex-direction: row;">
-                <ui:Label text="M4" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-left; color: rgb(255, 255, 255); font-size: 24px;" />
+                <ui:Label text="M4" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
             <ui:VisualElement name="M5" style="flex-direction: row;">
-                <ui:Label text="M5" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-left; color: rgb(255, 255, 255); font-size: 24px;" />
+                <ui:Label text="M5" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
             <ui:VisualElement name="M6" style="flex-direction: row;">
-                <ui:Label text="M6" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-left; color: rgb(255, 255, 255); font-size: 24px;" />
+                <ui:Label text="M6" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
