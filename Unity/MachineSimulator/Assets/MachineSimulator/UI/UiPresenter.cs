@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using MachineSimulator.Machine;
 using UniRx;
 using UnityEngine;
@@ -12,20 +11,20 @@ namespace MachineSimulator.UI
 
         private void Awake()
         {
-            _view.OnUpButtonClicked
-                .Subscribe(_ =>
-                {
-                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(-20f, 20f, -20f, 20f, -20f, 20f), 1f, false) };
-                    _realMachine.Instruct(commands);
-                })
+            _view.OnUpClicked
+                .Subscribe(_ => _realMachine.Instruct(new LLMachineState(-20f, 20f, -20f, 20f, -20f, 20f).ToList(1f)))
                 .AddTo(this);
 
-            _view.OnDownButtonClicked
-                .Subscribe(_ =>
-                {
-                    var commands = new List<LLInstruction>() { new LLInstruction(new LLMachineState(0f, 0f, 0f, 0f, 0f, 0f), 1f, false) };
-                    _realMachine.Instruct(commands);
-                })
+            _view.OnDownClicked
+                .Subscribe(_ => _realMachine.Instruct(new LLMachineState(0f, 0f, 0f, 0f, 0f, 0f).ToList(1f)))
+                .AddTo(this);
+
+            _view.OnM1PlusClicked
+                .Subscribe(_ => _realMachine.Instruct(new LLMachineState(1f, 0f, 0f, 0f, 0f, 0f).ToList(0.1f)))
+                .AddTo(this);
+
+            _view.OnM1MinusClicked
+                .Subscribe(_ => _realMachine.Instruct(new LLMachineState(-1f, 0f, 0f, 0f, 0f, 0f).ToList(0.1f)))
                 .AddTo(this);
         }
     }

@@ -23,7 +23,11 @@
 // - [X] handle 6 values and 6 sineSteppers on microcontroller
 // - [X] add two more OUTPUTS (for the additional two motors) to the constants file on the microcontroller
 // - [X] connect the 6 stepper controllers accordingly
-// - [ ] Add a UI to calibrate each motor (need to adjust rotation in small steps)
+// Continue work on this ↓
+// - [ ] Add UI buttons to calibrate each motor (need to adjust rotation in small steps)
+// - [ ] Add _levelingOffset which is a LLMachineState that will accumulate calibration values for all the motors
+// - [ ] For normal move instructions, add them to the _levelingOffset to get the real target machine state
+// - [ ] Add UI buttons to do the following: up/down at different speeds
 // - [ ] Need to set the machineState after above calibration as the origin position for the machine
 // - [ ] All following diff-instructions should be relative to the origin position
 
