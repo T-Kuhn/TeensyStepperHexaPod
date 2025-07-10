@@ -57,11 +57,11 @@ void SineStepperController::setFrequencyFrom(float moveDuration)
 // - - - - - - - - - - - - - - -
 // - - - - - UPDATE  - - - - - -
 // - - - - - - - - - - - - - - -
-void SineStepperController::update()
+bool SineStepperController::update()
 {
     if (_currentMoveBatchIndex >= MAX_NUM_OF_MOVEBATCHES)
     {
-        return;
+        return false;
     }
 
     if (!_isExecutingBatch && _currentMoveBatchIndex < MAX_NUM_OF_MOVEBATCHES)
@@ -83,6 +83,12 @@ void SineStepperController::update()
             }
             mb->needsExecution = false;
             _isExecutingBatch = true;
+        }
+        else {
+            // NOTE: If we tried to load a new move batch, but it didn't need execution,
+            //       then it's save to assume that we reached the end of valid move batches
+            //       and thus we are not anylonger doing meaningful work in here -> return false.
+            return false;
         }
     }
     else
@@ -111,4 +117,6 @@ void SineStepperController::update()
             _currentMoveBatchIndex++;
         }
     }
+
+    return true;
 }

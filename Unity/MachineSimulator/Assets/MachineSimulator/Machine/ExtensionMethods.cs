@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace MachineSimulator.Machine
@@ -26,6 +27,14 @@ namespace MachineSimulator.Machine
             builder.Append(llInstruction.MoveTime.ToString("0.00000"));
 
             return builder.ToString();
+        }
+
+        public static List<LLInstruction> ToList(this LLMachineState machineState, float moveTime = 1f, bool isLevelingInstruction = false)
+        {
+            return new List<LLInstruction>
+            {
+                new LLInstruction(machineState, moveTime, isLevelingInstruction)
+            };
         }
     }
 }
