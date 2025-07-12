@@ -10,6 +10,10 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onUpClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onDownClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onNormalSpeedClicked= new Subject<Unit>();
+        private readonly Subject<Unit> _onDoubleSpeedClicked= new Subject<Unit>();
+        private readonly Subject<Unit> _onQuatrupleSpeedClicked= new Subject<Unit>();
+        
 
         private readonly Subject<Unit> _onM1PlusClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onM1MinusClicked = new Subject<Unit>();
@@ -27,6 +31,10 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnUpClicked => _onUpClicked;
         public IObservable<Unit> OnDownClicked => _onDownClicked;
         public IObservable<Unit> OnOriginClicked => _onOriginClicked;
+        
+        public IObservable<Unit> OnNormalSpeedClicked => _onNormalSpeedClicked;
+        public IObservable<Unit> OnDoubleSpeedClicked => _onDoubleSpeedClicked;
+        public IObservable<Unit> OnQuatrupleSpeedClicked => _onQuatrupleSpeedClicked;
 
         public IObservable<Unit> OnM1PlusClicked => _onM1PlusClicked;
         public IObservable<Unit> OnM1MinusClicked => _onM1MinusClicked;
@@ -49,6 +57,9 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<Button>("DownButton"), _onDownClicked);
             RegisterButton(root.Q<Button>("OriginButton"), _onOriginClicked);
             RegisterButton(root.Q<Button>("UpButton"), _onUpClicked);
+            RegisterButton(root.Q<Button>("DoubleSpeedButton"), _onDoubleSpeedClicked);
+            RegisterButton(root.Q<Button>("QuatrupleSpeedButton"), _onQuatrupleSpeedClicked);
+            RegisterButton(root.Q<Button>("NormalSpeedButton"), _onNormalSpeedClicked);
 
             RegisterButton(root.Q<VisualElement>("M1").Q<Button>("CalibratePlus"), _onM1PlusClicked);
             RegisterButton(root.Q<VisualElement>("M1").Q<Button>("CalibrateMinus"), _onM1MinusClicked);
