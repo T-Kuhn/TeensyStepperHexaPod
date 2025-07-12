@@ -6,6 +6,9 @@
             <ui:Button text="up" display-tooltip-when-elided="true" name="UpButton" class="CommandButton" />
             <ui:Button text="origin" display-tooltip-when-elided="true" name="OriginButton" class="CommandButton" />
             <ui:Button text="down" display-tooltip-when-elided="true" name="DownButton" class="CommandButton" />
+            <ui:Button text="Speed x1" display-tooltip-when-elided="true" name="NormalSpeedButton" class="CommandButton" />
+            <ui:Button text="Speed x2" display-tooltip-when-elided="true" name="DoubleSpeedButton" class="CommandButton" />
+            <ui:Button text="Speed x4" display-tooltip-when-elided="true" name="QuatrupleSpeedButton" class="CommandButton" />
         </ui:VisualElement>
         <ui:VisualElement name="CalibrationUI" style="align-items: center;">
             <ui:Label text="Calibrate" display-tooltip-when-elided="true" name="CalibrateLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />

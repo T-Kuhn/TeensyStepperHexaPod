@@ -23,13 +23,28 @@
 // - [X] handle 6 values and 6 sineSteppers on microcontroller
 // - [X] add two more OUTPUTS (for the additional two motors) to the constants file on the microcontroller
 // - [X] connect the 6 stepper controllers accordingly
+// - [X] Add UI buttons to calibrate each motor (need to adjust rotation in small steps)
+// - [X] Add _levelingOffset which is a LLMachineState that will accumulate calibration values for all the motors
+// - [X] For normal move instructions, add them to the _levelingOffset to get the real target machine state
+// - [X] Need to set the machineState after above calibration as the origin position for the machine
+// - [X] All following diff-instructions should be relative to the origin position
 // Continue work on this ↓
-// - [ ] Add UI buttons to calibrate each motor (need to adjust rotation in small steps)
-// - [ ] Add _levelingOffset which is a LLMachineState that will accumulate calibration values for all the motors
-// - [ ] For normal move instructions, add them to the _levelingOffset to get the real target machine state
-// - [ ] Add UI buttons to do the following: up/down at different speeds
-// - [ ] Need to set the machineState after above calibration as the origin position for the machine
-// - [ ] All following diff-instructions should be relative to the origin position
+// - [X] Add UI buttons to do the following: up/down at different speeds
+// - [X] TEST WITH ARMS CONNECTED
+
+// Things we now know after that test:
+// - [ ] test with different stepper driver PID settings
+// - [ ] test with NO-feedback-loop (no rotary encoder) stepper driver settings
+// - [ ] we also want a button that makes the machine go up/down continuously. maybe 10 times with pauses in between (maybe multiple pause intervals?)
+// - [ ] we probably need to put something soft under the arms on startup. Some arms are pushing agains the ground because of the way steppers work.
+// - [ ] we want to go up/down even faster
+// - [ ] we want to go further up and down to a position above origin
+// - [ ] Need to implement VirtualMachine for easier testing (we need to be able to send motor rotation instructions to the virtual machine)
+// - [ ] test how feasible it would be to string together multiple short instructions to go up/down (we want to see how smooth a movement like that would be)
+//     - depending on the results, we might want to...
+//         - [ ] ...implement more complex movements like circling by stringing together multiple short instructions with the current sine-based movement system
+//     OR
+//         - [ ] ...implement a special start/continue/stop movement instruction where continue instructions keep on at the same speed and only start stop instructions use half of the current sine-based approach
 
 
 // - [ ] NEXTUP: change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
