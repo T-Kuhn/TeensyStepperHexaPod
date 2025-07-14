@@ -42,6 +42,10 @@
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
             </ui:VisualElement>
+            <ui:VisualElement name="Calibration" style="flex-direction: row;">
+                <ui:Label display-tooltip-when-elided="true" name="Spacer" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
+                <ui:Button text="Apply Offset" display-tooltip-when-elided="true" name="ApplyOffset" class="CalibrateButton" style="width: 107px;" />
+            </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

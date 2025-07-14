@@ -27,6 +27,8 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onM5MinusClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onM6PlusClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onM6MinusClicked = new Subject<Unit>();
+        
+        private readonly Subject<Unit> _onApplyOffsetClicked = new Subject<Unit>();
 
         public IObservable<Unit> OnUpClicked => _onUpClicked;
         public IObservable<Unit> OnDownClicked => _onDownClicked;
@@ -48,6 +50,8 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnM5MinusClicked => _onM5MinusClicked;
         public IObservable<Unit> OnM6PlusClicked => _onM6PlusClicked;
         public IObservable<Unit> OnM6MinusClicked => _onM6MinusClicked;
+        
+        public IObservable<Unit> OnApplyOffsetClicked => _onApplyOffsetClicked;
 
         private void Awake()
         {
@@ -73,6 +77,8 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<VisualElement>("M5").Q<Button>("CalibrateMinus"), _onM5MinusClicked);
             RegisterButton(root.Q<VisualElement>("M6").Q<Button>("CalibratePlus"), _onM6PlusClicked);
             RegisterButton(root.Q<VisualElement>("M6").Q<Button>("CalibrateMinus"), _onM6MinusClicked);
+            
+            RegisterButton(root.Q<Button>("ApplyOffset"), _onApplyOffsetClicked);
         }
 
         private void RegisterButton(Button button, Subject<Unit> subject)
