@@ -7,13 +7,14 @@ namespace MachineSimulator.UI
 {
     public sealed class UiView : MonoBehaviour
     {
+        private readonly Subject<Unit> _onUpOriginManyTimesClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onUpOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onUpClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onDownClicked = new Subject<Unit>();
-        private readonly Subject<Unit> _onNormalSpeedClicked= new Subject<Unit>();
-        private readonly Subject<Unit> _onDoubleSpeedClicked= new Subject<Unit>();
-        private readonly Subject<Unit> _onQuatrupleSpeedClicked= new Subject<Unit>();
-        
+        private readonly Subject<Unit> _onNormalSpeedClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onDoubleSpeedClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onQuatrupleSpeedClicked = new Subject<Unit>();
 
         private readonly Subject<Unit> _onM1PlusClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onM1MinusClicked = new Subject<Unit>();
@@ -28,10 +29,14 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onM6PlusClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onM6MinusClicked = new Subject<Unit>();
 
+        private readonly Subject<Unit> _onApplyOffsetClicked = new Subject<Unit>();
+
+        public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
+        public IObservable<Unit> OnUpOriginClicked => _onUpOriginClicked;
         public IObservable<Unit> OnUpClicked => _onUpClicked;
         public IObservable<Unit> OnDownClicked => _onDownClicked;
         public IObservable<Unit> OnOriginClicked => _onOriginClicked;
-        
+
         public IObservable<Unit> OnNormalSpeedClicked => _onNormalSpeedClicked;
         public IObservable<Unit> OnDoubleSpeedClicked => _onDoubleSpeedClicked;
         public IObservable<Unit> OnQuatrupleSpeedClicked => _onQuatrupleSpeedClicked;
@@ -49,11 +54,15 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnM6PlusClicked => _onM6PlusClicked;
         public IObservable<Unit> OnM6MinusClicked => _onM6MinusClicked;
 
+        public IObservable<Unit> OnApplyOffsetClicked => _onApplyOffsetClicked;
+
         private void Awake()
         {
             var uiDocument = GetComponent<UIDocument>();
             var root = uiDocument.rootVisualElement;
 
+            RegisterButton(root.Q<Button>("UpOriginManyTimesButton"), _onUpOriginManyTimesClicked);
+            RegisterButton(root.Q<Button>("UpOriginButton"), _onUpOriginClicked);
             RegisterButton(root.Q<Button>("DownButton"), _onDownClicked);
             RegisterButton(root.Q<Button>("OriginButton"), _onOriginClicked);
             RegisterButton(root.Q<Button>("UpButton"), _onUpClicked);
@@ -73,6 +82,8 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<VisualElement>("M5").Q<Button>("CalibrateMinus"), _onM5MinusClicked);
             RegisterButton(root.Q<VisualElement>("M6").Q<Button>("CalibratePlus"), _onM6PlusClicked);
             RegisterButton(root.Q<VisualElement>("M6").Q<Button>("CalibrateMinus"), _onM6MinusClicked);
+
+            RegisterButton(root.Q<Button>("ApplyOffset"), _onApplyOffsetClicked);
         }
 
         private void RegisterButton(Button button, Subject<Unit> subject)

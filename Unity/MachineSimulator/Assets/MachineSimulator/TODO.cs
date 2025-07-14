@@ -33,10 +33,12 @@
 // - [X] TEST WITH ARMS CONNECTED
 
 // Things we now know after that test:
-// - [ ] test with different stepper driver PID settings
-// - [ ] test with NO-feedback-loop (no rotary encoder) stepper driver settings
+// - [X] test with NO-feedback-loop (no rotary encoder) stepper driver settings
+// - [X] we probably need to put something soft under the arms on startup. Some arms are pushing agains the ground because of the way steppers work.
+// - [X] Add apply-calibration button (applies all the values we found to be ideal for each motor)
+
 // - [ ] we also want a button that makes the machine go up/down continuously. maybe 10 times with pauses in between (maybe multiple pause intervals?)
-// - [ ] we probably need to put something soft under the arms on startup. Some arms are pushing agains the ground because of the way steppers work.
+// - [ ] test with different stepper driver PID settings
 // - [ ] we want to go up/down even faster
 // - [ ] we want to go further up and down to a position above origin
 // - [ ] Need to implement VirtualMachine for easier testing (we need to be able to send motor rotation instructions to the virtual machine)
@@ -68,3 +70,11 @@
 // Thing to check:
 // - Wouldn't it also work if the 6 arms were placed one at a time at 60deg intervals instead of pairwise in 120deg intervals?
 
+
+
+
+
+
+// CHANGELOG
+// - 2025-07-14: Tightened nuts on last joint (where the arm is connected to the hexaplate) for better rigidity.
+// - 2025-07-14: No PID (open loop) seems better.

@@ -3,6 +3,8 @@
     <ui:VisualElement name="Screen" style="flex-direction: row; justify-content: space-between;">
         <ui:VisualElement name="CommandUI" style="align-items: center; width: 120px;">
             <ui:Label text="Move" display-tooltip-when-elided="true" name="MoveLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
+            <ui:Button text="up-origin" display-tooltip-when-elided="true" name="UpOriginButton" class="CommandButton" />
+            <ui:Button text="up-origin x" display-tooltip-when-elided="true" name="UpOriginManyTimesButton" class="CommandButton" />
             <ui:Button text="up" display-tooltip-when-elided="true" name="UpButton" class="CommandButton" />
             <ui:Button text="origin" display-tooltip-when-elided="true" name="OriginButton" class="CommandButton" />
             <ui:Button text="down" display-tooltip-when-elided="true" name="DownButton" class="CommandButton" />
@@ -41,6 +43,10 @@
                 <ui:Label text="M6" display-tooltip-when-elided="true" name="MotorName" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
                 <ui:Button text="+" display-tooltip-when-elided="true" name="CalibratePlus" class="CalibrateButton" />
                 <ui:Button text="-" display-tooltip-when-elided="true" name="CalibrateMinus" class="CalibrateButton" />
+            </ui:VisualElement>
+            <ui:VisualElement name="Calibration" style="flex-direction: row;">
+                <ui:Label display-tooltip-when-elided="true" name="Spacer" style="justify-content: center; -unity-text-align: middle-center; color: rgb(255, 255, 255); font-size: 24px; width: 45px;" />
+                <ui:Button text="Apply Offset" display-tooltip-when-elided="true" name="ApplyOffset" class="CalibrateButton" style="width: 107px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

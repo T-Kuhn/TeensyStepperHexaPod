@@ -16,9 +16,38 @@ namespace MachineSimulator.UI
 
         private void Awake()
         {
-            Register(_view.OnUpClicked, () => new LLMachineState(-20f, 20f, -20f, 20f, -20f, 20f).ToList(_currentCommandTime));
-            Register(_view.OnOriginClicked, () => Constants.OriginMachineState.ToList(_currentCommandTime));
-            //Register(_view.OnDownClicked, new LLMachineState(10f, -10f, 10f, -10f, 10f, -10f).ToList(_currentCommandTime));
+            var upState = new LLMachineState(-30f, 30f, -30f, 30f, -30f, 30f);
+            var originState = new LLMachineState(-10f, 10f, -10f, 10f, -10f, 10f);
+
+            var upOriginManyTimes = new List<LLMachineState>()
+            {
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState
+            };
+
+            Register(_view.OnUpOriginClicked, () => new List<LLMachineState>() { upState, originState }.ToList(_currentCommandTime));
+            Register(_view.OnUpOriginManyTimesClicked, () => upOriginManyTimes.ToList(_currentCommandTime));
+            Register(_view.OnUpClicked, () => upState.ToList(_currentCommandTime));
+            Register(_view.OnOriginClicked, () => originState.ToList(_currentCommandTime));
+            Register(_view.OnDownClicked, Constants.OriginMachineState.ToList(_currentCommandTime));
 
             _view.OnDoubleSpeedClicked
                 .Subscribe(_ => { _currentCommandTime = _defaultCommandTime / 2f; })
@@ -31,6 +60,7 @@ namespace MachineSimulator.UI
             _view.OnNormalSpeedClicked
                 .Subscribe(_ => { _currentCommandTime = _defaultCommandTime; })
                 .AddTo(this);
+
 
             var amount = 0.1f;
             Register(_view.OnM1PlusClicked, new LLMachineState(-amount, 0f, 0f, 0f, 0f, 0f).ToList(0.1f, true));
@@ -45,6 +75,8 @@ namespace MachineSimulator.UI
             Register(_view.OnM5MinusClicked, new LLMachineState(0f, 0f, 0f, 0f, amount, 0f).ToList(0.1f, true));
             Register(_view.OnM6PlusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, amount).ToList(0.1f, true));
             Register(_view.OnM6MinusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, -amount).ToList(0.1f, true));
+
+            Register(_view.OnApplyOffsetClicked, Constants.OffsetFromTableState.ToList(0.5f, true));
         }
 
         private void Register(IObservable<Unit> observable, Func<List<LLInstruction>> getInstructions)
