@@ -7,6 +7,7 @@ namespace MachineSimulator.UI
 {
     public sealed class UiView : MonoBehaviour
     {
+        private readonly Subject<Unit> _onUpOriginManyTimesClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onUpOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onUpClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onOriginClicked = new Subject<Unit>();
@@ -30,6 +31,7 @@ namespace MachineSimulator.UI
 
         private readonly Subject<Unit> _onApplyOffsetClicked = new Subject<Unit>();
 
+        public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
         public IObservable<Unit> OnUpOriginClicked => _onUpOriginClicked;
         public IObservable<Unit> OnUpClicked => _onUpClicked;
         public IObservable<Unit> OnDownClicked => _onDownClicked;
@@ -59,6 +61,7 @@ namespace MachineSimulator.UI
             var uiDocument = GetComponent<UIDocument>();
             var root = uiDocument.rootVisualElement;
 
+            RegisterButton(root.Q<Button>("UpOriginManyTimesButton"), _onUpOriginManyTimesClicked);
             RegisterButton(root.Q<Button>("UpOriginButton"), _onUpOriginClicked);
             RegisterButton(root.Q<Button>("DownButton"), _onDownClicked);
             RegisterButton(root.Q<Button>("OriginButton"), _onOriginClicked);

@@ -19,7 +19,32 @@ namespace MachineSimulator.UI
             var upState = new LLMachineState(-30f, 30f, -30f, 30f, -30f, 30f);
             var originState = new LLMachineState(-10f, 10f, -10f, 10f, -10f, 10f);
 
+            var upOriginManyTimes = new List<LLMachineState>()
+            {
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState,
+                upState, originState
+            };
+
             Register(_view.OnUpOriginClicked, () => new List<LLMachineState>() { upState, originState }.ToList(_currentCommandTime));
+            Register(_view.OnUpOriginManyTimesClicked, () => upOriginManyTimes.ToList(_currentCommandTime));
             Register(_view.OnUpClicked, () => upState.ToList(_currentCommandTime));
             Register(_view.OnOriginClicked, () => originState.ToList(_currentCommandTime));
             Register(_view.OnDownClicked, Constants.OriginMachineState.ToList(_currentCommandTime));
