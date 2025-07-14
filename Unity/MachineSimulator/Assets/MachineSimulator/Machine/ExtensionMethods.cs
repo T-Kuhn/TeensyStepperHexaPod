@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace MachineSimulator.Machine
@@ -35,6 +36,11 @@ namespace MachineSimulator.Machine
             {
                 new LLInstruction(machineState, moveTime, isLevelingInstruction)
             };
+        }
+        
+        public static List<LLInstruction> ToList(this List<LLMachineState> machineStates, float moveTime = 1f, bool isLevelingInstruction = false)
+        {
+            return machineStates.Select(state => new LLInstruction(state, moveTime, isLevelingInstruction)).ToList();
         }
     }
 }

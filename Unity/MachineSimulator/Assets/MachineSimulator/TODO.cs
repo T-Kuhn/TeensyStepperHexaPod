@@ -35,9 +35,9 @@
 // Things we now know after that test:
 // - [X] test with NO-feedback-loop (no rotary encoder) stepper driver settings
 // - [X] we probably need to put something soft under the arms on startup. Some arms are pushing agains the ground because of the way steppers work.
-// - [ ] we also want a button that makes the machine go up/down continuously. maybe 10 times with pauses in between (maybe multiple pause intervals?)
+// - [X] Add apply-calibration button (applies all the values we found to be ideal for each motor)
 
-// - [ ] Add apply-calibration button (applies all the values we found to be ideal for each motor)
+// - [ ] we also want a button that makes the machine go up/down continuously. maybe 10 times with pauses in between (maybe multiple pause intervals?)
 // - [ ] test with different stepper driver PID settings
 // - [ ] we want to go up/down even faster
 // - [ ] we want to go further up and down to a position above origin
