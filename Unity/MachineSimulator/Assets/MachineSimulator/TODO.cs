@@ -41,13 +41,21 @@
 // Continue work on this ↓
 // - [ ] We need a way to move the simulatedMachine with HighLevelInstructions.
 //     - [ ] HighLevelInstruction needs to contain: PlateCenterPosition, PlateRotationQuaternion, MoveTime
-//     - [ ] We Need a start-recording/stop-recording button
+//     - [X] We Need a "add pose" button
 //     - [ ] First goal will be to be able to play-back the recorded HighLevelInstruction
-//     - [ ] Next, create stringed LowLevelInstructions which will start at start-recording-position and end at stop-recording-position
+//     - [ ] Introduce the concept of a "sequence" (a list of HighLevelInstructions). This will be useful when converting the HighLevelInstructions to stringed LowLevelInstructions.
+//     - [ ] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
 //           - To generate them, we move time forward in small steps, check how far each of the motors has moved and create a LowLevelInstruction for each step.
 // - [ ] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
 //       when generating motor rotations with IK, but the movement commands themselves can be linear speed movements to target position because they will be very short and about 50 for a complete move.
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
+
+// Thinking:
+// - There's a slight problem with how the microcontroller handles moveCommands:
+//     - The microcontroller remembers all the current motor positions and calculates the steps needed to reach a target rotation for each motor
+//     - The problem is that with the slicing approach, if the machine isn't in the exact state we expect it to be in, the first moveCommand
+//       might be at a way too high speed if the target position is too far away.
+//     - I don't think there's a ideal solution to fix/improve this though.
 
 // - [ ] test with different stepper driver PID settings
 //     -> this might be interesting, especially if we connect the driver to the setup software and look through all the settings,

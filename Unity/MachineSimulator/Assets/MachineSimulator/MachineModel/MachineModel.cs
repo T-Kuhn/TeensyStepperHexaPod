@@ -4,35 +4,16 @@ namespace MachineSimulator.MachineModel
 {
     public class MachineModel : MonoBehaviour
     {
-        [SerializeField]
-        private SingleArmMover _armLeftPrefab;
-
-        [SerializeField]
-        private SingleArmMover _armRightPrefab;
-
-        [SerializeField]
-        private GameObject _targetPrefab;
-
-        [SerializeField]
-        private HexaplateMover _hexaPlatePrefab;
-
-        [SerializeField]
-        private float _hexaplateDefaultHeight;
-
-        [SerializeField]
-        private float _distanceFromCenterMotorPairs;
-
-        [SerializeField]
-        private float _distanceFromCenterTargetPairs;
-
-        [SerializeField]
-        private float _distanceApartMotorPairs;
-
-        [SerializeField]
-        private float _distanceApartTargetPairs;
-
-        [SerializeField]
-        private float _downwardOffsetForTargetPairs;
+        [SerializeField] private SingleArmMover _armLeftPrefab;
+        [SerializeField] private SingleArmMover _armRightPrefab;
+        [SerializeField] private GameObject _targetPrefab;
+        [SerializeField] private HexaplateMover _hexaPlatePrefab;
+        [SerializeField] private float _hexaplateDefaultHeight;
+        [SerializeField] private float _distanceFromCenterMotorPairs;
+        [SerializeField] private float _distanceFromCenterTargetPairs;
+        [SerializeField] private float _distanceApartMotorPairs;
+        [SerializeField] private float _distanceApartTargetPairs;
+        [SerializeField] private float _downwardOffsetForTargetPairs;
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
