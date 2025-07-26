@@ -40,10 +40,10 @@
 
 // Continue work on this ↓
 // - [ ] We need a way to move the simulatedMachine with HighLevelInstructions.
-//     - [ ] HighLevelInstruction needs to contain: PlateCenterPosition, PlateRotationQuaternion, MoveTime
+//     - [X] HighLevelInstruction needs to contain: PlateCenterPosition, PlateRotationQuaternion, MoveTime
 //     - [X] We Need a "add pose" button
-//     - [ ] First goal will be to be able to play-back the recorded HighLevelInstruction
-//     - [ ] Introduce the concept of a "sequence" (a list of HighLevelInstructions). This will be useful when converting the HighLevelInstructions to stringed LowLevelInstructions.
+//     - [X] First goal will be to be able to play-back the recorded HighLevelInstruction
+//     - [X] Introduce the concept of a "sequence" (a list of HighLevelInstructions). This will be useful when converting the HighLevelInstructions to stringed LowLevelInstructions.
 //     - [ ] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
 //           - To generate them, we move time forward in small steps, check how far each of the motors has moved and create a LowLevelInstruction for each step.
 // - [ ] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
