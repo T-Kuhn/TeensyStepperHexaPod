@@ -41,14 +41,14 @@
 // Continue work on this ↓
 // - [ ] We need a way to move the simulatedMachine with HighLevelInstructions.
 //     - [ ] HighLevelInstruction needs to contain: PlateCenterPosition, PlateRotationQuaternion, MoveTime
-//     - [ ] We Need a move-to-origin instruction
+//     - [ ] We Need a move-to-origin/Calibrate HighLevelInstruction
 //     - [ ] We Need a start-recording/stop-recording button
-//     - [ ] Create stringed lowLevelInstructions which will start at start-recording-position
-
+//     - [ ] First goal will be to be able to play-back the recorded HighLevelInstruction
+//     - [ ] Next, create stringed LowLevelInstructions which will start at start-recording-position and end at stop-recording-position
+//           - To generate them, we move time forward in small steps, check how far each of the motors has moved and create a LowLevelInstruction for each step.
 // - [ ] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
 //       when generating motor rotations with IK, but the movement commands themselves can be linear speed movements to target position because they will be very short and about 50 for a complete move.
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
-// - [ ] Need to implement VirtualMachine for easier testing (we need to be able to send motor rotation instructions to the virtual machine)
 
 // - [ ] test with different stepper driver PID settings
 //     -> this might be interesting, especially if we connect the driver to the setup software and look through all the settings,
