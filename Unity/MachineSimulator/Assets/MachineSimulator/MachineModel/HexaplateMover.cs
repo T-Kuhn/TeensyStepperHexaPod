@@ -61,7 +61,6 @@ namespace MachineSimulator.MachineModel
                 
                 while (true)
                 {
-                    
                     elapsedTime += Time.deltaTime;
                     
                     // NOTE: t always goes from 0 to 1

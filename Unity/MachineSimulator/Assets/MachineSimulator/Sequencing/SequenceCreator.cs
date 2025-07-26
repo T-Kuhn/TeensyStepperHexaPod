@@ -21,5 +21,10 @@ namespace MachineSimulator.Sequencing
             
             hexaPlateMover.StartPlaybackMode(_sequence);
         }
+
+        public void ClearAll()
+        {
+            _sequence.Clear();
+        }
     }
 }
