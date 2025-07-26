@@ -8,7 +8,6 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private SingleArmMover _armRightPrefab;
         [SerializeField] private GameObject _targetPrefab;
         [SerializeField] private HexaplateMover _hexaPlatePrefab;
-
         [SerializeField] private float _hexaplateDefaultHeight;
         [SerializeField] private float _distanceFromCenterMotorPairs;
         [SerializeField] private float _distanceFromCenterTargetPairs;
@@ -19,12 +18,15 @@ namespace MachineSimulator.MachineModel
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
         private HexaplateMover _hexaPlate;
+        
+        public Transform HexaPlateTransform => _hexaPlate.transform;
+        public HexaplateMover HexaPlateMover => _hexaPlate;
 
         private void Start()
         {
             _hexaPlate = Instantiate(_hexaPlatePrefab);
             _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
-            _hexaPlate.transform.position = Vector3.up * _hexaplateDefaultHeight;
+            _hexaPlate.TeleportToDefaultHeight();
         }
 
         private void Update()

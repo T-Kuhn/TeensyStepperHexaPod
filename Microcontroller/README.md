@@ -29,3 +29,10 @@ Experiment | Microsteps | Amps | Driver PID Params | Encoder ON/OFF |
 - Our micro controller can't handle (can't keep up with the pulse generation) if we try to move 6'366 Steps in 30ms)
   - 6'366 pulses in 30ms turns out to be 212'000 pulses per second (we need pulses generated at 212Khz. It's actually a bit more, since our speed curve isn't linear, but starts and stops smoothly...)
   - Seeing that it stopped working at 212kHz makes perfect sense, since we expect the max pulse/sec rate to be higher (since we start and stop in a sinoidal manner) and we consider that our pulse generation timer runs at 2μs and thus our max pulses per second is 250kHz.
+
+
+  new notes:
+  since we have to generate pulses for 6 motors, we changed our pulse generation interrupt routine to run on a 4us timer instead of a the 2us timer we used so far.
+  That means our new max pulse generation rate is 125kHz. Before we maxed out at 212kHz (250kHz * 0.848), so know we expect to max out at 125kHz * 0.848 = 106kHz (because we use sine-like pulse generation)
+
+  NOTE: We actually expect the factor to be 0.5 and not 0.848, since the steepest part of (cos(x) + 1) / 2 is exactly twice as steep as the slope of a line going from 0 to 1.

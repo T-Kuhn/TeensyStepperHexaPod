@@ -39,6 +39,9 @@
   // we want to figure out what setting will allow us to do 1 full rev the fastest.
 
 #define PULSES_TO_MOVE 4000
+// 20 * 1600 / (3.1415 * 2) = 5093.10838771 steps in 0.2 seconds
+// --> 25k steps per second
+
 #define PULSES_PER_REV 1600 // MicroStep setting: 1600
 #define MOVE_DURATION 1.0f
 #define PAUSE_DURATION 0.2f

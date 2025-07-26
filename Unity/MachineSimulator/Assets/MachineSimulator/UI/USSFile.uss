@@ -1,14 +1,11 @@
-VisualElement {
-}
-
 .CommandButton {
     width: 100px;
-    background-color: rgba(42, 42, 42, 255);
-    border-left-color: rgba(0, 0, 0, 255);
-    border-right-color: rgba(0, 0, 0, 255);
-    border-top-color: rgba(0, 0, 0, 255);
-    border-bottom-color: rgba(0, 0, 0, 255);
-    color: rgba(255, 255, 255, 255);
+    background-color: rgb(42, 42, 42);
+    border-left-color: rgb(0, 0, 0);
+    border-right-color: rgb(0, 0, 0);
+    border-top-color: rgb(0, 0, 0);
+    border-bottom-color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
 }
 
 .CalibrateButton {
@@ -19,4 +16,12 @@ VisualElement {
     border-top-color: rgb(0, 0, 0);
     border-bottom-color: rgb(0, 0, 0);
     color: rgb(255, 255, 255);
+}
+
+.CalibrateButton:active {
+    background-color: rgba(75, 75, 75, 255);
+}
+
+.CommandButton:active {
+    background-color: rgba(75, 75, 75, 255);
 }

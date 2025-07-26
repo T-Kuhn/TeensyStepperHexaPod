@@ -12,7 +12,7 @@ namespace MachineSimulator.UI
         [SerializeField] private RealMachine _realMachine;
 
         private float _currentCommandTime = 1f;
-        private readonly float _defaultCommandTime = 1f;
+        private readonly float _defaultCommandTime = 0.7f;
 
         private void Awake()
         {
