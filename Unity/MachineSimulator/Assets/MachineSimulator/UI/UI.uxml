@@ -52,10 +52,11 @@
             </ui:VisualElement>
         </ui:VisualElement>
         <ui:VisualElement name="BottomHalf" style="flex-direction: row; align-items: center; justify-content: center;">
-            <ui:VisualElement name="BottomLabel" style="flex-direction: row;">
-                <ui:Label text="VirtualMachine" display-tooltip-when-elided="true" name="VirtualMachineLabel" style="font-size: 24px; color: rgb(255, 255, 255); margin-right: 10px;" />
-                <ui:Button text="+" display-tooltip-when-elided="true" name="VirtualMachinePlus" class="CalibrateButton" />
-                <ui:Button text="-" display-tooltip-when-elided="true" name="VirtualMachineMinus" class="CalibrateButton" />
+            <ui:VisualElement name="BottomUI" style="flex-direction: row; align-items: center;">
+                <ui:Label text="Sequencing" display-tooltip-when-elided="true" name="SequencingLabel" style="font-size: 24px; color: rgb(255, 255, 255); margin-right: 10px; justify-content: center;" />
+                <ui:Button text="Add Pose" display-tooltip-when-elided="true" name="AddPoseButton" class="CommandButton" style="height: 40px;" />
+                <ui:Button text="Teleport&#10;To Origin" display-tooltip-when-elided="true" name="TeleportToOrigin" class="CommandButton" style="height: 40px;" />
+                <ui:Button text="Playback" display-tooltip-when-elided="true" name="PlaybackButton" class="CommandButton" style="height: 40px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>
