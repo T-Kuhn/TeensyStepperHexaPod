@@ -41,7 +41,6 @@
 // Continue work on this ↓
 // - [ ] We need a way to move the simulatedMachine with HighLevelInstructions.
 //     - [ ] HighLevelInstruction needs to contain: PlateCenterPosition, PlateRotationQuaternion, MoveTime
-//     - [ ] We Need a move-to-origin/Calibrate HighLevelInstruction
 //     - [ ] We Need a start-recording/stop-recording button
 //     - [ ] First goal will be to be able to play-back the recorded HighLevelInstruction
 //     - [ ] Next, create stringed LowLevelInstructions which will start at start-recording-position and end at stop-recording-position

@@ -1139,7 +1139,7 @@ PrefabInstance:
       objectReference: {fileID: 6630815499392698646, guid: 9cf52a33f5e670641a3317d04157db64, type: 3}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _hexaplateDefaultHeight
-      value: 0.265
+      value: 0.16
       objectReference: {fileID: 0}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _distanceApartTargetPairs
@@ -1431,7 +1431,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1671986249}
   m_LocalRotation: {x: 0.70710707, y: -0, z: -0, w: 0.70710653}
-  m_LocalPosition: {x: -0.027113263, y: -0.079, z: 0.027}
+  m_LocalPosition: {x: -0.027113263, y: -0.053, z: 0.027}
   m_LocalScale: {x: 100, y: 100, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
