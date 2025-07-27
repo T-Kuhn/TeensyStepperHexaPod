@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using MachineSimulator.Machine;
 using UniRx;
@@ -23,10 +24,26 @@ namespace MachineSimulator.MachineModel
 
         private bool _isInPlaybackMode;
 
+        private int _logEntryCounter = 0;
+        private readonly StringBuilder _logBuilder = new StringBuilder();
+        private bool _isLogging;
+
+        public void StartLogging()
+        {
+            _logBuilder.Clear();
+            _logEntryCounter = 0;
+            _isLogging = true;
+        }
+
+        public void StopLogging()
+        {
+            _isLogging = false;
+            Debug.Log(_logBuilder.ToString());
+        }
+
         public void StartPlaybackMode(List<HLInstruction> instructions)
         {
             PlaybackSequenceAsync(instructions).Forget();
-            _isInPlaybackMode = true;
         }
 
         private void Awake()
@@ -45,6 +62,8 @@ namespace MachineSimulator.MachineModel
 
         private void Update()
         {
+            UpdateLogging();
+
             if (_isInPlaybackMode)
             {
                 return;
@@ -53,9 +72,19 @@ namespace MachineSimulator.MachineModel
             ExecuteStrategie();
         }
 
+        private void UpdateLogging()
+        {
+            if (!_isLogging) return;
+            var count = _logEntryCounter++;
+
+            _logBuilder.AppendLine(count + ", " + transform.position.y.ToString("0.0000"));
+        }
 
         private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions)
         {
+            _isInPlaybackMode = true;
+            StartLogging();
+            
             foreach (var instruction in instructions)
             {
                 var currentPosition = transform.position;
@@ -97,6 +126,9 @@ namespace MachineSimulator.MachineModel
                     await UniTask.Yield();
                 }
             }
+            
+            _isInPlaybackMode = false;
+            StopLogging();
         }
 
         public void TeleportToDefaultHeight()
