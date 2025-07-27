@@ -50,7 +50,10 @@
 //              - [X]  Make sure above Observable fires whenever we update the HexaPlate's position/rotation.
 //              - [X] After this, it should work like this: Update Hexaplate position/rotation -> IK updates -> We are able to read out all the motor rotations and create a stringed LowLevelInstruction from them.
 //         - [X] ...playback the sequence of stringed HighLevelInstructions
-//     - [ ] add capability to independently log position data every frame. Log all the positions at the in the CSV format in order to make graphs to check if the linear stringed instructions work as expected.
+//     - [X] add capability to independently log position data every frame. Log all the positions in the CSV format in order to make graphs to check if the linear stringed instructions work as expected.
+//     - [ ] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
+//     - [ ] translate HighLevelInstructions to LowLevelInstructions
+//         - [ ] Or rather: When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
 
 //     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI

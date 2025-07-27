@@ -41,9 +41,9 @@ namespace MachineSimulator.MachineModel
             Debug.Log(_logBuilder.ToString());
         }
 
-        public void StartPlaybackMode(List<HLInstruction> instructions)
+        public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear = false)
         {
-            PlaybackSequenceAsync(instructions).Forget();
+            PlaybackSequenceAsync(instructions, isLinear).Forget();
         }
 
         private void Awake()
@@ -80,7 +80,7 @@ namespace MachineSimulator.MachineModel
             _logBuilder.AppendLine(count + ", " + transform.position.y.ToString("0.0000"));
         }
 
-        private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions)
+        private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions, bool isLinear)
         {
             _isInPlaybackMode = true;
             StartLogging();
@@ -115,7 +115,8 @@ namespace MachineSimulator.MachineModel
                     var r = Mathf.Cos(theta) + 1;
 
                     // NOTE: s goes from 0 to 1
-                    var s = (2 - r) / 2f;
+                    // NOTE: if we are moving to the target linearly, s the same as t
+                    var s = isLinear ? t : (2 - r) / 2f;
 
                     // Interpolate position and rotation
                     var position = Vector3.Lerp(currentPosition, targetPosition, s);

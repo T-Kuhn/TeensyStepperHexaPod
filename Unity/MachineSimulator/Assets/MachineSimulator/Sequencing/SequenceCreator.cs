@@ -31,7 +31,7 @@ namespace MachineSimulator.Sequencing
         {
             var listOfStringedInstructions = CreateListOfStringedHighLevelInstructions();
 
-            _machineModel.HexaPlateMover.StartPlaybackMode(listOfStringedInstructions);
+            _machineModel.HexaPlateMover.StartPlaybackMode(listOfStringedInstructions, true);
         }
 
         private List<HLInstruction> CreateListOfStringedHighLevelInstructions()
