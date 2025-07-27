@@ -1,3 +1,4 @@
+using UniRx;
 using UnityEngine;
 
 namespace MachineSimulator.MachineModel
@@ -76,6 +77,8 @@ namespace MachineSimulator.MachineModel
             target.transform.parent = _hexaPlate.transform;
             arm.SetupTargetRef(target.transform);
             arm.SetupCenterRef(_hexaPlate.transform);
+
+            _hexaPlate.OnPoseChanged.Subscribe(_ => arm.RunIk()).AddTo(this);
         }
 
         private SingleArmMover InstantiateArm(

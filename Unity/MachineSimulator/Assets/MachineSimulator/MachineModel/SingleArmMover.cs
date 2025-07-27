@@ -38,7 +38,12 @@ namespace MachineSimulator.MachineModel
 
         public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
 
-        void Update()
+        private void Update()
+        {
+            RunIk();
+        }
+
+        public void RunIk()
         {
             var worldOffsetDir = transform.TransformDirection(Vector3.forward);
             var rotatedWorldOffsetDir = _center.rotation * worldOffsetDir;
@@ -134,8 +139,6 @@ namespace MachineSimulator.MachineModel
         private void RotateJoint4(Vector3 linkDir)
         {
             var joint3ForwardDir = -_joint3.forward;
-            var _viewContainerForward = _viewContainer.right;
-            var joint3UpDir = _joint4.up;
             var projectedVector = Vector3.ProjectOnPlane(linkDir, _joint3.up);
             var angle = Vector3.SignedAngle(joint3ForwardDir, projectedVector, _joint3.up);
 

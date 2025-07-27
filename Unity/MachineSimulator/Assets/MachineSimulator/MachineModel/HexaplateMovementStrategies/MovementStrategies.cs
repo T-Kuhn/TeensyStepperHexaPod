@@ -4,6 +4,7 @@ namespace MachineSimulator.MachineModel
 {
     public enum StrategyName
     {
+        DoNothing,
         UpDown,
         BackForth,
         LeftRight,
