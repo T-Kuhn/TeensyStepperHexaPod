@@ -44,8 +44,11 @@
 //     - [X] First goal will be to be able to play-back the recorded HighLevelInstruction
 //     - [X] Introduce the concept of a "sequence" (a list of HighLevelInstructions). This will be useful when converting the HighLevelInstructions to stringed LowLevelInstructions.
 // Continue work on this ↓
-//     - [ ] Add "Playback Stringed" button. When pressed...
+//     - [X] Add "Playback Stringed" button. When pressed...
 //         - [ ] ...Create stringed linear HighLevelInstructions in intervals of 0.1 * moveTime for all HighLevelInstructions in the sequence.
+//               - To create the stringed instructions, the IK has to be executed every time the HexaPlate's position changes. Use an Observable to let the IK know that it needs to update.
+//               - Make sure above Observable fires whenever we update the HexaPlate's position/rotation.
+//               - After this, it should work like this: Update Hexaplate position/rotation -> IK updates -> We are able to read out all the motor rotations and create a stringed LowLevelInstruction from them.
 //         - [ ] ...playback the sequence of stringed HighLevelInstructions
 //     - [ ] add capability to independently log position data every frame. Log all the positions at the in the CSV format in order to make graphs to check if the linear stringed instructions work as expected.
 

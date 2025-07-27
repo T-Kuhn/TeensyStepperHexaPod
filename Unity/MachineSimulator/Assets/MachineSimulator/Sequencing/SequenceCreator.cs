@@ -26,5 +26,10 @@ namespace MachineSimulator.Sequencing
         {
             _sequence.Clear();
         }
+
+        public void StartStringedPlayback()
+        {
+            Debug.Log("aaa");
+        }
     }
 }
