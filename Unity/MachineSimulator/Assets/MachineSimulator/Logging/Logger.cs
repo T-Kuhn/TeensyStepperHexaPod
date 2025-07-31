@@ -30,7 +30,7 @@ namespace MachineSimulator.Logging
             
             _elapsedLogTime += Time.deltaTime;
             
-            _logBuilder.AppendLine(_elapsedLogTime.ToString("0.0000") + ", " + transform.position.y.ToString("0.0000"));
+            _logBuilder.AppendLine(_elapsedLogTime.ToString("0.0000") + ", " + value.ToString("0.0000"));
         }
     }
 }
