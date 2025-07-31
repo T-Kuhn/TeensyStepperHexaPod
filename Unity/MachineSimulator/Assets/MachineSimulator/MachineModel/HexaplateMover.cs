@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using Cysharp.Threading.Tasks;
 using MachineSimulator.Machine;
 using UniRx;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Logger = MachineSimulator.Logging.Logger;
 
 namespace MachineSimulator.MachineModel
 {
@@ -23,23 +22,7 @@ namespace MachineSimulator.MachineModel
         public StrategyName CurrentStrategy;
 
         private bool _isInPlaybackMode;
-
-        private int _logEntryCounter = 0;
-        private readonly StringBuilder _logBuilder = new StringBuilder();
-        private bool _isLogging;
-
-        public void StartLogging()
-        {
-            _logBuilder.Clear();
-            _logEntryCounter = 0;
-            _isLogging = true;
-        }
-
-        public void StopLogging()
-        {
-            _isLogging = false;
-            Debug.Log(_logBuilder.ToString());
-        }
+        private Logger _logger;
 
         public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear = false)
         {
@@ -62,8 +45,6 @@ namespace MachineSimulator.MachineModel
 
         private void Update()
         {
-            UpdateLogging();
-
             if (_isInPlaybackMode)
             {
                 return;
@@ -72,18 +53,15 @@ namespace MachineSimulator.MachineModel
             ExecuteStrategie();
         }
 
-        private void UpdateLogging()
+        private void LateUpdate()
         {
-            if (!_isLogging) return;
-            var count = _logEntryCounter++;
-
-            _logBuilder.AppendLine(count + ", " + transform.position.y.ToString("0.0000"));
+            _logger.UpdateLogging(transform.position.y);
         }
 
         private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions, bool isLinear)
         {
             _isInPlaybackMode = true;
-            StartLogging();
+            _logger.StartLogging();
             
             foreach (var instruction in instructions)
             {
@@ -129,7 +107,7 @@ namespace MachineSimulator.MachineModel
             }
             
             _isInPlaybackMode = false;
-            StopLogging();
+            _logger.StopLogging();
         }
 
         public void TeleportToDefaultHeight()
@@ -161,6 +139,11 @@ namespace MachineSimulator.MachineModel
             var newPosition = position + Vector3.up * DefaultHeight;
 
             UpdatePositionAndRotationTo(newPosition, rotation);
+        }
+
+        public void InjectRefs(Logger logger)
+        {
+            _logger = logger;
         }
     }
 }

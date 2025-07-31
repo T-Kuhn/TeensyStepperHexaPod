@@ -43,7 +43,6 @@
 //     - [X] We Need a "add pose" button
 //     - [X] First goal will be to be able to play-back the recorded HighLevelInstruction
 //     - [X] Introduce the concept of a "sequence" (a list of HighLevelInstructions). This will be useful when converting the HighLevelInstructions to stringed LowLevelInstructions.
-// Continue work on this ↓
 //     - [X] Add "Playback Stringed" button. When pressed...
 //         - [X] ...Create stringed linear HighLevelInstructions in intervals of 0.1 * moveTime for all HighLevelInstructions in the sequence.
 //              - [X]  To create the stringed instructions, the IK has to be executed every time the HexaPlate's position changes. Use an Observable to let the IK know that it needs to update.
@@ -51,9 +50,10 @@
 //              - [X] After this, it should work like this: Update Hexaplate position/rotation -> IK updates -> We are able to read out all the motor rotations and create a stringed LowLevelInstruction from them.
 //         - [X] ...playback the sequence of stringed HighLevelInstructions
 //     - [X] add capability to independently log position data every frame. Log all the positions in the CSV format in order to make graphs to check if the linear stringed instructions work as expected.
-//     - [ ] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
-//     - [ ] translate HighLevelInstructions to LowLevelInstructions
-//         - [ ] Or rather: When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
+//     - [X] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
+// Continue work on this ↓
+//     - [ ] Do the same kind of logging for motor rotations (stringed vs unstringed)
+//     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
 
 //     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
