@@ -1,5 +1,6 @@
 using MachineSimulator.Ik;
 using UnityEngine;
+using Logger = MachineSimulator.Logging.Logger;
 
 namespace MachineSimulator.MachineModel
 {
@@ -24,6 +25,9 @@ namespace MachineSimulator.MachineModel
 
         [SerializeField] private float _finalJointOffset;
 
+        private float _motorRotation;
+        private Logger _logger;
+
         // NOTE: For debugging
         private Vector3 _worldLink2Dir;
         private Vector3 _realTarget;
@@ -33,14 +37,23 @@ namespace MachineSimulator.MachineModel
         private (Vector3 Origin, Vector3 Dir) _redDebugGizmoLine;
         private (Vector3 Origin, Vector3 Dir) _blueDebugGizmoLineThree;
 
-        public void SetupTargetRef(Transform target) => _target = target;
-        public void SetupCenterRef(Transform centerRef) => _center = centerRef;
+        public void SetupRefs(Transform target, Transform centerRef, Logger logger)
+        {
+            _target = target;
+            _center = centerRef;
+            _logger = logger;
+        }
 
         public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
 
         private void Update()
         {
             RunIk();
+        }
+
+        private void LateUpdate()
+        {
+            _logger?.UpdateLogging(_motorRotation);
         }
 
         public void RunIk()
@@ -104,8 +117,20 @@ namespace MachineSimulator.MachineModel
 
         private void RotateJoint1(Vector3 intersectionPoint)
         {
-            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
-            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
+            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x);
+            SetMotorRotation(theta);
+            _joint1.localRotation = Quaternion.Euler(theta * Mathf.Rad2Deg, 0f, 0f);
+        }
+
+        private void SetMotorRotation(float theta)
+        {
+            // NOTE: We want to motor rotation to be continuous and in the range [0, 2π]
+            if (theta < 0f)
+            {
+                theta += Mathf.PI * 2f;
+            }
+
+            _motorRotation = theta;
         }
 
         // NOTE: Joint2 rotates around the X-axis

@@ -63,23 +63,22 @@ namespace MachineSimulator.MachineModel
                 var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
                 var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true, true);
-                InstantiateTarget(leftArm, leftTargetPosition);
+                InstantiateTarget(leftArm, leftTargetPosition, armIndex == 0);
                 _arms[armIndex++] = leftArm;
 
                 var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false, false);
-                InstantiateTarget(rightArm, rightTargetPosition);
+                InstantiateTarget(rightArm, rightTargetPosition, false);
                 _arms[armIndex++] = rightArm;
             }
         }
 
-        private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition)
+        private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition, bool attachLogger)
         {
             var target = Instantiate(_targetPrefab);
             var hexaPlateHeight = _hexaPlate.transform.position.y;
             target.transform.position = targetPosition + (hexaPlateHeight - _downwardOffsetForTargetPairs) * Vector3.up;
             target.transform.parent = _hexaPlate.transform;
-            arm.SetupTargetRef(target.transform);
-            arm.SetupCenterRef(_hexaPlate.transform);
+            arm.SetupRefs(target.transform, _hexaPlate.transform, attachLogger ? _logger : null);
 
             _hexaPlate.OnPoseChanged.Subscribe(_ => arm.RunIk()).AddTo(this);
         }

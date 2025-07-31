@@ -51,8 +51,12 @@
 //         - [X] ...playback the sequence of stringed HighLevelInstructions
 //     - [X] add capability to independently log position data every frame. Log all the positions in the CSV format in order to make graphs to check if the linear stringed instructions work as expected.
 //     - [X] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
+//     - [X] Move logger in seperate class
+//     - [X] Do the same kind of logging for motor rotations (stringed vs unstringed)
 // Continue work on this ↓
-//     - [ ] Do the same kind of logging for motor rotations (stringed vs unstringed)
+//     - [ ] make sure the motorRotations match what the microcontroller is expecting
+//           - [ ] correct cw/ccw direction
+//           - [ ] correct 0-position (need to check rotation at origin position and use it as offset)
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
 

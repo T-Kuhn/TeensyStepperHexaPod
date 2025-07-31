@@ -55,7 +55,7 @@ namespace MachineSimulator.MachineModel
 
         private void LateUpdate()
         {
-            _logger.UpdateLogging(transform.position.y);
+            // _logger.UpdateLogging(transform.position.y);
         }
 
         private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions, bool isLinear)

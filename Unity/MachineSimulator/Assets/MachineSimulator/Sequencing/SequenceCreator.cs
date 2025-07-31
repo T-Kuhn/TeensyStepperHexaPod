@@ -46,7 +46,7 @@ namespace MachineSimulator.Sequencing
 
                 var moveTime = instruction.MoveTime;
                 var elapsedTimes = new List<float>();
-                var numberOfSteps = 10;
+                var numberOfSteps = 50;
 
                 // NOTE: Goes from 1 to 9 (in the case of 10 steps)
                 for (var i = 1; i < numberOfSteps; i++)
