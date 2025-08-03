@@ -21,15 +21,15 @@ namespace MachineSimulator.Logging
             _isLogging = false;
             Debug.Log(_logBuilder.ToString());
         }
-        
+
         // NOTE: We are assuming that the logger gets a new value every frame;
         //       that's why it is okay to manage elapsed time here.
         public void UpdateLogging(float value)
         {
             if (!_isLogging) return;
-            
+
             _elapsedLogTime += Time.deltaTime;
-            
+
             _logBuilder.AppendLine(_elapsedLogTime.ToString("0.0000") + ", " + value.ToString("0.0000"));
         }
     }

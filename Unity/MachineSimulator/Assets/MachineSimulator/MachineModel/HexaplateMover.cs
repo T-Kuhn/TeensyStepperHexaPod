@@ -10,11 +10,11 @@ namespace MachineSimulator.MachineModel
 {
     public sealed class HexaplateMover : MonoBehaviour
     {
-        private readonly Subject<Unit> _onPoseChanged = new Subject<Unit>();
+        private readonly Subject<bool> _onPoseChanged = new Subject<bool>();
 
         // NOTE: This Observable triggers the IK on the machine model.
         //       Because of that, every position/rotation change needs to cause an onNext on the Subject.
-        public IObservable<Unit> OnPoseChanged => _onPoseChanged;
+        public IObservable<bool> OnPoseChanged => _onPoseChanged;
 
         public float DefaultHeight { get; set; }
         private Dictionary<StrategyName, IHexaplateMovementStrategy> _strategies;
@@ -62,7 +62,7 @@ namespace MachineSimulator.MachineModel
         {
             _isInPlaybackMode = true;
             _logger.StartLogging();
-            
+
             foreach (var instruction in instructions)
             {
                 var currentPosition = transform.position;
@@ -105,17 +105,17 @@ namespace MachineSimulator.MachineModel
                     await UniTask.Yield();
                 }
             }
-            
+
             _isInPlaybackMode = false;
             _logger.StopLogging();
         }
 
         public void TeleportToDefaultHeight()
         {
-            UpdatePositionAndRotationTo(position: Vector3.up * DefaultHeight);
+            UpdatePositionAndRotationTo(position: Vector3.up * DefaultHeight, isTeleportToOriginPoseChange: true);
         }
 
-        public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null)
+        public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null, bool isTeleportToOriginPoseChange = false)
         {
             if (position.HasValue)
             {
@@ -127,7 +127,7 @@ namespace MachineSimulator.MachineModel
                 transform.rotation = rotation.Value;
             }
 
-            _onPoseChanged.OnNext(Unit.Default);
+            _onPoseChanged.OnNext(isTeleportToOriginPoseChange);
         }
 
         private void ExecuteStrategie()

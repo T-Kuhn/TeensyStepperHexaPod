@@ -21,7 +21,7 @@ namespace MachineSimulator.MachineModel
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
         private HexaplateMover _hexaPlate;
-        
+
         public Transform HexaPlateTransform => _hexaPlate.transform;
         public HexaplateMover HexaPlateMover => _hexaPlate;
 
@@ -62,12 +62,12 @@ namespace MachineSimulator.MachineModel
                 var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
                 var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
-                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{armIndex+1}", true, true);
-                InstantiateTarget(leftArm, leftTargetPosition, armIndex == 0);
+                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{armIndex + 1}", true, true);
+                InstantiateTarget(leftArm, leftTargetPosition, false);
                 _arms[armIndex++] = leftArm;
 
-                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{armIndex+1}", false, false);
-                InstantiateTarget(rightArm, rightTargetPosition, false);
+                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{armIndex + 1}", false, false);
+                InstantiateTarget(rightArm, rightTargetPosition, armIndex == 1);
                 _arms[armIndex++] = rightArm;
             }
         }
@@ -80,7 +80,7 @@ namespace MachineSimulator.MachineModel
             target.transform.parent = _hexaPlate.transform;
             arm.SetupRefs(target.transform, _hexaPlate.transform, attachLogger ? _logger : null);
 
-            _hexaPlate.OnPoseChanged.Subscribe(_ => arm.RunIk()).AddTo(this);
+            _hexaPlate.OnPoseChanged.Subscribe(isTeleportToOriginPoseChange => arm.RunIk(isTeleportToOriginPoseChange)).AddTo(this);
         }
 
         private SingleArmMover InstantiateArm(

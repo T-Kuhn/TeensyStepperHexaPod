@@ -58,7 +58,8 @@
 //           - [X] correct cw/ccw direction
 //                - [X] for M1 moving-arm-up-rotation-direction is minus
 //                - [X] for M2 moving-arm-up-rotation-direction is plus
-//           - [ ] correct 0-position (need to check rotation at origin position and use it as offset)
+//           - [X] correct 0-position (need to check rotation at origin position and use it as offset)
+//           - [ ] We need to multiply our theta by something to scale the value to the one the microcontroller expects
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
 
@@ -102,7 +103,14 @@
 // - Wouldn't it also work if the 6 arms were placed one at a time at 60deg intervals instead of pairwise in 120deg intervals?
 
 
+// HOW TO USE:
+//     1. Press Unity Editor's play button
+//     2. Press Apply Offset button; The physical machine should now be in exactly the same state as the virtual machine
+//     3. Move HexaPlate, AddHLInstruction, Teleport to origin, AddHLInstruction, PlaybackStringed
+
+
 // CHANGELOG
 // - 2025-07-14: Tightened nuts on last joint (where the arm is connected to the hexaplate) for better rigidity.
 // - 2025-07-14: No PID (open loop) seems better.
+
 

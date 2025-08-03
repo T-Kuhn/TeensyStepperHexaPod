@@ -38,6 +38,8 @@ namespace MachineSimulator.MachineModel
         private (Vector3 Origin, Vector3 Dir) _redDebugGizmoLine;
         private (Vector3 Origin, Vector3 Dir) _blueDebugGizmoLineThree;
 
+        private float _motorOriginOffset;
+
         public void SetupRefs(Transform target, Transform centerRef, Logger logger)
         {
             _target = target;
@@ -59,7 +61,7 @@ namespace MachineSimulator.MachineModel
             _logger?.UpdateLogging(_motorRotation);
         }
 
-        public void RunIk()
+        public void RunIk(bool isTeleportToOriginPoseChange = false)
         {
             var worldOffsetDir = transform.TransformDirection(Vector3.forward);
             var rotatedWorldOffsetDir = _center.rotation * worldOffsetDir;
@@ -89,7 +91,7 @@ namespace MachineSimulator.MachineModel
                 Debug.Log("frame: " + Time.frameCount + "  localTarget: " + localTarget + "  intersectionPoint: " + intersectionPoint);
             }
 
-            RotateJoint1(intersectionPoint);
+            RotateJoint1(intersectionPoint, isTeleportToOriginPoseChange);
             var worldLink2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint, localTarget);
             var containerLocalDir = _viewContainer.InverseTransformDirection(worldLink2Dir);
             RotateJoint2(containerLocalDir);
@@ -118,14 +120,14 @@ namespace MachineSimulator.MachineModel
             return transform.TransformDirection(localLink2Dir);
         }
 
-        private void RotateJoint1(Vector3 intersectionPoint)
+        private void RotateJoint1(Vector3 intersectionPoint, bool isTeleportToOriginPoseChange)
         {
             var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x);
-            SetMotorRotation(theta);
+            SetMotorRotation(theta, isTeleportToOriginPoseChange);
             _joint1.localRotation = Quaternion.Euler(theta * Mathf.Rad2Deg, 0f, 0f);
         }
 
-        private void SetMotorRotation(float theta)
+        private void SetMotorRotation(float theta, bool isTeleportToOriginPoseChange)
         {
             // NOTE: We want to motor rotation to be continuous and in the range [0, 2π]
             //       Without below fix theta switched form -PI to +PI.
@@ -133,12 +135,17 @@ namespace MachineSimulator.MachineModel
             //       (theta will switch from 2PI to 0 instead of going from +0 to -0), that's why we only apply
             //       the fix to arms that actually can physically go through the range where
             //       the incontiniuty happens.
-            if(_fixPiMinusPiDiscontiniuty && theta < 0f)
+            if (_fixPiMinusPiDiscontiniuty && theta < 0f)
             {
                 theta += Mathf.PI * 2f;
             }
 
-            _motorRotation = theta;
+            if (isTeleportToOriginPoseChange)
+            {
+                _motorOriginOffset = -theta;
+            }
+
+            _motorRotation = _motorOriginOffset + theta;
         }
 
         // NOTE: Joint2 rotates around the X-axis
