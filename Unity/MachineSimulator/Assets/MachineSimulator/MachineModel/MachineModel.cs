@@ -62,11 +62,11 @@ namespace MachineSimulator.MachineModel
                 var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
                 var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
-                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true, true);
+                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{armIndex+1}", true, true);
                 InstantiateTarget(leftArm, leftTargetPosition, armIndex == 0);
                 _arms[armIndex++] = leftArm;
 
-                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false, false);
+                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{armIndex+1}", false, false);
                 InstantiateTarget(rightArm, rightTargetPosition, false);
                 _arms[armIndex++] = rightArm;
             }
@@ -92,6 +92,7 @@ namespace MachineSimulator.MachineModel
         {
             var arm = Instantiate(isLeftArm ? _armLeftPrefab : _armRightPrefab, transform);
             arm.SetupUseSecondSolution(useSecondSolution);
+            arm.SetupFixPiMinusPiDiscontinuity(isLeftArm);
             arm.transform.localPosition = position;
             arm.transform.localRotation = quaternion;
             arm.name = name;

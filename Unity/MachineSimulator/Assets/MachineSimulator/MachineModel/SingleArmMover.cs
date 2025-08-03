@@ -20,6 +20,7 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private Transform _joint1Tip;
 
         [SerializeField] private bool _useSecondSolution;
+        [SerializeField] private bool _fixPiMinusPiDiscontiniuty;
         [SerializeField] private bool _showDebugLog;
         [SerializeField] private bool _showDebugGizmos;
 
@@ -45,6 +46,8 @@ namespace MachineSimulator.MachineModel
         }
 
         public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
+
+        public void SetupFixPiMinusPiDiscontinuity(bool fixPiMinusPiDiscontinuity) => _fixPiMinusPiDiscontiniuty = fixPiMinusPiDiscontinuity;
 
         private void Update()
         {
@@ -125,7 +128,12 @@ namespace MachineSimulator.MachineModel
         private void SetMotorRotation(float theta)
         {
             // NOTE: We want to motor rotation to be continuous and in the range [0, 2π]
-            if (theta < 0f)
+            //       Without below fix theta switched form -PI to +PI.
+            //       However, WITH below fix a new discontiniuty arises at the 2PI-0 border
+            //       (theta will switch from 2PI to 0 instead of going from +0 to -0), that's why we only apply
+            //       the fix to arms that actually can physically go through the range where
+            //       the incontiniuty happens.
+            if(_fixPiMinusPiDiscontiniuty && theta < 0f)
             {
                 theta += Mathf.PI * 2f;
             }

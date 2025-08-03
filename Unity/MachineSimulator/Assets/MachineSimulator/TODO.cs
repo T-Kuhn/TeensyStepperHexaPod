@@ -55,7 +55,9 @@
 //     - [X] Do the same kind of logging for motor rotations (stringed vs unstringed)
 // Continue work on this ↓
 //     - [ ] make sure the motorRotations match what the microcontroller is expecting
-//           - [ ] correct cw/ccw direction
+//           - [X] correct cw/ccw direction
+//                - [X] for M1 moving-arm-up-rotation-direction is minus
+//                - [X] for M2 moving-arm-up-rotation-direction is plus
 //           - [ ] correct 0-position (need to check rotation at origin position and use it as offset)
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
