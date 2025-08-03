@@ -53,13 +53,14 @@
 //     - [X] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
 //     - [X] Move logger in seperate class
 //     - [X] Do the same kind of logging for motor rotations (stringed vs unstringed)
-// Continue work on this ↓
 //     - [ ] make sure the motorRotations match what the microcontroller is expecting
 //           - [X] correct cw/ccw direction
 //                - [X] for M1 moving-arm-up-rotation-direction is minus
 //                - [X] for M2 moving-arm-up-rotation-direction is plus
 //           - [X] correct 0-position (need to check rotation at origin position and use it as offset)
+// Continue work on this ↓
 //           - [ ] We need to multiply our theta by something to scale the value to the one the microcontroller expects
+//     - [X] For some reason, creating stringed instructions playback isn't working with many HLInstructions
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
 

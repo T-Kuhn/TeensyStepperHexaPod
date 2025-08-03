@@ -30,6 +30,7 @@ namespace MachineSimulator.Sequencing
         public void StartStringedPlayback()
         {
             var listOfStringedInstructions = CreateListOfStringedHighLevelInstructions();
+            Debug.Log("listOFStringedInstructions.lengh" + listOfStringedInstructions.Count);
 
             _machineModel.HexaPlateMover.StartPlaybackMode(listOfStringedInstructions, true);
         }

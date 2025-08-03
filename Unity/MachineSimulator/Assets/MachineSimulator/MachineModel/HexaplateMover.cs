@@ -83,6 +83,7 @@ namespace MachineSimulator.MachineModel
 
                     if (t >= 1f)
                     {
+                        await UniTask.Yield();
                         break;
                     }
 
