@@ -34,6 +34,7 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onAddInstructionClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onTeleportToOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onPlaybackClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onPlaybackStringedClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onClearAllClicked = new Subject<Unit>();
 
         public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
@@ -64,6 +65,7 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnAddInstructionClicked => _onAddInstructionClicked;
         public IObservable<Unit> OnTeleportToOriginClicked => _onTeleportToOriginClicked;
         public IObservable<Unit> OnPlaybackClicked => _onPlaybackClicked;
+        public IObservable<Unit> OnPlaybackStringedClicked => _onPlaybackStringedClicked;
         public IObservable<Unit> OnClearAllClicked => _onClearAllClicked;
 
         private void Awake()
@@ -98,6 +100,7 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<Button>("AddInstructionButton"), _onAddInstructionClicked);
             RegisterButton(root.Q<Button>("TeleportToOrigin"), _onTeleportToOriginClicked);
             RegisterButton(root.Q<Button>("PlaybackButton"), _onPlaybackClicked);
+            RegisterButton(root.Q<Button>("PlaybackStringedButton"), _onPlaybackStringedClicked);
             RegisterButton(root.Q<Button>("ClearAllButton"), _onClearAllClicked);
         }
 

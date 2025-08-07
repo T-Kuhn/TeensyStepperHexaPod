@@ -1,31 +1,39 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using MachineSimulator.Machine;
+using UniRx;
 using UnityEngine;
-using UnityEngine.Serialization;
+using Logger = MachineSimulator.Logging.Logger;
 
 namespace MachineSimulator.MachineModel
 {
     public sealed class HexaplateMover : MonoBehaviour
     {
+        private readonly Subject<bool> _onPoseChanged = new Subject<bool>();
+
+        // NOTE: This Observable triggers the IK on the machine model.
+        //       Because of that, every position/rotation change needs to cause an onNext on the Subject.
+        public IObservable<bool> OnPoseChanged => _onPoseChanged;
+
         public float DefaultHeight { get; set; }
         private Dictionary<StrategyName, IHexaplateMovementStrategy> _strategies;
 
         public StrategyName CurrentStrategy;
 
         private bool _isInPlaybackMode;
+        private Logger _logger;
 
-        public void StartPlaybackMode(List<HLInstruction> instructions)
+        public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear = false)
         {
-            Debug.Log("StartPlayback");
-            PlaybackSequenceAsync(instructions).Forget();
-            _isInPlaybackMode = true;
+            PlaybackSequenceAsync(instructions, isLinear).Forget();
         }
 
         private void Awake()
         {
             _strategies = new Dictionary<StrategyName, IHexaplateMovementStrategy>()
             {
+                { StrategyName.DoNothing, null },
                 { StrategyName.UpDown, new UpDownStrategy() },
                 { StrategyName.BackForth, new BackForthStrategy() },
                 { StrategyName.LeftRight, new LeftRightStrategy() },
@@ -41,36 +49,43 @@ namespace MachineSimulator.MachineModel
             {
                 return;
             }
-            
+
             ExecuteStrategie();
         }
 
-        
-        private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions)
+        private void LateUpdate()
         {
+            // _logger.UpdateLogging(transform.position.y);
+        }
+
+        private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions, bool isLinear)
+        {
+            _isInPlaybackMode = true;
+            _logger.StartLogging();
+
             foreach (var instruction in instructions)
             {
                 var currentPosition = transform.position;
                 var currentRotation = transform.rotation;
-                
+
                 var targetPosition = instruction.TargetMachineState.PlateCenterPosition;
                 var targetRotation = instruction.TargetMachineState.PlateRotationQuaternion;
-                
+
                 var moveTime = instruction.MoveTime;
                 var elapsedTime = 0f;
-                
+
                 while (true)
                 {
                     elapsedTime += Time.deltaTime;
-                    
+
                     // NOTE: t always goes from 0 to 1
                     var t = elapsedTime / moveTime;
-                    
+
                     if (t >= 1f)
                     {
                         break;
                     }
-                    
+
                     // NOTE: theta always goes from 0 to PI
                     var theta = t * Mathf.PI;
 
@@ -78,30 +93,57 @@ namespace MachineSimulator.MachineModel
                     var r = Mathf.Cos(theta) + 1;
 
                     // NOTE: s goes from 0 to 1
-                    var s = (2 - r) / 2f;
-                    
+                    // NOTE: if we are moving to the target linearly, s the same as t
+                    var s = isLinear ? t : (2 - r) / 2f;
+
                     // Interpolate position and rotation
                     var position = Vector3.Lerp(currentPosition, targetPosition, s);
                     var rotation = Quaternion.Lerp(currentRotation, targetRotation, s);
-                    transform.position = position;
-                    transform.rotation = rotation;
-                    
+
+                    UpdatePositionAndRotationTo(position, rotation);
+
                     await UniTask.Yield();
                 }
             }
+
+            _isInPlaybackMode = false;
+            _logger.StopLogging();
         }
-        
+
         public void TeleportToDefaultHeight()
         {
-            transform.position = Vector3.up * DefaultHeight;
+            UpdatePositionAndRotationTo(position: Vector3.up * DefaultHeight, isTeleportToOriginPoseChange: true);
+        }
+
+        public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null, bool isTeleportToOriginPoseChange = false)
+        {
+            if (position.HasValue)
+            {
+                transform.position = position.Value;
+            }
+
+            if (rotation.HasValue)
+            {
+                transform.rotation = rotation.Value;
+            }
+
+            _onPoseChanged.OnNext(isTeleportToOriginPoseChange);
         }
 
         private void ExecuteStrategie()
         {
+            if (CurrentStrategy == StrategyName.DoNothing) return;
+
             var time = Time.time * 3f;
             var (position, rotation) = _strategies[CurrentStrategy].Move(time);
-            transform.position = position + Vector3.up * DefaultHeight;
-            transform.rotation = rotation;
+            var newPosition = position + Vector3.up * DefaultHeight;
+
+            UpdatePositionAndRotationTo(newPosition, rotation);
+        }
+
+        public void InjectRefs(Logger logger)
+        {
+            _logger = logger;
         }
     }
 }

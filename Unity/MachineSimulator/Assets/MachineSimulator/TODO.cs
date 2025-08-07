@@ -38,12 +38,32 @@
 // - [X] we want to go up/down even faster
 // - [X] we want to go further up and down to a position above origin
 
-// Continue work on this ↓
 // - [ ] We need a way to move the simulatedMachine with HighLevelInstructions.
 //     - [X] HighLevelInstruction needs to contain: PlateCenterPosition, PlateRotationQuaternion, MoveTime
 //     - [X] We Need a "add pose" button
 //     - [X] First goal will be to be able to play-back the recorded HighLevelInstruction
 //     - [X] Introduce the concept of a "sequence" (a list of HighLevelInstructions). This will be useful when converting the HighLevelInstructions to stringed LowLevelInstructions.
+//     - [X] Add "Playback Stringed" button. When pressed...
+//         - [X] ...Create stringed linear HighLevelInstructions in intervals of 0.1 * moveTime for all HighLevelInstructions in the sequence.
+//              - [X]  To create the stringed instructions, the IK has to be executed every time the HexaPlate's position changes. Use an Observable to let the IK know that it needs to update.
+//              - [X]  Make sure above Observable fires whenever we update the HexaPlate's position/rotation.
+//              - [X] After this, it should work like this: Update Hexaplate position/rotation -> IK updates -> We are able to read out all the motor rotations and create a stringed LowLevelInstruction from them.
+//         - [X] ...playback the sequence of stringed HighLevelInstructions
+//     - [X] add capability to independently log position data every frame. Log all the positions in the CSV format in order to make graphs to check if the linear stringed instructions work as expected.
+//     - [X] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
+//     - [X] Move logger in seperate class
+//     - [X] Do the same kind of logging for motor rotations (stringed vs unstringed)
+// Continue work on this ↓
+//     - [ ] make sure the motorRotations match what the microcontroller is expecting
+//           - [X] correct cw/ccw direction
+//                - [X] for M1 moving-arm-up-rotation-direction is minus
+//                - [X] for M2 moving-arm-up-rotation-direction is plus
+//           - [X] correct 0-position (need to check rotation at origin position and use it as offset)
+//           - [ ] We need to multiply our theta by something to scale the value to the one the microcontroller expects
+//     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
+//     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
+
+//     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
 //     - [ ] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
 //           - To generate them, we move time forward in small steps, check how far each of the motors has moved and create a LowLevelInstruction for each step.
 // - [ ] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
@@ -83,7 +103,14 @@
 // - Wouldn't it also work if the 6 arms were placed one at a time at 60deg intervals instead of pairwise in 120deg intervals?
 
 
+// HOW TO USE:
+//     1. Press Unity Editor's play button
+//     2. Press Apply Offset button; The physical machine should now be in exactly the same state as the virtual machine
+//     3. Move HexaPlate, AddHLInstruction, Teleport to origin, AddHLInstruction, PlaybackStringed
+
+
 // CHANGELOG
 // - 2025-07-14: Tightened nuts on last joint (where the arm is connected to the hexaplate) for better rigidity.
 // - 2025-07-14: No PID (open loop) seems better.
+
 

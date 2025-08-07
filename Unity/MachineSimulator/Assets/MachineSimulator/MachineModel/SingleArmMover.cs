@@ -1,5 +1,6 @@
 using MachineSimulator.Ik;
 using UnityEngine;
+using Logger = MachineSimulator.Logging.Logger;
 
 namespace MachineSimulator.MachineModel
 {
@@ -19,10 +20,14 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private Transform _joint1Tip;
 
         [SerializeField] private bool _useSecondSolution;
+        [SerializeField] private bool _fixPiMinusPiDiscontiniuty;
         [SerializeField] private bool _showDebugLog;
         [SerializeField] private bool _showDebugGizmos;
 
         [SerializeField] private float _finalJointOffset;
+
+        private float _motorRotation;
+        private Logger _logger;
 
         // NOTE: For debugging
         private Vector3 _worldLink2Dir;
@@ -33,12 +38,30 @@ namespace MachineSimulator.MachineModel
         private (Vector3 Origin, Vector3 Dir) _redDebugGizmoLine;
         private (Vector3 Origin, Vector3 Dir) _blueDebugGizmoLineThree;
 
-        public void SetupTargetRef(Transform target) => _target = target;
-        public void SetupCenterRef(Transform centerRef) => _center = centerRef;
+        private float _motorOriginOffset;
+
+        public void SetupRefs(Transform target, Transform centerRef, Logger logger)
+        {
+            _target = target;
+            _center = centerRef;
+            _logger = logger;
+        }
 
         public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
 
-        void Update()
+        public void SetupFixPiMinusPiDiscontinuity(bool fixPiMinusPiDiscontinuity) => _fixPiMinusPiDiscontiniuty = fixPiMinusPiDiscontinuity;
+
+        private void Update()
+        {
+            RunIk();
+        }
+
+        private void LateUpdate()
+        {
+            _logger?.UpdateLogging(_motorRotation);
+        }
+
+        public void RunIk(bool isTeleportToOriginPoseChange = false)
         {
             var worldOffsetDir = transform.TransformDirection(Vector3.forward);
             var rotatedWorldOffsetDir = _center.rotation * worldOffsetDir;
@@ -68,7 +91,7 @@ namespace MachineSimulator.MachineModel
                 Debug.Log("frame: " + Time.frameCount + "  localTarget: " + localTarget + "  intersectionPoint: " + intersectionPoint);
             }
 
-            RotateJoint1(intersectionPoint);
+            RotateJoint1(intersectionPoint, isTeleportToOriginPoseChange);
             var worldLink2Dir = MoveLink2ToJoint1TipAndGetLink2Dir(intersectionPoint, localTarget);
             var containerLocalDir = _viewContainer.InverseTransformDirection(worldLink2Dir);
             RotateJoint2(containerLocalDir);
@@ -97,10 +120,32 @@ namespace MachineSimulator.MachineModel
             return transform.TransformDirection(localLink2Dir);
         }
 
-        private void RotateJoint1(Vector3 intersectionPoint)
+        private void RotateJoint1(Vector3 intersectionPoint, bool isTeleportToOriginPoseChange)
         {
-            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x) * Mathf.Rad2Deg;
-            _joint1.localRotation = Quaternion.Euler(theta, 0f, 0f);
+            var theta = Mathf.Atan2(intersectionPoint.y, intersectionPoint.x);
+            SetMotorRotation(theta, isTeleportToOriginPoseChange);
+            _joint1.localRotation = Quaternion.Euler(theta * Mathf.Rad2Deg, 0f, 0f);
+        }
+
+        private void SetMotorRotation(float theta, bool isTeleportToOriginPoseChange)
+        {
+            // NOTE: We want to motor rotation to be continuous and in the range [0, 2π]
+            //       Without below fix theta switched form -PI to +PI.
+            //       However, WITH below fix a new discontiniuty arises at the 2PI-0 border
+            //       (theta will switch from 2PI to 0 instead of going from +0 to -0), that's why we only apply
+            //       the fix to arms that actually can physically go through the range where
+            //       the incontiniuty happens.
+            if (_fixPiMinusPiDiscontiniuty && theta < 0f)
+            {
+                theta += Mathf.PI * 2f;
+            }
+
+            if (isTeleportToOriginPoseChange)
+            {
+                _motorOriginOffset = -theta;
+            }
+
+            _motorRotation = _motorOriginOffset + theta;
         }
 
         // NOTE: Joint2 rotates around the X-axis
@@ -134,8 +179,6 @@ namespace MachineSimulator.MachineModel
         private void RotateJoint4(Vector3 linkDir)
         {
             var joint3ForwardDir = -_joint3.forward;
-            var _viewContainerForward = _viewContainer.right;
-            var joint3UpDir = _joint4.up;
             var projectedVector = Vector3.ProjectOnPlane(linkDir, _joint3.up);
             var angle = Vector3.SignedAngle(joint3ForwardDir, projectedVector, _joint3.up);
 

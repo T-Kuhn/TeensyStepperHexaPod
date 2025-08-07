@@ -1,4 +1,6 @@
+using UniRx;
 using UnityEngine;
+using Logger = MachineSimulator.Logging.Logger;
 
 namespace MachineSimulator.MachineModel
 {
@@ -14,17 +16,19 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private float _distanceApartMotorPairs;
         [SerializeField] private float _distanceApartTargetPairs;
         [SerializeField] private float _downwardOffsetForTargetPairs;
+        [SerializeField] private Logger _logger;
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
         private HexaplateMover _hexaPlate;
-        
+
         public Transform HexaPlateTransform => _hexaPlate.transform;
         public HexaplateMover HexaPlateMover => _hexaPlate;
 
         private void Start()
         {
             _hexaPlate = Instantiate(_hexaPlatePrefab);
+            _hexaPlate.InjectRefs(_logger);
             _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
             _hexaPlate.TeleportToDefaultHeight();
         }
@@ -58,24 +62,25 @@ namespace MachineSimulator.MachineModel
                 var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
                 var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
-                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{i}", true, true);
-                InstantiateTarget(leftArm, leftTargetPosition);
+                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{armIndex + 1}", true, true);
+                InstantiateTarget(leftArm, leftTargetPosition, false);
                 _arms[armIndex++] = leftArm;
 
-                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{i}", false, false);
-                InstantiateTarget(rightArm, rightTargetPosition);
+                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{armIndex + 1}", false, false);
+                InstantiateTarget(rightArm, rightTargetPosition, armIndex == 1);
                 _arms[armIndex++] = rightArm;
             }
         }
 
-        private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition)
+        private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition, bool attachLogger)
         {
             var target = Instantiate(_targetPrefab);
             var hexaPlateHeight = _hexaPlate.transform.position.y;
             target.transform.position = targetPosition + (hexaPlateHeight - _downwardOffsetForTargetPairs) * Vector3.up;
             target.transform.parent = _hexaPlate.transform;
-            arm.SetupTargetRef(target.transform);
-            arm.SetupCenterRef(_hexaPlate.transform);
+            arm.SetupRefs(target.transform, _hexaPlate.transform, attachLogger ? _logger : null);
+
+            _hexaPlate.OnPoseChanged.Subscribe(isTeleportToOriginPoseChange => arm.RunIk(isTeleportToOriginPoseChange)).AddTo(this);
         }
 
         private SingleArmMover InstantiateArm(
@@ -87,6 +92,7 @@ namespace MachineSimulator.MachineModel
         {
             var arm = Instantiate(isLeftArm ? _armLeftPrefab : _armRightPrefab, transform);
             arm.SetupUseSecondSolution(useSecondSolution);
+            arm.SetupFixPiMinusPiDiscontinuity(isLeftArm);
             arm.transform.localPosition = position;
             arm.transform.localRotation = quaternion;
             arm.name = name;
