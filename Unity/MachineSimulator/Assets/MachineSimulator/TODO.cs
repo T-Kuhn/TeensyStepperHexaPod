@@ -61,7 +61,7 @@
 // Continue work on this ↓
 //           - [ ] We need to multiply our theta by something to scale the value to the one the microcontroller expects
 //     - [X] For some reason, creating stringed instructions playback isn't working with many HLInstructions
-//     - [X] ALso reset rotation on Teleport to origin.
+//     - [X] Also reset rotation on Teleport to origin.
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
 

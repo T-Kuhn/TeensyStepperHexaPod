@@ -8,12 +8,11 @@ namespace MachineSimulator.Machine
     {
         private LLMachineState _levelingOffset = new LLMachineState();
         
-        
         public void Instruct(List<LLInstruction> instructions)
         {
             // NOTE: The current Max amount of instructions which can be sent in one go is 100.
             var diffInstructionList = instructions
-                .Take(100)
+                .Take(1000)
                 .Select(instruction =>
                     new LLInstruction(
                         instruction.TargetMachineState + _levelingOffset,

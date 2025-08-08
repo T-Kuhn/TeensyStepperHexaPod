@@ -16,8 +16,8 @@ namespace MachineSimulator.UI
 
         private void Awake()
         {
-            var upState = new LLMachineState(-30f, 30f, -30f, 30f, -30f, 30f);
-            var originState = new LLMachineState(-10f, 10f, -10f, 10f, -10f, 10f);
+            var upState = new LLMachineState(-0.93f, 0.93f, -0.93f, 0.93f, -0.93f, 0.93f);
+            var originState = new LLMachineState(-0.31f, 0.31f, -0.31f, 0.31f, -0.31f, 0.31f);
 
             var upOriginManyTimes = new List<LLMachineState>()
             {
@@ -62,7 +62,7 @@ namespace MachineSimulator.UI
                 .AddTo(this);
 
 
-            var amount = 0.1f;
+            var amount = 0.03f;
             Register(_view.OnM1PlusClicked, new LLMachineState(-amount, 0f, 0f, 0f, 0f, 0f).ToList(0.1f, true));
             Register(_view.OnM1MinusClicked, new LLMachineState(amount, 0f, 0f, 0f, 0f, 0f).ToList(0.1f, true));
             Register(_view.OnM2PlusClicked, new LLMachineState(0f, amount, 0f, 0f, 0f, 0f).ToList(0.1f, true));
