@@ -113,7 +113,7 @@ namespace MachineSimulator.MachineModel
 
         public void TeleportToDefaultHeight()
         {
-            UpdatePositionAndRotationTo(position: Vector3.up * DefaultHeight, isTeleportToOriginPoseChange: true);
+            UpdatePositionAndRotationTo(position: Vector3.up * DefaultHeight, rotation: Quaternion.identity, isTeleportToOriginPoseChange: true);
         }
 
         public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null, bool isTeleportToOriginPoseChange = false)
