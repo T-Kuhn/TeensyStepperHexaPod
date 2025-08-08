@@ -63,7 +63,7 @@
 //     - [X] For some reason, creating stringed instructions playback isn't working with many HLInstructions
 //     - [X] Also reset rotation on Teleport to origin.
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
-//     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
+//     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
 
 //     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
 //     - [ ] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).

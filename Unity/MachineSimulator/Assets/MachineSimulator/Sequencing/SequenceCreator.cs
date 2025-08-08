@@ -79,6 +79,8 @@ namespace MachineSimulator.Sequencing
                     var rotation = Quaternion.Lerp(currentRotation, targetRotation, s);
 
                     _machineModel.HexaPlateMover.UpdatePositionAndRotationTo(position, rotation);
+                    // So here we want to get the all the motor rotations AFTER IK to create a lowLevelMachineState
+                    // to then create a lowLevelInstruction.
 
                     var stringedMachineState = new HLMachineState(position, rotation);
                     stringedInstructions.Add(new HLInstruction(stringedMachineState, stringedMoveTime));
