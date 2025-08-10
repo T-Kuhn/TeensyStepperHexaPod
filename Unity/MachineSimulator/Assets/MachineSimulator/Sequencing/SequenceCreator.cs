@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MachineSimulator.Machine;
 using UnityEngine;
@@ -30,7 +31,6 @@ namespace MachineSimulator.Sequencing
         public void StartStringedPlayback()
         {
             var listOfStringedInstructions = CreateListOfStringedHighLevelInstructions();
-            Debug.Log("listOFStringedInstructions.lengh" + listOfStringedInstructions.Count);
 
             _machineModel.HexaPlateMover.StartPlaybackMode(listOfStringedInstructions, true);
         }
@@ -81,6 +81,11 @@ namespace MachineSimulator.Sequencing
                     _machineModel.HexaPlateMover.UpdatePositionAndRotationTo(position, rotation);
                     // So here we want to get the all the motor rotations AFTER IK to create a lowLevelMachineState
                     // to then create a lowLevelInstruction.
+                    var state = _machineModel.MachineStateProvider.CurrentLowLevelMachineState;
+                    Debug.Log("motor1Rot: " + state.Motor1Rotation + " motor2Rot: " + state.Motor2Rotation
+                              + " motor3Rot: " + state.Motor3Rotation + " motor4Rot: " + state.Motor4Rotation
+                              + " motor5Rot: " + state.Motor5Rotation + " motor6Rot: " + state.Motor6Rotation);
+
 
                     var stringedMachineState = new HLMachineState(position, rotation);
                     stringedInstructions.Add(new HLInstruction(stringedMachineState, stringedMoveTime));
