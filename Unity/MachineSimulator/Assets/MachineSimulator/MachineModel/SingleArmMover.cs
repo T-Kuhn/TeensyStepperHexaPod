@@ -39,12 +39,15 @@ namespace MachineSimulator.MachineModel
         private (Vector3 Origin, Vector3 Dir) _blueDebugGizmoLineThree;
 
         private float _motorOriginOffset;
+        private LLMachineStateProvider _llMachineStateProvider;
+        private int _armIndex;
 
-        public void SetupRefs(Transform target, Transform centerRef, Logger logger)
+        public void SetupRefs(Transform target, Transform centerRef, Logger logger, LLMachineStateProvider stateProvider)
         {
             _target = target;
             _center = centerRef;
             _logger = logger;
+            _llMachineStateProvider = stateProvider;
         }
 
         public void SetupUseSecondSolution(bool useSecondSolution) => _useSecondSolution = useSecondSolution;
@@ -100,6 +103,8 @@ namespace MachineSimulator.MachineModel
             RotateJoint5(realTargetToTarget);
 
             UpdateGizmoData(worldLink2Dir, realTarget);
+            
+            _llMachineStateProvider.SetRotationStateForArmWithIndex(_armIndex, _motorRotation);
         }
 
         private void UpdateGizmoData(Vector3 worldLink2Dir, Vector3 realTarget)
@@ -258,6 +263,11 @@ namespace MachineSimulator.MachineModel
                 var target = origin + dir;
                 Gizmos.DrawLine(origin, target);
             }
+        }
+
+        public void SetIndexTo(int index)
+        {
+            _armIndex = index;
         }
     }
 }
