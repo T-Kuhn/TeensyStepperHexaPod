@@ -58,10 +58,12 @@
 //                - [X] for M1 moving-arm-up-rotation-direction is minus
 //                - [X] for M2 moving-arm-up-rotation-direction is plus
 //           - [X] correct 0-position (need to check rotation at origin position and use it as offset)
-// Continue work on this ↓
-//           - [ ] We need to multiply our theta by something to scale the value to the one the microcontroller expects
+//           - [X] We need to multiply our theta by something to scale the value to the one the microcontroller expects
 //     - [X] For some reason, creating stringed instructions playback isn't working with many HLInstructions
 //     - [X] Also reset rotation on Teleport to origin.
+// Continue work on this ↓
+//     - [ ] Add LowLevelMachineStateProvider. Arms need to update their MotorRotation to LowLevelMachineStateProvider everytime the IK executes.
+//         - [ ] Use the LowLevelMachineState from above provider to do make the LowLevelInstructions.
 //     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
 
