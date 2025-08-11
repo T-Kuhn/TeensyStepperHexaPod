@@ -62,9 +62,10 @@
 //     - [X] For some reason, creating stringed instructions playback isn't working with many HLInstructions
 //     - [X] Also reset rotation on Teleport to origin.
 //     - [X] Add LowLevelMachineStateProvider. Arms need to update their MotorRotation to LowLevelMachineStateProvider everytime the IK executes.
+//         - [X] Use the LowLevelMachineState from above provider to do make the LowLevelInstructions.
+//     - [X] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 // Continue work on this ↓
-//         - [ ] Use the LowLevelMachineState from above provider to do make the LowLevelInstructions.
-//     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
+//     - [ ] Add button called "Playback stringed on RM"
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
 
 //     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
