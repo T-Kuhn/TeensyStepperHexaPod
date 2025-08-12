@@ -95,7 +95,7 @@ namespace MachineSimulator.Sequencing
                     // NOTE: Create LowLevelInstruction from Motor Position retreived AFTER IK was run on all Arms.
                     var state = _machineModel.MachineStateProvider.CurrentLowLevelMachineState;
                     var highLevelInstruction = new HLInstruction(stringedMachineState, stringedMoveTime);
-                    var lowLevelInstruction = new LLInstruction(state, moveTime);
+                    var lowLevelInstruction = new LLInstruction(state, stringedMoveTime);
                     stringedInstructions.Add((highLevelInstruction, lowLevelInstruction));
 
                     /*
