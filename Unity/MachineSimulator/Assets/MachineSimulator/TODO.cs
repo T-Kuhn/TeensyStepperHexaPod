@@ -65,15 +65,16 @@
 //         - [X] Use the LowLevelMachineState from above provider to do make the LowLevelInstructions.
 //     - [X] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
 //     - [X] Add button called "Playback stringed on RM"
-// Continue work on this ↓
-//     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
-
-//     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
-//     - [ ] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
+//     - [X] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
+//     - [X] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
 //           - To generate them, we move time forward in small steps, check how far each of the motors has moved and create a LowLevelInstruction for each step.
-// - [ ] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
+// - [X] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
 //       when generating motor rotations with IK, but the movement commands themselves can be linear speed movements to target position because they will be very short and about 50 for a complete move.
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
+// Continue work on this ↓
+// - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
+// - [ ] add "send to machine and repeat 5x" button to the sequencing UI
+// - [ ] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
