@@ -1,5 +1,5 @@
 .CommandButton {
-    width: 100px;
+    width: 105px;
     background-color: rgb(42, 42, 42);
     border-left-color: rgb(0, 0, 0);
     border-right-color: rgb(0, 0, 0);
@@ -19,9 +19,9 @@
 }
 
 .CalibrateButton:active {
-    background-color: rgba(75, 75, 75, 255);
+    background-color: rgb(75, 75, 75);
 }
 
 .CommandButton:active {
-    background-color: rgba(75, 75, 75, 255);
+    background-color: rgb(75, 75, 75);
 }

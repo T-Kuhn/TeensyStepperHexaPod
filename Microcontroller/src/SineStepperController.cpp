@@ -51,7 +51,7 @@ void SineStepperController::resetMoveBatchExecution()
 // - - - - - - - - - - - - - - -
 void SineStepperController::setFrequencyFrom(float moveDuration)
 {
-    _frequency = FREQUENCY_MULTIPLIER * M_PI / moveDuration;
+    _frequency = FREQUENCY_MULTIPLIER / moveDuration;
 }
 
 // - - - - - - - - - - - - - - -
@@ -95,22 +95,17 @@ bool SineStepperController::update()
     {
         // GENERATE PULSES
         _counter++;
-        // Theta goes from 0 ~ M_PI
-        float theta = _counter * _frequency;
-        // cosine takes values form 0 ~ 2.
-        // starting at 2 and ending at 0.
-
-        float cosine = (cosf(theta) + 1.0);
-
+        // Theta goes from 0 ~ 1
+        float t = _counter * _frequency;
         for (uint8_t i = 0; i < MAX_NUM_OF_STEPPERS; i++)
         {
             if (_sineSteppers[i] != 0)
             {
-                _sineSteppers[i]->update(cosine);
+                _sineSteppers[i]->update(t);
             }
         }
 
-        if (theta > M_PI)
+        if (t > 1.0)
         {
             _isExecutingBatch = false;
             _counter = 0;

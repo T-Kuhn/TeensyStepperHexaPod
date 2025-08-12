@@ -17,6 +17,7 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private float _distanceApartTargetPairs;
         [SerializeField] private float _downwardOffsetForTargetPairs;
         [SerializeField] private Logger _logger;
+        [SerializeField] private LLMachineStateProvider _stateProvider;
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
@@ -24,6 +25,8 @@ namespace MachineSimulator.MachineModel
 
         public Transform HexaPlateTransform => _hexaPlate.transform;
         public HexaplateMover HexaPlateMover => _hexaPlate;
+        
+        public LLMachineStateProvider MachineStateProvider => _stateProvider;
 
         private void Start()
         {
@@ -62,11 +65,11 @@ namespace MachineSimulator.MachineModel
                 var leftTargetPosition = targetCenterPosition + leftDir * _distanceApartTargetPairs;
                 var rightTargetPosition = targetCenterPosition + rightDir * _distanceApartTargetPairs;
 
-                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{armIndex + 1}", true, true);
+                var leftArm = InstantiateArm(leftPosition, quaternion, $"Arm{armIndex + 1}", true, true, armIndex + 1);
                 InstantiateTarget(leftArm, leftTargetPosition, false);
                 _arms[armIndex++] = leftArm;
 
-                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{armIndex + 1}", false, false);
+                var rightArm = InstantiateArm(rightPosition, quaternion, $"Arm{armIndex + 1}", false, false, armIndex + 1);
                 InstantiateTarget(rightArm, rightTargetPosition, armIndex == 1);
                 _arms[armIndex++] = rightArm;
             }
@@ -78,7 +81,7 @@ namespace MachineSimulator.MachineModel
             var hexaPlateHeight = _hexaPlate.transform.position.y;
             target.transform.position = targetPosition + (hexaPlateHeight - _downwardOffsetForTargetPairs) * Vector3.up;
             target.transform.parent = _hexaPlate.transform;
-            arm.SetupRefs(target.transform, _hexaPlate.transform, attachLogger ? _logger : null);
+            arm.SetupRefs(target.transform, _hexaPlate.transform, attachLogger ? _logger : null, _stateProvider);
 
             _hexaPlate.OnPoseChanged.Subscribe(isTeleportToOriginPoseChange => arm.RunIk(isTeleportToOriginPoseChange)).AddTo(this);
         }
@@ -88,9 +91,11 @@ namespace MachineSimulator.MachineModel
             Quaternion quaternion,
             string name,
             bool useSecondSolution,
-            bool isLeftArm)
+            bool isLeftArm,
+            int index)
         {
             var arm = Instantiate(isLeftArm ? _armLeftPrefab : _armRightPrefab, transform);
+            arm.SetIndexTo(index);
             arm.SetupUseSecondSolution(useSecondSolution);
             arm.SetupFixPiMinusPiDiscontinuity(isLeftArm);
             arm.transform.localPosition = position;

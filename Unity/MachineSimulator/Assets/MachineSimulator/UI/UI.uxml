@@ -58,6 +58,7 @@
                 <ui:Button text="Teleport&#10;To Origin" display-tooltip-when-elided="true" name="TeleportToOrigin" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Playback" display-tooltip-when-elided="true" name="PlaybackButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Playback&#10;Stringed" display-tooltip-when-elided="true" name="PlaybackStringedButton" class="CommandButton" style="height: 40px;" />
+                <ui:Button text="Send Stringed&#10;To Machine" display-tooltip-when-elided="true" name="SendStringedToMachine" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Clear All" display-tooltip-when-elided="true" name="ClearAllButton" class="CommandButton" style="height: 40px;" />
             </ui:VisualElement>
         </ui:VisualElement>

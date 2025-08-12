@@ -53,22 +53,28 @@
 //     - [X] our logging is a bit shabby; We might get a different number of data points for different playbacks. Fix this. (also log time instead of frame count?)
 //     - [X] Move logger in seperate class
 //     - [X] Do the same kind of logging for motor rotations (stringed vs unstringed)
-// Continue work on this ↓
 //     - [ ] make sure the motorRotations match what the microcontroller is expecting
 //           - [X] correct cw/ccw direction
 //                - [X] for M1 moving-arm-up-rotation-direction is minus
 //                - [X] for M2 moving-arm-up-rotation-direction is plus
 //           - [X] correct 0-position (need to check rotation at origin position and use it as offset)
-//           - [ ] We need to multiply our theta by something to scale the value to the one the microcontroller expects
-//     - [ ] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
-//     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller.
-
-//     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
-//     - [ ] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
+//           - [X] We need to multiply our theta by something to scale the value to the one the microcontroller expects
+//     - [X] For some reason, creating stringed instructions playback isn't working with many HLInstructions
+//     - [X] Also reset rotation on Teleport to origin.
+//     - [X] Add LowLevelMachineStateProvider. Arms need to update their MotorRotation to LowLevelMachineStateProvider everytime the IK executes.
+//         - [X] Use the LowLevelMachineState from above provider to do make the LowLevelInstructions.
+//     - [X] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
+//     - [X] Add button called "Playback stringed on RM"
+//     - [X] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
+//     - [X] Next, create stringed LowLevelInstructions from the sequence (go through data in pairs: "from" HLInstruction, "to" HLInstruction).
 //           - To generate them, we move time forward in small steps, check how far each of the motors has moved and create a LowLevelInstruction for each step.
-// - [ ] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
+// - [X] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
 //       when generating motor rotations with IK, but the movement commands themselves can be linear speed movements to target position because they will be very short and about 50 for a complete move.
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
+// Continue work on this ↓
+// - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
+// - [ ] add "send to machine and repeat 5x" button to the sequencing UI
+// - [ ] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
@@ -81,7 +87,7 @@
 //     -> this might be interesting, especially if we connect the driver to the setup software and look through all the settings,
 //        but I'm not sure we'll get anything out of this (going no-feedback-loop might be the best option after all)
 
-// - [ ] NEXTUP: change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
+// - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] add some sort of animation for end effector platform
 //     - [X] moving up and down
 //     - [X] moving left and right

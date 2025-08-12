@@ -27,6 +27,8 @@ namespace MachineSimulator.UI
             _view.OnPlaybackClicked.Subscribe(_ => _sequenceCreator.StartPlayback()).AddTo(this);
             
             _view.OnPlaybackStringedClicked.Subscribe(_ => _sequenceCreator.StartStringedPlayback()).AddTo(this);
+            
+            _view.OnSendStringedToMachineClicked.Subscribe(_ => _sequenceCreator.StartStringedPlayback(true)).AddTo(this);
 
             _view.OnTeleportToOriginClicked.Subscribe(_ => _machineModel.HexaPlateMover.TeleportToDefaultHeight()).AddTo(this);
             

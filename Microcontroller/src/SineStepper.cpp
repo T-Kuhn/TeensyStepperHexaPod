@@ -30,9 +30,9 @@ SineStepper::SineStepper(uint8_t pinStep, uint8_t pinDir, uint8_t stepperID)
 // - - - - - - - - - - - - - - -
 // - - - - - UPDATE  - - - - - -
 // - - - - - - - - - - - - - - -
-void SineStepper::update(float cosine)
+void SineStepper::update(float t)
 {
-    uint8_t pulse = pulseFromAmplitude(_currentStepsToTake, cosine);
+    uint8_t pulse = pulseFromAmplitude(_currentStepsToTake, t);
     digitalWrite(_pinStep, pulse);
     _lastPulse = pulse;
 }
@@ -68,9 +68,9 @@ void SineStepper::setStepsToTakeToZero()
 // - - - - - - - - - - - - - - -
 // - -  PULSE FROM AMPLITUDE - -
 // - - - - - - - - - - - - - - -
-uint8_t SineStepper::pulseFromAmplitude(float stepsToTake, float cosine)
+uint8_t SineStepper::pulseFromAmplitude(float stepsToTake, float t)
 {
-    uint32_t doubledStepCount = (uint32_t)(round(cosine * abs(stepsToTake)));
+    uint32_t doubledStepCount = (uint32_t)(round(t * abs(stepsToTake)));
     uint8_t stepLevel = doubledStepCount % 2;
 
     if (stepLevel > _lastPulse)

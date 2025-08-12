@@ -8,6 +8,7 @@ namespace MachineSimulator.Sequencing
     public sealed class SequenceCreator : MonoBehaviour
     {
         [SerializeField] private MachineModel.MachineModel _machineModel;
+        [SerializeField] private RealMachine _realMachine;
 
         private readonly List<HLInstruction> _sequence = new List<HLInstruction>();
 
@@ -27,14 +28,24 @@ namespace MachineSimulator.Sequencing
             _sequence.Clear();
         }
 
-        public void StartStringedPlayback()
+        public void StartStringedPlayback(bool sendToRealMachine = false)
         {
-            var listOfStringedInstructions = CreateListOfStringedHighLevelInstructions();
+            var stringedInstructions = CreateListOfStringedHighLevelInstructions();
+            // FIXME: Get rid of the need to go through the data and create two new lists here.
+            var sringedHighLevelInstructions = stringedInstructions.Select(data => data.Item1).ToList();
+            var stringedLowLevelInstuctions = stringedInstructions.Select(data => data.Item2).ToList();
 
-            _machineModel.HexaPlateMover.StartPlaybackMode(listOfStringedInstructions, true);
+            if (sendToRealMachine)
+            {
+                _realMachine.Instruct(stringedLowLevelInstuctions);
+                return;
+            }
+            
+            _machineModel.HexaPlateMover.StartPlaybackMode(sringedHighLevelInstructions, true);
         }
+        
 
-        private List<HLInstruction> CreateListOfStringedHighLevelInstructions()
+        private List<(HLInstruction, LLInstruction)> CreateListOfStringedHighLevelInstructions()
         {
             return _sequence.SelectMany(instruction =>
             {
@@ -57,7 +68,7 @@ namespace MachineSimulator.Sequencing
                 // NOTE: We fill in the last step manually to make sure there are no floating point errors
                 elapsedTimes.Add(moveTime);
 
-                var stringedInstructions = new List<HLInstruction>();
+                var stringedInstructions = new List<(HLInstruction, LLInstruction)>();
                 var stringedMoveTime = moveTime / numberOfSteps;
                 foreach (var elapsedTime in elapsedTimes)
                 {
@@ -80,7 +91,18 @@ namespace MachineSimulator.Sequencing
                     _machineModel.HexaPlateMover.UpdatePositionAndRotationTo(position, rotation);
 
                     var stringedMachineState = new HLMachineState(position, rotation);
-                    stringedInstructions.Add(new HLInstruction(stringedMachineState, stringedMoveTime));
+                    
+                    // NOTE: Create LowLevelInstruction from Motor Position retreived AFTER IK was run on all Arms.
+                    var state = _machineModel.MachineStateProvider.CurrentLowLevelMachineState;
+                    var highLevelInstruction = new HLInstruction(stringedMachineState, stringedMoveTime);
+                    var lowLevelInstruction = new LLInstruction(state, stringedMoveTime);
+                    stringedInstructions.Add((highLevelInstruction, lowLevelInstruction));
+
+                    /*
+                    Debug.Log("motor1Rot: " + state.Motor1Rotation + " motor2Rot: " + state.Motor2Rotation
+                              + " motor3Rot: " + state.Motor3Rotation + " motor4Rot: " + state.Motor4Rotation
+                              + " motor5Rot: " + state.Motor5Rotation + " motor6Rot: " + state.Motor6Rotation);
+                    */
                 }
 
                 return stringedInstructions;
