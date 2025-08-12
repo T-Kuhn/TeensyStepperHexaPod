@@ -8,6 +8,7 @@ namespace MachineSimulator.Sequencing
     public sealed class SequenceCreator : MonoBehaviour
     {
         [SerializeField] private MachineModel.MachineModel _machineModel;
+        [SerializeField] private RealMachine _realMachine;
 
         private readonly List<HLInstruction> _sequence = new List<HLInstruction>();
 
@@ -27,15 +28,22 @@ namespace MachineSimulator.Sequencing
             _sequence.Clear();
         }
 
-        public void StartStringedPlayback()
+        public void StartStringedPlayback(bool sendToRealMachine = false)
         {
             var stringedInstructions = CreateListOfStringedHighLevelInstructions();
             // FIXME: Get rid of the need to go through the data and create two new lists here.
             var sringedHighLevelInstructions = stringedInstructions.Select(data => data.Item1).ToList();
             var stringedLowLevelInstuctions = stringedInstructions.Select(data => data.Item2).ToList();
 
+            if (sendToRealMachine)
+            {
+                _realMachine.Instruct(stringedLowLevelInstuctions);
+                return;
+            }
+            
             _machineModel.HexaPlateMover.StartPlaybackMode(sringedHighLevelInstructions, true);
         }
+        
 
         private List<(HLInstruction, LLInstruction)> CreateListOfStringedHighLevelInstructions()
         {

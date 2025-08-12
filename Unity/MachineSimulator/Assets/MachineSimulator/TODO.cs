@@ -64,8 +64,8 @@
 //     - [X] Add LowLevelMachineStateProvider. Arms need to update their MotorRotation to LowLevelMachineStateProvider everytime the IK executes.
 //         - [X] Use the LowLevelMachineState from above provider to do make the LowLevelInstructions.
 //     - [X] When creating the stringed HighLevelInstructions, also create LowLevelInstructions by checking the motor position of all the motors after kicking off the IK.
+//     - [X] Add button called "Playback stringed on RM"
 // Continue work on this ↓
-//     - [ ] Add button called "Playback stringed on RM"
 //     - [ ] Make stringed Linear LowLevelInstructions work on the microcontroller (currently we use cos to start/stop smoothly. We will not need that anymore).
 
 //     - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
@@ -86,7 +86,7 @@
 //     -> this might be interesting, especially if we connect the driver to the setup software and look through all the settings,
 //        but I'm not sure we'll get anything out of this (going no-feedback-loop might be the best option after all)
 
-// - [ ] NEXTUP: change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
+// - [ ] change colors of arm parts which are colliding so that we can get a better feeling of how the arm design has to be improved
 // - [ ] add some sort of animation for end effector platform
 //     - [X] moving up and down
 //     - [X] moving left and right
