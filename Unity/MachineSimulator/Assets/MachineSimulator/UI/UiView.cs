@@ -12,9 +12,14 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onUpClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onDownClicked = new Subject<Unit>();
+
         private readonly Subject<Unit> _onNormalSpeedClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onDoubleSpeedClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onQuatrupleSpeedClicked = new Subject<Unit>();
+
+        private readonly Subject<Unit> _onSeqNormalSpeedClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onSeqDoubleSpeedClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onSeqQuatrupleSpeedClicked = new Subject<Unit>();
 
         private readonly Subject<Unit> _onM1PlusClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onM1MinusClicked = new Subject<Unit>();
@@ -48,6 +53,10 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnDoubleSpeedClicked => _onDoubleSpeedClicked;
         public IObservable<Unit> OnQuatrupleSpeedClicked => _onQuatrupleSpeedClicked;
 
+        public IObservable<Unit> OnSeqNormalSpeedClicked => _onSeqNormalSpeedClicked;
+        public IObservable<Unit> OnSeqDoubleSpeedClicked => _onSeqDoubleSpeedClicked;
+        public IObservable<Unit> OnSeqQuatrupleSpeedClicked => _onSeqQuatrupleSpeedClicked;
+
         public IObservable<Unit> OnM1PlusClicked => _onM1PlusClicked;
         public IObservable<Unit> OnM1MinusClicked => _onM1MinusClicked;
         public IObservable<Unit> OnM2PlusClicked => _onM2PlusClicked;
@@ -80,9 +89,14 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<Button>("DownButton"), _onDownClicked);
             RegisterButton(root.Q<Button>("OriginButton"), _onOriginClicked);
             RegisterButton(root.Q<Button>("UpButton"), _onUpClicked);
+
             RegisterButton(root.Q<Button>("DoubleSpeedButton"), _onDoubleSpeedClicked);
             RegisterButton(root.Q<Button>("QuatrupleSpeedButton"), _onQuatrupleSpeedClicked);
             RegisterButton(root.Q<Button>("NormalSpeedButton"), _onNormalSpeedClicked);
+
+            RegisterButton(root.Q<Button>("SeqDoubleSpeedButton"), _onSeqDoubleSpeedClicked);
+            RegisterButton(root.Q<Button>("SeqQuatrupleSpeedButton"), _onSeqQuatrupleSpeedClicked);
+            RegisterButton(root.Q<Button>("SeqNormalSpeedButton"), _onSeqNormalSpeedClicked);
 
             RegisterButton(root.Q<VisualElement>("M1").Q<Button>("CalibratePlus"), _onM1PlusClicked);
             RegisterButton(root.Q<VisualElement>("M1").Q<Button>("CalibrateMinus"), _onM1MinusClicked);

@@ -10,7 +10,12 @@ namespace MachineSimulator.Sequencing
         [SerializeField] private MachineModel.MachineModel _machineModel;
         [SerializeField] private RealMachine _realMachine;
 
-        private readonly List<HLInstruction> _sequence = new List<HLInstruction>();
+        private List<HLInstruction> _sequence = new List<HLInstruction>();
+
+        public void UpdateAllMoveTimesInSequenceTo(float newMoveTime)
+        {
+            _sequence = _sequence.Select(instruction => new HLInstruction(instruction.TargetMachineState, newMoveTime)).ToList();
+        }
 
         public void Add(HLInstruction hlInstruction)
         {
