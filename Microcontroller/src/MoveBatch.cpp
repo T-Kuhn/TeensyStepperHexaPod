@@ -9,7 +9,7 @@
 #include "MoveBatch.h"
 
 // - - - - - - - - - - - - - - - - - - - - -
-// - - - - SineStepper CONSTRUCTOR - - - - -
+// - - - - - MoveBatch CONSTRUCTOR - - - - -
 // - - - - - - - - - - - - - - - - - - - - -
 MoveBatch::MoveBatch()
 {
