@@ -7,6 +7,6 @@ namespace MachineSimulator
         public const int BaudRate = 921600;
 
         public static readonly LLMachineState OriginMachineState = new LLMachineState();
-        public static readonly LLMachineState OffsetFromTableState = new LLMachineState(-0.047f, -0.0125f, -0.075f, 0.053f, -0.016f, 0.028f);
+        public static readonly LLMachineState OffsetFromTableState = new LLMachineState(-0.057f, -0.0025f, 0.045f, 0.05f, -0.016f, 0.028f);
     }
 }
