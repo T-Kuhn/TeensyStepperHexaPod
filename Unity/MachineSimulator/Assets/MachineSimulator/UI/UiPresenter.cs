@@ -62,7 +62,7 @@ namespace MachineSimulator.UI
                 .AddTo(this);
 
 
-            var amount = 0.03f;
+            var amount = 0.01f;
             Register(_view.OnM1PlusClicked, new LLMachineState(-amount, 0f, 0f, 0f, 0f, 0f).ToList(0.1f, true));
             Register(_view.OnM1MinusClicked, new LLMachineState(amount, 0f, 0f, 0f, 0f, 0f).ToList(0.1f, true));
             Register(_view.OnM2PlusClicked, new LLMachineState(0f, amount, 0f, 0f, 0f, 0f).ToList(0.1f, true));
@@ -76,7 +76,7 @@ namespace MachineSimulator.UI
             Register(_view.OnM6PlusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, amount).ToList(0.1f, true));
             Register(_view.OnM6MinusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, -amount).ToList(0.1f, true));
 
-            Register(_view.OnApplyOffsetClicked, Constants.OffsetFromTableState.ToList(0.5f, true));
+            Register(_view.OnApplyOffsetClicked, Constants.OffsetFromTableState.ToList(0.2f, true));
         }
 
         private void Register(IObservable<Unit> observable, Func<List<LLInstruction>> getInstructions)

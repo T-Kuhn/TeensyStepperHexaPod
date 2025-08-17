@@ -50,7 +50,7 @@
 #define FREQUENCY_MULTIPLIER 0.000004f
 #define TIMER_US 4
 
-// NOTE: SineStepper and MoveBatch ids must be lower then MAX_NUM_OF_STEPPERS
+// NOTE: LinearStepper and MoveBatch ids must be lower then MAX_NUM_OF_STEPPERS
 #define MAX_NUM_OF_STEPPERS 10
 #define MAX_NUM_OF_MOVEBATCHES 1000
 

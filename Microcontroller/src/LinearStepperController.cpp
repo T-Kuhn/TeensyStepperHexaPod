@@ -1,18 +1,18 @@
 ﻿/*
-  SineStepperController library
+  LinearStepperController library
   Author: T-Kuhn.
   Sapporo, January, 2020. Released into the public domain.
 */
 
 #include "Constants.h"
 #include "Arduino.h"
-#include "SineStepper.h"
-#include "SineStepperController.h"
+#include "LinearStepper.h"
+#include "LinearStepperController.h"
 
 // - - - - - - - - - - - - - - -
 // - - - - CONSTRUCTOR - - - - -
 // - - - - - - - - - - - - - - -
-SineStepperController::SineStepperController(bool repeat)
+LinearStepperController::LinearStepperController(bool repeat)
 {
     _endlessRepeat = repeat;
     _counter = 0;
@@ -22,18 +22,18 @@ SineStepperController::SineStepperController(bool repeat)
 
     for (uint8_t i = 0; i < MAX_NUM_OF_STEPPERS; i++)
     {
-        _sineSteppers[i] = { 0 };
+        _linearSteppers[i] = { 0 };
     }
 }
 
 // - - - - - - - - - - - - - - -
 // - - - - - ATTACH  - - - - - -
 // - - - - - - - - - - - - - - -
-void SineStepperController::attach(SineStepper* sStepper)
+void LinearStepperController::attach(LinearStepper* sStepper)
 {
     if (sStepper->id < MAX_NUM_OF_STEPPERS)
     {
-        _sineSteppers[sStepper->id] = sStepper;
+        _linearSteppers[sStepper->id] = sStepper;
         _numOfAttachedSteppers++;
     }
 }
@@ -41,7 +41,7 @@ void SineStepperController::attach(SineStepper* sStepper)
 // - - - - - - - - - - - - - - - -
 // - - RESET MOVEBATCH EXECUTION -
 // - - - - - - - - - - - - - - - -
-void SineStepperController::resetMoveBatchExecution()
+void LinearStepperController::resetMoveBatchExecution()
 {
     _currentMoveBatchIndex = 0;
 }
@@ -49,7 +49,7 @@ void SineStepperController::resetMoveBatchExecution()
 // - - - - - - - - - - - - - - -
 // - - -  SET FREQ FROM  - - - -
 // - - - - - - - - - - - - - - -
-void SineStepperController::setFrequencyFrom(float moveDuration)
+void LinearStepperController::setFrequencyFrom(float moveDuration)
 {
     _frequency = FREQUENCY_MULTIPLIER / moveDuration;
 }
@@ -57,7 +57,7 @@ void SineStepperController::setFrequencyFrom(float moveDuration)
 // - - - - - - - - - - - - - - -
 // - - - - - UPDATE  - - - - - -
 // - - - - - - - - - - - - - - -
-bool SineStepperController::update()
+bool LinearStepperController::update()
 {
     if (_currentMoveBatchIndex >= MAX_NUM_OF_MOVEBATCHES)
     {
@@ -74,11 +74,11 @@ bool SineStepperController::update()
             {
                 if (mb->moveCommands[i].isActive)
                 {
-                    _sineSteppers[i]->setGoalPos(mb->moveCommands[i].position);
+                    _linearSteppers[i]->setGoalPos(mb->moveCommands[i].position);
                 }
                 else
                 {
-                    _sineSteppers[i]->setStepsToTakeToZero();
+                    _linearSteppers[i]->setStepsToTakeToZero();
                 }
             }
             mb->needsExecution = false;
@@ -99,9 +99,9 @@ bool SineStepperController::update()
         float t = _counter * _frequency;
         for (uint8_t i = 0; i < MAX_NUM_OF_STEPPERS; i++)
         {
-            if (_sineSteppers[i] != 0)
+            if (_linearSteppers[i] != 0)
             {
-                _sineSteppers[i]->update(t);
+                _linearSteppers[i]->update(t);
             }
         }
 

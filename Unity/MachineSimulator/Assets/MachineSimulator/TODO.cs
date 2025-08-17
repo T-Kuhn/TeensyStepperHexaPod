@@ -71,10 +71,10 @@
 // - [X] The stringed together instructions can basically be executed as linear-speed movements to target pos. We DO of course use a sine-based movement when moving the end effector
 //       when generating motor rotations with IK, but the movement commands themselves can be linear speed movements to target position because they will be very short and about 50 for a complete move.
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
+// - [X] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 // Continue work on this ↓
-// - [ ] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
+// - [X] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
 // - [ ] add "send to machine and repeat 5x" button to the sequencing UI
-// - [ ] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
