@@ -42,7 +42,7 @@
 // 20 * 1600 / (3.1415 * 2) = 5093.10838771 steps in 0.2 seconds
 // --> 25k steps per second
 
-#define PULSES_PER_REV 51200// MicroStep setting: 51200
+#define PULSES_PER_REV 6400 // MicroStep setting: 6400
 #define MOVE_DURATION 1.0f
 #define PAUSE_DURATION 0.2f
 
