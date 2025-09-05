@@ -70,7 +70,7 @@ void LinearStepper::setStepsToTakeToZero()
 // - - - - - - - - - - - - - - -
 uint8_t LinearStepper::pulseFromAmplitude(float stepsToTake, float t)
 {
-    uint32_t doubledStepCount = (uint32_t)(round(t * abs(stepsToTake)));
+    uint32_t doubledStepCount = (uint32_t)(round(2.0 * t * abs(stepsToTake)));
     uint8_t stepLevel = doubledStepCount % 2;
 
     if (stepLevel > _lastPulse)

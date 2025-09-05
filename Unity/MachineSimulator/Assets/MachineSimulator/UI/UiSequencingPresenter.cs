@@ -11,11 +11,11 @@ namespace MachineSimulator.UI
         [SerializeField] private SequenceCreator _sequenceCreator;
         [SerializeField] private MachineModel.MachineModel _machineModel;
 
-        private float _currentCommandTime = 1f;
+        private float _currentCommandTime = 3f;
 
-        // NOTE: Lowest value that we observed to work (no skips/step loss in steppers) is 0.7s,
-        //       which results in 0.175s in after QuatrupleSpeed was pressed.
-        private readonly float _defaultCommandTime = 0.8f;
+        // NOTE: New motors can handle 0.35f,
+        //       but I don't think we should go faster than that. (Observed skipping with 0.175 with no load attached)
+        private readonly float _defaultCommandTime = 3f;
 
         private void Awake()
         {
@@ -23,9 +23,8 @@ namespace MachineSimulator.UI
             {
                 var platePosition = _machineModel.HexaPlateTransform.position;
                 var plateRotation = _machineModel.HexaPlateTransform.rotation;
-                var moveTime = 1f;
                 var hlMachineState = new HLMachineState(platePosition, plateRotation);
-                var instruction = new HLInstruction(hlMachineState, moveTime);
+                var instruction = new HLInstruction(hlMachineState, _defaultCommandTime);
 
                 _sequenceCreator.Add(instruction);
             }).AddTo(this);

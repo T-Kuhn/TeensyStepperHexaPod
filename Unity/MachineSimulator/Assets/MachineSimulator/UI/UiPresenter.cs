@@ -11,8 +11,8 @@ namespace MachineSimulator.UI
         [SerializeField] private UiView _view;
         [SerializeField] private RealMachine _realMachine;
 
-        private float _currentCommandTime = 1f;
-        private readonly float _defaultCommandTime = 0.7f;
+        private float _currentCommandTime = 3f;
+        private readonly float _defaultCommandTime = 3f;
 
         private void Awake()
         {
@@ -76,7 +76,7 @@ namespace MachineSimulator.UI
             Register(_view.OnM6PlusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, amount).ToList(0.1f, true));
             Register(_view.OnM6MinusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, -amount).ToList(0.1f, true));
 
-            Register(_view.OnApplyOffsetClicked, Constants.OffsetFromTableState.ToList(0.2f, true));
+            Register(_view.OnApplyOffsetClicked, Constants.OffsetFromTableState.ToList(1f, true));
         }
 
         private void Register(IObservable<Unit> observable, Func<List<LLInstruction>> getInstructions)

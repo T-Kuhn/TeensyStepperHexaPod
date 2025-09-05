@@ -95,7 +95,7 @@ bool LinearStepperController::update()
     {
         // GENERATE PULSES
         _counter++;
-        // Theta goes from 0 ~ 1
+        // t goes from 0 ~ 1
         float t = _counter * _frequency;
         for (uint8_t i = 0; i < MAX_NUM_OF_STEPPERS; i++)
         {

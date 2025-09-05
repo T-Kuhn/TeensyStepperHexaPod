@@ -10,7 +10,7 @@ namespace MachineSimulator.Machine
         
         public void Instruct(List<LLInstruction> instructions)
         {
-            // NOTE: The current Max amount of instructions which can be sent in one go is 100.
+            // NOTE: The current Max amount of instructions which can be sent in one go is 1000.
             var diffInstructionList = instructions
                 .Take(1000)
                 .Select(instruction =>

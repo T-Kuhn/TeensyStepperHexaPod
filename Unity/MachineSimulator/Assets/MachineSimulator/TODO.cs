@@ -72,8 +72,16 @@
 //       when generating motor rotations with IK, but the movement commands themselves can be linear speed movements to target position because they will be very short and about 50 for a complete move.
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
 // - [X] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
-// Continue work on this ↓
 // - [X] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
+
+// Continue work on this ↓
+// - [X] check why "apply offset" -> "stringed playback (up and down to origin)" results in a endstate that is not the same as after apply offset (how did we define origin?)
+// - [X] is it because the first apply offset wasn't sent correctly? do we need to send 0,0,0,0,0,0 the first time after startup?
+//       -> Yes
+// - [X] speed is too fast.
+// - [X] need to change machineModel parameters to match real machine (distance from center for motors and targets)
+// - [ ] test tilting/rotating/translating (don't go too far though, we now know that there are instable states where an arm might flap downwards)
+
 // - [ ] add "send to machine and repeat 5x" button to the sequencing UI
 
 // Thinking:
