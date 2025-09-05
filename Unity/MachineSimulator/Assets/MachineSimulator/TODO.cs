@@ -79,7 +79,7 @@
 // - [X] is it because the first apply offset wasn't sent correctly? do we need to send 0,0,0,0,0,0 the first time after startup?
 //       -> Yes
 // - [X] speed is too fast.
-// - [ ] need to change machineModel parameters to match real machine (distance from center for motors and targets)
+// - [X] need to change machineModel parameters to match real machine (distance from center for motors and targets)
 // - [ ] test tilting/rotating/translating (don't go too far though, we now know that there are instable states where an arm might flap downwards)
 
 // - [ ] add "send to machine and repeat 5x" button to the sequencing UI

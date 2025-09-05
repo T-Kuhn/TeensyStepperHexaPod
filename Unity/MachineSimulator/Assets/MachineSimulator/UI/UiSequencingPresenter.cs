@@ -23,9 +23,8 @@ namespace MachineSimulator.UI
             {
                 var platePosition = _machineModel.HexaPlateTransform.position;
                 var plateRotation = _machineModel.HexaPlateTransform.rotation;
-                var moveTime = 1f;
                 var hlMachineState = new HLMachineState(platePosition, plateRotation);
-                var instruction = new HLInstruction(hlMachineState, moveTime);
+                var instruction = new HLInstruction(hlMachineState, _defaultCommandTime);
 
                 _sequenceCreator.Add(instruction);
             }).AddTo(this);
