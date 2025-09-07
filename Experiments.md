@@ -28,7 +28,7 @@
  - Experiment: +/- 0.05 along X at height 0.25
    - Result: both stable
  - Experiment: +/- 0.05 along X and Z at height 0.25
- - Experiment: both stable. But there seemed to be increased play at both
+   - Result: both stable. But there seemed to be increased play at both
 
  ## Translate && up/down off-center
 
