@@ -1,22 +1,22 @@
 ﻿# Experiments to investigate characteristics of instable poses
 ## Tilt with centered hexaplate
  - Experiment: +/- 15deg around X at height 0.25
-  - Result: both stable
+   - Result: both stable
  - Experiment: +/- 20deg around X at height 0.25
-  - Result: -20deg around X at height 0.25 was very close to unstable pose
-  - Result: 20deg around X at height 0.25 was stable
+   - Result: -20deg around X at height 0.25 was very close to unstable pose
+   - Result: 20deg around X at height 0.25 was stable
  - Experiment: +/- 15deg around Z at height 0.25
-  - Result: both stable
+   - Result: both stable
  - Experiment: +/- 20deg around Z at height 0.25
-  - Result: both seemed fairly close to unstable pose
+   - Result: both seemed fairly close to unstable pose
  - Experiment: +/- 22deg around Z at height 0.25
-  - Result: both seemed fairly close to unstable pose
+   - Result: both seemed fairly close to unstable pose
  - Experiment: +/- 25deg around Z at height 0.25
-  - Result: both seemed close to unstable pose
+   - Result: both seemed close to unstable pose
  - Experiment: +/- 20deg around Y at height 0.25
-  - Result: both stable at all speeds
+   - Result: both stable at all speeds
  - Experiment: +/- 25deg around Y at height 0.25
-  - Result: both seemed slightly unstable
+   - Result: both seemed slightly unstable
 
 ## Translation with un-tilted hexaplate
  - Experiment: +/- 0.1 along Z at height 0.25
