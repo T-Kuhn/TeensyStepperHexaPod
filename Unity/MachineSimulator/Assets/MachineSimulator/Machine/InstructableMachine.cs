@@ -7,7 +7,7 @@ namespace MachineSimulator.Machine
     public abstract class InstructableMachine : MonoBehaviour
     {
         private LLMachineState _levelingOffset = new LLMachineState();
-        
+
         public void Instruct(List<LLInstruction> instructions)
         {
             // NOTE: The current Max amount of instructions which can be sent in one go is 1000.
@@ -18,14 +18,14 @@ namespace MachineSimulator.Machine
                         instruction.TargetMachineState + _levelingOffset,
                         instruction.MoveTime))
                 .ToList();
-            
-            var levelingInstructions = instructions 
+
+            var levelingInstructions = instructions
                 .Where(instruction => instruction.IsLevelingInstruction)
                 .ToList();
-            
+
             SendInstructions(diffInstructionList);
-            
-            foreach(var instruction in levelingInstructions)
+
+            foreach (var instruction in levelingInstructions)
             {
                 _levelingOffset += instruction.TargetMachineState;
             }

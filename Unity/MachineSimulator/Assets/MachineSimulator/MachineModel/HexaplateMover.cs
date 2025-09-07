@@ -39,7 +39,8 @@ namespace MachineSimulator.MachineModel
                 { StrategyName.LeftRight, new LeftRightStrategy() },
                 { StrategyName.MoveInCircle, new MoveInCircleStrategy() },
                 { StrategyName.MoveInCircleCombinedWithUpDown, new MoveInCircleWhileGoingUpAndDownStrategy() },
-                { StrategyName.TiltArountX, new TiltAroundXStrategy() }
+                { StrategyName.TiltArountX, new TiltAroundXStrategy() },
+                { StrategyName.CircleTilt, new CircleTiltStrategy() }
             };
         }
 

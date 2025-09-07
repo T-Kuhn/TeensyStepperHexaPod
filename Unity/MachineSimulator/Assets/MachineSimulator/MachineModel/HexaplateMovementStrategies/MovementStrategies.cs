@@ -10,7 +10,8 @@ namespace MachineSimulator.MachineModel
         LeftRight,
         MoveInCircle,
         MoveInCircleCombinedWithUpDown,
-        TiltArountX
+        TiltArountX,
+        CircleTilt
     }
 
     public sealed class UpDownStrategy : IHexaplateMovementStrategy
@@ -45,8 +46,8 @@ namespace MachineSimulator.MachineModel
         public (Vector3 Position, Quaternion Rotation) Move(float time)
         {
             var t = time * 0.5f;
-            var x = Mathf.Sin(t) * 0.1f;
-            var z = Mathf.Cos(t) * 0.1f;
+            var x = Mathf.Sin(t) * 0.05f;
+            var z = Mathf.Cos(t) * 0.05f;
             var yOffset = 0.1f;
             return (new Vector3(x, yOffset, z), Quaternion.identity);
         }
@@ -58,8 +59,8 @@ namespace MachineSimulator.MachineModel
         {
             var t = time * 0.5f;
             var height = Mathf.Sin(t) * 0.05f;
-            var x = Mathf.Sin(t) * 0.1f;
-            var z = Mathf.Cos(t) * 0.1f;
+            var x = Mathf.Sin(t) * 0.05f;
+            var z = Mathf.Cos(t) * 0.05f;
             var yOffset = 0.1f;
             return (new Vector3(x, height + yOffset, z), Quaternion.identity);
         }
@@ -71,6 +72,18 @@ namespace MachineSimulator.MachineModel
         {
             var tilt = Mathf.Sin(time) * 15f;
             return (Vector3.zero, Quaternion.Euler(tilt, 0, 0));
+        }
+    }
+
+    public sealed class CircleTiltStrategy : IHexaplateMovementStrategy
+    {
+        public (Vector3 Position, Quaternion Rotation) Move(float time)
+        {
+            var t = time * 0.5f;
+            var x = Mathf.Sin(t) * 15f;
+            var z = Mathf.Cos(t) * 15f;
+            var yOffset = 0.05f;
+            return (Vector3.zero + Vector3.up * yOffset, Quaternion.Euler(x, 0, z));
         }
     }
 }
