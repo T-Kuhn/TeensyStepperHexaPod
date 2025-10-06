@@ -83,6 +83,10 @@
 
 // Continue work on this ↓
 // - [ ] add a way to make generation of stringed circle-tilt/circle-translation commands possible
+//     - [ ] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
+//         - [ ] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
+//               strategy will be executed from startTime to endTime with the specified number of instructions per second.
+//
 
 // - [ ] add "send to machine and repeat 5x" button to the sequencing UI
 
