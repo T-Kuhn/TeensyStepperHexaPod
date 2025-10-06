@@ -45,10 +45,9 @@ namespace MachineSimulator.Sequencing
                 _realMachine.Instruct(stringedLowLevelInstuctions);
                 return;
             }
-            
+
             _machineModel.HexaPlateMover.StartPlaybackMode(sringedHighLevelInstructions, true);
         }
-        
 
         private List<(HLInstruction, LLInstruction)> CreateListOfStringedHighLevelInstructions()
         {
@@ -96,7 +95,7 @@ namespace MachineSimulator.Sequencing
                     _machineModel.HexaPlateMover.UpdatePositionAndRotationTo(position, rotation);
 
                     var stringedMachineState = new HLMachineState(position, rotation);
-                    
+
                     // NOTE: Create LowLevelInstruction from Motor Position retreived AFTER IK was run on all Arms.
                     var state = _machineModel.MachineStateProvider.CurrentLowLevelMachineState;
                     var highLevelInstruction = new HLInstruction(stringedMachineState, stringedMoveTime);
