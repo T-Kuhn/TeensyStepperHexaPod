@@ -19,15 +19,24 @@ namespace MachineSimulator.UI
 
         private void Awake()
         {
-            _view.OnAddInstructionClicked.Subscribe(_ =>
-            {
-                var platePosition = _machineModel.HexaPlateTransform.position;
-                var plateRotation = _machineModel.HexaPlateTransform.rotation;
-                var hlMachineState = new HLMachineState(platePosition, plateRotation);
-                var instruction = new HLInstruction(hlMachineState, _defaultCommandTime);
+            _view.OnLoadSequenceFromCodeClicked.Subscribe(_ =>
+                {
+                    _sequenceCreator.ClearAll();
+                    _machineModel.HexaPlateMover.TeleportToDefaultHeight();
 
-                _sequenceCreator.Add(instruction);
-            }).AddTo(this);
+                    // FirstStep
+                    var rotation = Quaternion.identity;
+                    var position = Vector3.up * 0.3f;
+                    _machineModel.HexaPlateMover.UpdatePositionAndRotationTo(position, rotation);
+                    _sequenceCreator.Add(HLInstructionFromCurrentMachineState(_defaultCommandTime));
+
+                    // LastStep
+                    _machineModel.HexaPlateMover.TeleportToDefaultHeight();
+                    _sequenceCreator.Add(HLInstructionFromCurrentMachineState(_defaultCommandTime));
+                }
+            ).AddTo(this);
+
+            _view.OnAddInstructionClicked.Subscribe(_ => { _sequenceCreator.Add(HLInstructionFromCurrentMachineState(_defaultCommandTime)); }).AddTo(this);
 
             _view.OnSeqDoubleSpeedClicked
                 .Subscribe(_ =>
@@ -62,6 +71,15 @@ namespace MachineSimulator.UI
             _view.OnTeleportToOriginClicked.Subscribe(_ => _machineModel.HexaPlateMover.TeleportToDefaultHeight()).AddTo(this);
 
             _view.OnClearAllClicked.Subscribe(_ => _sequenceCreator.ClearAll()).AddTo(this);
+        }
+
+        private HLInstruction HLInstructionFromCurrentMachineState(float commandTime)
+        {
+            var platePosition = _machineModel.HexaPlateTransform.position;
+            var plateRotation = _machineModel.HexaPlateTransform.rotation;
+            var hlMachineState = new HLMachineState(platePosition, plateRotation);
+            var instruction = new HLInstruction(hlMachineState, commandTime);
+            return instruction;
         }
     }
 }

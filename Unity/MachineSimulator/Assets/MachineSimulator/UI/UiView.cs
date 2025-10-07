@@ -36,6 +36,7 @@ namespace MachineSimulator.UI
 
         private readonly Subject<Unit> _onApplyOffsetClicked = new Subject<Unit>();
 
+        private readonly Subject<Unit> _onLoadSequenceFromCodeClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onAddInstructionClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onTeleportToOriginClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onPlaybackClicked = new Subject<Unit>();
@@ -71,7 +72,8 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnM6MinusClicked => _onM6MinusClicked;
 
         public IObservable<Unit> OnApplyOffsetClicked => _onApplyOffsetClicked;
-
+        
+        public IObservable<Unit> OnLoadSequenceFromCodeClicked => _onLoadSequenceFromCodeClicked;
         public IObservable<Unit> OnAddInstructionClicked => _onAddInstructionClicked;
         public IObservable<Unit> OnTeleportToOriginClicked => _onTeleportToOriginClicked;
         public IObservable<Unit> OnPlaybackClicked => _onPlaybackClicked;
@@ -113,6 +115,7 @@ namespace MachineSimulator.UI
 
             RegisterButton(root.Q<Button>("ApplyOffset"), _onApplyOffsetClicked);
 
+            RegisterButton(root.Q<Button>("LoadSequenceFromCodeButton"), _onLoadSequenceFromCodeClicked);
             RegisterButton(root.Q<Button>("AddInstructionButton"), _onAddInstructionClicked);
             RegisterButton(root.Q<Button>("TeleportToOrigin"), _onTeleportToOriginClicked);
             RegisterButton(root.Q<Button>("PlaybackButton"), _onPlaybackClicked);
