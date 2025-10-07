@@ -80,8 +80,12 @@
 // - [X] speed is too fast.
 // - [X] need to change machineModel parameters to match real machine (distance from center for motors and targets)
 // - [X] test tilting/rotating/translating (don't go too far though, we now know that there are instable states where an arm might flap downwards)
+// - [X] Add LoadSequenceFromCode button to the sequencing UI
 
 // Continue work on this ↓
+// - [ ] Add manual set-time inspector UI for HexaPlateMover
+//     - [ ] checkbox to switch between automatic and manual time setting
+//     - [ ] slider to set time (0 to 10)
 // - [ ] add a way to make generation of stringed circle-tilt/circle-translation commands possible
 //     - [ ] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
 //         - [ ] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
