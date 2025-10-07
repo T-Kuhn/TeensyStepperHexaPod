@@ -74,13 +74,19 @@
 // - [X] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 // - [X] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
 
-// Continue work on this ↓
 // - [X] check why "apply offset" -> "stringed playback (up and down to origin)" results in a endstate that is not the same as after apply offset (how did we define origin?)
 // - [X] is it because the first apply offset wasn't sent correctly? do we need to send 0,0,0,0,0,0 the first time after startup?
 //       -> Yes
 // - [X] speed is too fast.
 // - [X] need to change machineModel parameters to match real machine (distance from center for motors and targets)
-// - [ ] test tilting/rotating/translating (don't go too far though, we now know that there are instable states where an arm might flap downwards)
+// - [X] test tilting/rotating/translating (don't go too far though, we now know that there are instable states where an arm might flap downwards)
+
+// Continue work on this ↓
+// - [ ] add a way to make generation of stringed circle-tilt/circle-translation commands possible
+//     - [ ] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
+//         - [ ] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
+//               strategy will be executed from startTime to endTime with the specified number of instructions per second.
+//
 
 // - [ ] add "send to machine and repeat 5x" button to the sequencing UI
 
