@@ -6,6 +6,7 @@ A hexapod powered by Teensy 4.0 driven Nema23 Steppers.
 2. Move hexaplate
 3. Press "Add HLInstruction"
 4. Repeat 2 and 3 until satisfied
-5. Press "Playback" to check
-6. Press "Playback Stringed" to check
-7. Press "Send Stringed To Machine" to make real machine playback the movement
+5. Press "Teleport To Origin"
+6. Press "Playback" to check
+7. Press "Playback Stringed" to check
+8. Press "Send Stringed To Machine" to make real machine playback the movement
