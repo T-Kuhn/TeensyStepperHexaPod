@@ -49,6 +49,9 @@ namespace MachineSimulator.Sequencing
             _machineModel.HexaPlateMover.StartPlaybackMode(sringedHighLevelInstructions, true);
         }
 
+        // 1. HLinstructions
+        // 2. stringed HLInstructions
+        // 3. stringed LLInstructions
         private List<(HLInstruction, LLInstruction)> CreateListOfStringedHighLevelInstructions()
         {
             return _sequence.SelectMany(instruction =>
