@@ -28,7 +28,7 @@ namespace MachineSimulator.MachineModel
 
         [Range(0f, 10f)] public float ManualTime;
 
-        public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear = false)
+        public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear)
         {
             PlaybackSequenceAsync(instructions, isLinear).Forget();
         }

@@ -42,5 +42,10 @@ namespace MachineSimulator.Machine
         {
             return machineStates.Select(state => new LLInstruction(state, moveTime, isLevelingInstruction)).ToList();
         }
+        
+        public static AbstractHLInstruction ToAbstract(this HLInstruction hlInstruction)
+        {
+            return new AbstractHLInstruction(hlInstruction);
+        }
     }
 }

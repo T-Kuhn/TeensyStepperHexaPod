@@ -1,4 +1,3 @@
-using MachineSimulator.Machine;
 using MachineSimulator.Sequencing;
 using UniRx;
 using UnityEngine;
@@ -59,8 +58,6 @@ namespace MachineSimulator.UI
                     _sequenceCreator.UpdateAllMoveTimesInSequenceTo(_currentCommandTime);
                 })
                 .AddTo(this);
-
-            _view.OnPlaybackClicked.Subscribe(_ => _sequenceCreator.StartPlayback()).AddTo(this);
 
             _view.OnPlaybackStringedClicked.Subscribe(_ => _sequenceCreator.StartStringedPlayback()).AddTo(this);
 
