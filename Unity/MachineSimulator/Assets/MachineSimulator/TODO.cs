@@ -73,7 +73,6 @@
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
 // - [X] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 // - [X] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
-
 // - [X] check why "apply offset" -> "stringed playback (up and down to origin)" results in a endstate that is not the same as after apply offset (how did we define origin?)
 // - [X] is it because the first apply offset wasn't sent correctly? do we need to send 0,0,0,0,0,0 the first time after startup?
 //       -> Yes
@@ -83,14 +82,13 @@
 // - [X] Add LoadSequenceFromCode button to the sequencing UI
 
 // Continue work on this ↓
-// - [ ] Add manual set-time inspector UI for HexaPlateMover
-//     - [ ] checkbox to switch between automatic and manual time setting
-//     - [ ] slider to set time (0 to 10)
+// - [X] Add manual set-time inspector UI for HexaPlateMover
+//     - [X] checkbox to switch between automatic and manual time setting
+//     - [X] slider to set time (0 to 10)
 // - [ ] add a way to make generation of stringed circle-tilt/circle-translation commands possible
 //     - [ ] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
 //         - [ ] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
 //               strategy will be executed from startTime to endTime with the specified number of instructions per second.
-//
 
 // - [ ] add "send to machine and repeat 5x" button to the sequencing UI
 

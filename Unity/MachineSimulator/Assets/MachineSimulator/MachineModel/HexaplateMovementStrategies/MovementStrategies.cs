@@ -45,7 +45,7 @@ namespace MachineSimulator.MachineModel
     {
         public (Vector3 Position, Quaternion Rotation) Move(float time)
         {
-            var t = time * 0.5f;
+            var t = time;
             var x = Mathf.Sin(t) * 0.05f;
             var z = Mathf.Cos(t) * 0.05f;
             var yOffset = 0.1f;
@@ -57,7 +57,7 @@ namespace MachineSimulator.MachineModel
     {
         public (Vector3 Position, Quaternion Rotation) Move(float time)
         {
-            var t = time * 0.5f;
+            var t = time;
             var height = Mathf.Sin(t) * 0.05f;
             var x = Mathf.Sin(t) * 0.05f;
             var z = Mathf.Cos(t) * 0.05f;
@@ -79,7 +79,7 @@ namespace MachineSimulator.MachineModel
     {
         public (Vector3 Position, Quaternion Rotation) Move(float time)
         {
-            var t = time * 0.5f;
+            var t = time;
             var x = Mathf.Sin(t) * 15f;
             var z = Mathf.Cos(t) * 15f;
             var yOffset = 0.05f;
