@@ -7,4 +7,3 @@ namespace MachineSimulator.MachineModel
         (Vector3 Position, Quaternion Rotation) Move(float time);
     }
 }
-

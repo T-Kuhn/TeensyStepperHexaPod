@@ -33,6 +33,11 @@ namespace MachineSimulator.MachineModel
             PlaybackSequenceAsync(instructions, isLinear).Forget();
         }
 
+        public IHexaplateMovementStrategy GetStrategyFrom(StrategyName strategyName)
+        {
+            return _strategies.GetValueOrDefault(strategyName);
+        }
+
         private void Awake()
         {
             _strategies = new Dictionary<StrategyName, IHexaplateMovementStrategy>()

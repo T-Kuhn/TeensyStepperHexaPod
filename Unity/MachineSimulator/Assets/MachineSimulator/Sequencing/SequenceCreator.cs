@@ -22,13 +22,25 @@ namespace MachineSimulator.Sequencing
                     return new HLInstruction(abstractHlInstruction.Instruction.TargetMachineState, newMoveTime).ToAbstract();
                 }
 
+                if (abstractInstruction is AbstractStrategyInstruction abstractStrategyInstruction)
+                {
+                    return new AbstractStrategyInstruction(
+                        abstractStrategyInstruction.StrategyName,
+                        abstractStrategyInstruction.StartTime,
+                        abstractStrategyInstruction.EndTime,
+                        newMoveTime
+                    );
+                }
+
                 return abstractInstruction;
             }).ToList();
         }
 
-        public void Add(HLInstruction hlInstruction)
+        public void Add(HLInstruction hlInstruction) => Add(hlInstruction.ToAbstract());
+
+        public void Add(AbstractInstruction abstractInstruction)
         {
-            _sequence.Add(hlInstruction.ToAbstract());
+            _sequence.Add(abstractInstruction);
         }
 
         public void ClearAll()
@@ -61,19 +73,84 @@ namespace MachineSimulator.Sequencing
             {
                 if (abstractInstruction is AbstractHLInstruction abstractHlInstruction)
                 {
-                    var stringedInstructions = GenerateStringedFrom(abstractHlInstruction);
-
-                    return stringedInstructions;
+                    return GenerateStringedFrom(abstractHlInstruction);
                 }
 
                 if (abstractInstruction is AbstractStrategyInstruction strategyInstruction)
                 {
-                    // Implement.
-                    return null;
+                    return GenerateStringedFrom(strategyInstruction);
                 }
 
                 return null;
             }).ToList();
+        }
+
+        private List<(HLInstruction, LLInstruction)> GenerateStringedFrom(AbstractStrategyInstruction strategyInstruction)
+        {
+            var strategy = _machineModel.HexaPlateMover.GetStrategyFrom(strategyInstruction.StrategyName);
+            var startTime = strategyInstruction.StartTime;
+            var endTime = strategyInstruction.EndTime;
+
+            if (strategy == null)
+            {
+                return new List<(HLInstruction, LLInstruction)>();
+            }
+
+            // NOTE: - Is 1 when referenceMoveTime is 3secs
+            //       - Is 1/4 when referenceMoveTime is 3/4secs
+            var timeMultiplier = strategyInstruction.ReferenceMoveTime / 3f;
+            var totalDuration = endTime - startTime;
+            var instructionsPerSecond = 50f;
+            var numberOfSteps = instructionsPerSecond * (totalDuration * timeMultiplier);
+            var stringedMoveTime = totalDuration / numberOfSteps;
+            var elapsedTimes = new List<float>();
+
+            // NOTE: Goes from 1 to 9 (in the case of 10 steps)
+            for (var i = 1; i < numberOfSteps; i++)
+            {
+                elapsedTimes.Add(i * stringedMoveTime);
+            }
+
+            // NOTE: We fill in the last step manually to make sure there are no floating point errors
+            elapsedTimes.Add(totalDuration);
+
+            var stringedInstructions = new List<(HLInstruction, LLInstruction)>();
+
+            foreach (var elapsedTime in elapsedTimes)
+            {
+                // NOTE: t always goes from 0 to 1
+                var t = elapsedTime / totalDuration;
+
+                // NOTE: theta always goes from 0 to PI
+                var theta = t * Mathf.PI;
+
+                // NOTE: r goes from 2 to 0
+                var r = Mathf.Cos(theta) + 1;
+
+                // NOTE: s goes from 0 to 1
+                var s = (2 - r) / 2f;
+
+                var strategyTime = startTime + s * totalDuration;
+
+                // Get position and rotation from strategy at this time
+                var (strategyPosition, strategyRotation) = strategy.Move(strategyTime);
+
+                // Add the default height offset (similar to ExecuteStrategie method)
+                var finalPosition = strategyPosition + Vector3.up * _machineModel.HexaPlateMover.DefaultHeight;
+
+                // Update the machine model position and rotation
+                _machineModel.HexaPlateMover.UpdatePositionAndRotationTo(finalPosition, strategyRotation);
+
+                var stringedMachineState = new HLMachineState(finalPosition, strategyRotation);
+
+                // NOTE: Create LowLevelInstruction from Motor Position retrieved AFTER IK was run on all Arms.
+                var state = _machineModel.MachineStateProvider.CurrentLowLevelMachineState;
+                var highLevelInstruction = new HLInstruction(stringedMachineState, stringedMoveTime * timeMultiplier);
+                var lowLevelInstruction = new LLInstruction(state, stringedMoveTime * timeMultiplier);
+                stringedInstructions.Add((highLevelInstruction, lowLevelInstruction));
+            }
+
+            return stringedInstructions;
         }
 
         private List<(HLInstruction, LLInstruction)> GenerateStringedFrom(AbstractHLInstruction instruction)

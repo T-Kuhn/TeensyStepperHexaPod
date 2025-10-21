@@ -1,4 +1,3 @@
-
 using System.Threading;
 using UnityEngine;
 using System.IO.Ports;
@@ -10,7 +9,7 @@ namespace MachineSimulator.SerialCommunication
     {
         [SerializeField] private string[] _availablePorts;
         [SerializeField] private string _portName = "";
-        
+
         private SerialPort _port;
         Thread _receiveDataThread;
         private bool _isOpen => _port != null && _port.IsOpen;
@@ -29,7 +28,7 @@ namespace MachineSimulator.SerialCommunication
             _port = new SerialPort(_portName, Constants.BaudRate, Parity.None, 8, StopBits.One);
             _port.Handshake = Handshake.None;
             _port.Open();
-            
+
             _receiveDataThread = new Thread(RecieveData);
             _receiveDataThread.Start();
         }
@@ -37,12 +36,12 @@ namespace MachineSimulator.SerialCommunication
         public void Send(string s)
         {
             if (!_isOpen) Open();
-            
+
             Debug.Log("Sending: " + s);
-            
+
             _port.Write(s);
         }
-        
+
         private void RecieveData()
         {
             while (_port.IsOpen)
@@ -69,4 +68,3 @@ namespace MachineSimulator.SerialCommunication
         }
     }
 }
-
