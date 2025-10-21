@@ -17,7 +17,7 @@ namespace MachineSimulator.Sequencing
         public static void UpIntoCircleMovementSequence(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime)
         {
             var rotation = Quaternion.identity;
-            var startPosition = new Vector3(0f, 0.26f, 0.05f);
+            var startPosition = new Vector3(0f, 0.26f, 0.025f);
 
             // Go to startPosition
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, rotation);
