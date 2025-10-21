@@ -52,12 +52,12 @@
 
 // NOTE: LinearStepper and MoveBatch ids must be lower then MAX_NUM_OF_STEPPERS
 #define MAX_NUM_OF_STEPPERS 10
-#define MAX_NUM_OF_MOVEBATCHES 2500
+#define MAX_NUM_OF_MOVEBATCHES 1000
 
 // Max input size for the list of incoming instructions
 // NOTE: an average move batch is made of around 100 chars. If one stringed instructions is 
 //       made out of 50 small move batches what will be around 5000 chars.
-//       So below INPUT_SIZE allows for around 50 such stringed instructions to be buffered.
-#define INPUT_SIZE 250000
+//       So below INPUT_SIZE allows for around 10 such stringed instructions to be buffered.
+#define INPUT_SIZE 51200
 
 #endif
