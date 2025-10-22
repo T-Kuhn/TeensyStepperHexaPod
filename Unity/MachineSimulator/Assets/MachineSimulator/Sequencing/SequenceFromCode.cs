@@ -26,7 +26,7 @@ namespace MachineSimulator.Sequencing
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
             // circle strategy
-            sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.MoveInCircle, 0f, Mathf.PI * 2f, commandTime));
+            sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.MoveInCircle, 0f, Mathf.PI * 2f, commandTime, false));
         }
 
         public static void UpIntoTiltCircleMovementSequence(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime)
@@ -39,7 +39,7 @@ namespace MachineSimulator.Sequencing
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
             // circle strategy
-            sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, 0f, Mathf.PI * 2f, commandTime));
+            sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, 0f, Mathf.PI * 2f, commandTime, false));
         }
 
         public static async UniTaskVoid StartAsyncExecutionAsync(
@@ -49,10 +49,10 @@ namespace MachineSimulator.Sequencing
             CancellationToken ct,
             bool executeOnRealMachine = false)
         {
-            await GoUpAndDownForever(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            await TiltCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
-        private static async UniTask GoUpAndDownForever(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
+        private static async UniTask GoUpAndDownForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
         {
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
@@ -79,6 +79,37 @@ namespace MachineSimulator.Sequencing
                 sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation));
 
                 await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
+            }
+        }
+
+        private static async UniTask TiltCircleForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
+        {
+            var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
+            
+            // Go to startPosition
+            sequenceCreator.ClearAll();
+            var startRotation = Quaternion.Euler(0f, 0f, 15f);
+            var startPosition = new Vector3(0f, 0.21f, 0f);
+
+            machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
+            sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
+            
+            machineModel.HexaPlateMover.TeleportToDefaultHeight();
+            sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.TeleportToDefaultHeight());
+            await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
+
+            var tiltWaitDelay = Mathf.RoundToInt(Mathf.PI * 2f * 1000f);
+
+            while (true)
+            {
+                // circle strategy
+                sequenceCreator.ClearAll();
+                sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, 0f, Mathf.PI * 2f, commandTime, true));
+
+                machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
+                sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation));
+
+                await UniTask.Delay(tiltWaitDelay, cancellationToken: ct);
             }
         }
 

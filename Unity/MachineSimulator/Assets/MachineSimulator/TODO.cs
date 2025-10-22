@@ -90,17 +90,18 @@
 // - [X] need an easy way to measure distance to ground
 //     - some sort of gameObject we can move around which will show distance in inspector?
 // - [X] do the circle tilt!
-
-// Continue work on this ↓
-// - [ ] we want a way to do the circle tilt continuously
-//     - [ ] add "Playback Async" and "Playback Async On Machine" buttons
-//     - [ ] Buttons need to execute code that resembles what we wrote below in approach A
+// - [X] we want a way to do the circle tilt continuously
+//     - [X] add "Playback Async" and "Playback Async On Machine" buttons
+//     - [X] Buttons need to execute code that resembles what we wrote below in approach A
 // - approach A:
 //   - 1. send command to go to start position
 //   - 2. send command to do one circle tilt after a small delay
 //   - 3. after a small delay which is almost exactly how long it takes the machine to perform 1 circle tilt: send commands for another circle tilt
 //   - 4. repeat 3 a few times
 // A seems ideal since - if we ever happen to do anything with this machine - it will be in a way similar to this approach (e.g. ball juggling will use a similar approach)
+
+// Continue work on this ↓
+// - [ ] fix slight stutter on new command received
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:

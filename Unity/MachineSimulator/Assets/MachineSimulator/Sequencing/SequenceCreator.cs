@@ -29,7 +29,8 @@ namespace MachineSimulator.Sequencing
                         abstractStrategyInstruction.StrategyName,
                         abstractStrategyInstruction.StartTime,
                         abstractStrategyInstruction.EndTime,
-                        newMoveTime
+                        newMoveTime,
+                        abstractStrategyInstruction.IsLinearMove
                     );
                 }
 
@@ -93,6 +94,7 @@ namespace MachineSimulator.Sequencing
             var strategy = _machineModel.HexaPlateMover.GetStrategyFrom(strategyInstruction.StrategyName);
             var startTime = strategyInstruction.StartTime;
             var endTime = strategyInstruction.EndTime;
+            var isLinearMove = strategyInstruction.IsLinearMove;
 
             if (strategy == null)
             {
@@ -133,7 +135,9 @@ namespace MachineSimulator.Sequencing
                 // NOTE: s goes from 0 to 1
                 var s = (2 - r) / 2f;
 
-                var strategyTime = startTime + s * totalDuration;
+                var strategyTime = isLinearMove
+                    ? startTime + elapsedTime
+                    : startTime + s * totalDuration;
 
                 // Get position and rotation from strategy at this time
                 var (strategyPosition, strategyRotation) = strategy.Move(strategyTime);
