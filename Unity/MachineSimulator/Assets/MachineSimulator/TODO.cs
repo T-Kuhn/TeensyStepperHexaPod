@@ -87,12 +87,11 @@
 //     - [X] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
 //         - [X] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
 //               strategy will be executed from startTime to endTime with the specified number of instructions per second.
-
-// Continue work on this ↓
-// - [ ] need an easy way to measure distance to ground
+// - [X] need an easy way to measure distance to ground
 //     - some sort of gameObject we can move around which will show distance in inspector?
 
-
+// Continue work on this ↓
+// - [ ] do the circle tilt!
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
