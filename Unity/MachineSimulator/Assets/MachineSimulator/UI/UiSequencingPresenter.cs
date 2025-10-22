@@ -1,4 +1,4 @@
-using MachineSimulator.Machine;
+using System.Threading;
 using MachineSimulator.Sequencing;
 using UniRx;
 using UnityEngine;
@@ -17,17 +17,36 @@ namespace MachineSimulator.UI
         //       but I don't think we should go faster than that. (Observed skipping with 0.175 with no load attached)
         private readonly float _defaultCommandTime = 3f;
 
+        private CancellationTokenSource _cts = new();
+
         private void Awake()
         {
-            _view.OnAddInstructionClicked.Subscribe(_ =>
-            {
-                var platePosition = _machineModel.HexaPlateTransform.position;
-                var plateRotation = _machineModel.HexaPlateTransform.rotation;
-                var hlMachineState = new HLMachineState(platePosition, plateRotation);
-                var instruction = new HLInstruction(hlMachineState, _defaultCommandTime);
+            _view.OnLoadSequenceFromCodeClicked.Subscribe(_ =>
+                {
+                    // Teleport to origin
+                    _sequenceCreator.ClearAll();
+                    _machineModel.HexaPlateMover.TeleportToDefaultHeight();
 
-                _sequenceCreator.Add(instruction);
+                    // Sequence
+                    SequenceFromCode.UpIntoTiltCircleMovementSequence(_machineModel, _sequenceCreator, _currentCommandTime);
+
+                    // Back to origin
+                    _machineModel.HexaPlateMover.TeleportToDefaultHeight();
+                    _sequenceCreator.Add(SequenceFromCode.HLInstructionFromCurrentMachineState(_machineModel, _currentCommandTime));
+                }
+            ).AddTo(this);
+
+            _view.OnPlaybackAsyncClicked.Subscribe(_ => { SequenceFromCode.StartAsyncExecutionAsync(_machineModel, _sequenceCreator, _currentCommandTime, _cts.Token).Forget(); }).AddTo(this);
+
+            _view.OnPlaybackAsyncOnMachineClicked.Subscribe(_ => { SequenceFromCode.StartAsyncExecutionAsync(_machineModel, _sequenceCreator, _currentCommandTime, _cts.Token, true).Forget(); }).AddTo(this);
+
+            _view.OnStopAllAsyncCLicked.Subscribe(_ =>
+            {
+                _cts.Cancel();
+                _cts = new CancellationTokenSource();
             }).AddTo(this);
+
+            _view.OnAddInstructionClicked.Subscribe(_ => { _sequenceCreator.Add(SequenceFromCode.HLInstructionFromCurrentMachineState(_machineModel, _defaultCommandTime)); }).AddTo(this);
 
             _view.OnSeqDoubleSpeedClicked
                 .Subscribe(_ =>
@@ -52,8 +71,6 @@ namespace MachineSimulator.UI
                     _sequenceCreator.UpdateAllMoveTimesInSequenceTo(_currentCommandTime);
                 })
                 .AddTo(this);
-
-            _view.OnPlaybackClicked.Subscribe(_ => _sequenceCreator.StartPlayback()).AddTo(this);
 
             _view.OnPlaybackStringedClicked.Subscribe(_ => _sequenceCreator.StartStringedPlayback()).AddTo(this);
 

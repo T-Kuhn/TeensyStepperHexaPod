@@ -36,12 +36,16 @@ namespace MachineSimulator.UI
 
         private readonly Subject<Unit> _onApplyOffsetClicked = new Subject<Unit>();
 
+        private readonly Subject<Unit> _onLoadSequenceFromCodeClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onAddInstructionClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onTeleportToOriginClicked = new Subject<Unit>();
-        private readonly Subject<Unit> _onPlaybackClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onPlaybackStringedClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onSendStringedToMachineClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onClearAllClicked = new Subject<Unit>();
+
+        private readonly Subject<Unit> _onPlaybackAsyncClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onPlaybackAsyncOnMachineClicked = new Subject<Unit>();
+        private readonly Subject<Unit> _onStopAllAsync = new Subject<Unit>();
 
         public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
         public IObservable<Unit> OnUpOriginClicked => _onUpOriginClicked;
@@ -72,12 +76,16 @@ namespace MachineSimulator.UI
 
         public IObservable<Unit> OnApplyOffsetClicked => _onApplyOffsetClicked;
 
+        public IObservable<Unit> OnLoadSequenceFromCodeClicked => _onLoadSequenceFromCodeClicked;
         public IObservable<Unit> OnAddInstructionClicked => _onAddInstructionClicked;
         public IObservable<Unit> OnTeleportToOriginClicked => _onTeleportToOriginClicked;
-        public IObservable<Unit> OnPlaybackClicked => _onPlaybackClicked;
         public IObservable<Unit> OnPlaybackStringedClicked => _onPlaybackStringedClicked;
         public IObservable<Unit> OnSendStringedToMachineClicked => _onSendStringedToMachineClicked;
         public IObservable<Unit> OnClearAllClicked => _onClearAllClicked;
+
+        public IObservable<Unit> OnPlaybackAsyncClicked => _onPlaybackAsyncClicked;
+        public IObservable<Unit> OnPlaybackAsyncOnMachineClicked => _onPlaybackAsyncOnMachineClicked;
+        public IObservable<Unit> OnStopAllAsyncCLicked => _onStopAllAsync;
 
         private void Awake()
         {
@@ -113,12 +121,16 @@ namespace MachineSimulator.UI
 
             RegisterButton(root.Q<Button>("ApplyOffset"), _onApplyOffsetClicked);
 
+            RegisterButton(root.Q<Button>("LoadSequenceFromCodeButton"), _onLoadSequenceFromCodeClicked);
             RegisterButton(root.Q<Button>("AddInstructionButton"), _onAddInstructionClicked);
             RegisterButton(root.Q<Button>("TeleportToOrigin"), _onTeleportToOriginClicked);
-            RegisterButton(root.Q<Button>("PlaybackButton"), _onPlaybackClicked);
             RegisterButton(root.Q<Button>("PlaybackStringedButton"), _onPlaybackStringedClicked);
             RegisterButton(root.Q<Button>("SendStringedToMachine"), _onSendStringedToMachineClicked);
             RegisterButton(root.Q<Button>("ClearAllButton"), _onClearAllClicked);
+
+            RegisterButton(root.Q<Button>("PlaybackAsync"), _onPlaybackAsyncClicked);
+            RegisterButton(root.Q<Button>("PlaybackAsyncOnMachine"), _onPlaybackAsyncOnMachineClicked);
+            RegisterButton(root.Q<Button>("StopAllAsync"), _onStopAllAsync);
         }
 
         private void RegisterButton(Button button, Subject<Unit> subject)

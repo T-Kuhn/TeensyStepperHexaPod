@@ -73,22 +73,35 @@
 //       The shortness and number of linear-speed moves will ensure that in totality, a smooth movement can be achieved.
 // - [X] refactor "SineStepper/SineStepperController" code to "LinearStepper/LinearStepperController" etc.
 // - [X] add "Speed x1", "Speed x2", "Speed x3" buttons to the sequencing UI
-
 // - [X] check why "apply offset" -> "stringed playback (up and down to origin)" results in a endstate that is not the same as after apply offset (how did we define origin?)
 // - [X] is it because the first apply offset wasn't sent correctly? do we need to send 0,0,0,0,0,0 the first time after startup?
 //       -> Yes
 // - [X] speed is too fast.
 // - [X] need to change machineModel parameters to match real machine (distance from center for motors and targets)
 // - [X] test tilting/rotating/translating (don't go too far though, we now know that there are instable states where an arm might flap downwards)
+// - [X] Add LoadSequenceFromCode button to the sequencing UI
+// - [X] Add manual set-time inspector UI for HexaPlateMover
+//     - [X] checkbox to switch between automatic and manual time setting
+//     - [X] slider to set time (0 to 10)
+// - [X] add a way to make generation of stringed circle-tilt/circle-translation commands possible
+//     - [X] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
+//         - [X] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
+//               strategy will be executed from startTime to endTime with the specified number of instructions per second.
+// - [X] need an easy way to measure distance to ground
+//     - some sort of gameObject we can move around which will show distance in inspector?
+// - [X] do the circle tilt!
+// - [X] we want a way to do the circle tilt continuously
+//     - [X] add "Playback Async" and "Playback Async On Machine" buttons
+//     - [X] Buttons need to execute code that resembles what we wrote below in approach A
+// - approach A:
+//   - 1. send command to go to start position
+//   - 2. send command to do one circle tilt after a small delay
+//   - 3. after a small delay which is almost exactly how long it takes the machine to perform 1 circle tilt: send commands for another circle tilt
+//   - 4. repeat 3 a few times
+// A seems ideal since - if we ever happen to do anything with this machine - it will be in a way similar to this approach (e.g. ball juggling will use a similar approach)
 
 // Continue work on this ↓
-// - [ ] add a way to make generation of stringed circle-tilt/circle-translation commands possible
-//     - [ ] Need a "CreateListOfStringedInstructionsFromMoveStrategy" method
-//         - [ ] pass in "startTime", "endTime", "strategy" and "stringedInstructionsPerSecond".
-//               strategy will be executed from startTime to endTime with the specified number of instructions per second.
-//
-
-// - [ ] add "send to machine and repeat 5x" button to the sequencing UI
+// - [ ] fix slight stutter on new command received
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:

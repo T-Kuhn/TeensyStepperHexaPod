@@ -54,15 +54,18 @@
         <ui:VisualElement name="BottomHalf" style="flex-direction: row; align-items: center; justify-content: center;">
             <ui:VisualElement name="BottomUI" style="flex-direction: row; align-items: center;">
                 <ui:Label text="Sequencing" display-tooltip-when-elided="true" name="SequencingLabel" style="font-size: 24px; color: rgb(255, 255, 255); margin-right: 10px; justify-content: center;" />
+                <ui:Button text="Load Sequence&#10;From Code" display-tooltip-when-elided="true" name="LoadSequenceFromCodeButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Add&#10;HLInstruction" display-tooltip-when-elided="true" name="AddInstructionButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Teleport&#10;To Origin" display-tooltip-when-elided="true" name="TeleportToOrigin" class="CommandButton" style="height: 40px;" />
-                <ui:Button text="Playback" display-tooltip-when-elided="true" name="PlaybackButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Playback&#10;Stringed" display-tooltip-when-elided="true" name="PlaybackStringedButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Send Stringed&#10;To Machine" display-tooltip-when-elided="true" name="SendStringedToMachine" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Clear All" display-tooltip-when-elided="true" name="ClearAllButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Speed x1" display-tooltip-when-elided="true" name="SeqNormalSpeedButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Speed x2" display-tooltip-when-elided="true" name="SeqDoubleSpeedButton" class="CommandButton" style="height: 40px;" />
                 <ui:Button text="Speed x3" display-tooltip-when-elided="true" name="SeqQuatrupleSpeedButton" class="CommandButton" style="height: 40px;" />
+                <ui:Button text="Play Async" display-tooltip-when-elided="true" name="PlaybackAsync" class="CommandButton" style="height: 40px;" />
+                <ui:Button text="Play Async&#10;On Machine" display-tooltip-when-elided="true" name="PlaybackAsyncOnMachine" class="CommandButton" style="height: 40px;" />
+                <ui:Button text="Stop All Async" display-tooltip-when-elided="true" name="StopAllAsync" class="CommandButton" style="height: 40px;" />
             </ui:VisualElement>
         </ui:VisualElement>
     </ui:VisualElement>

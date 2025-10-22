@@ -24,9 +24,18 @@ namespace MachineSimulator.MachineModel
         private bool _isInPlaybackMode;
         private Logger _logger;
 
-        public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear = false)
+        public bool UseManualTime;
+
+        [Range(0f, 10f)] public float ManualTime;
+
+        public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear)
         {
             PlaybackSequenceAsync(instructions, isLinear).Forget();
+        }
+
+        public IHexaplateMovementStrategy GetStrategyFrom(StrategyName strategyName)
+        {
+            return _strategies.GetValueOrDefault(strategyName);
         }
 
         private void Awake()
@@ -136,7 +145,7 @@ namespace MachineSimulator.MachineModel
         {
             if (CurrentStrategy == StrategyName.DoNothing) return;
 
-            var time = Time.time * 3f;
+            var time = UseManualTime ? ManualTime : Time.time * 3f;
             var (position, rotation) = _strategies[CurrentStrategy].Move(time);
             var newPosition = position + Vector3.up * DefaultHeight;
 
