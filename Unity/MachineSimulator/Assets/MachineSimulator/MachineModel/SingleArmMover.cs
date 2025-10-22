@@ -134,7 +134,7 @@ namespace MachineSimulator.MachineModel
 
         private void SetMotorRotation(float theta, bool isTeleportToOriginPoseChange)
         {
-            // NOTE: We want to motor rotation to be continuous and in the range [0, 2π]
+            // NOTE: We want the motor rotation to be continuous and in the range [0, 2π]
             //       Without below fix theta switched form -PI to +PI.
             //       However, WITH below fix a new discontiniuty arises at the 2PI-0 border
             //       (theta will switch from 2PI to 0 instead of going from +0 to -0), that's why we only apply

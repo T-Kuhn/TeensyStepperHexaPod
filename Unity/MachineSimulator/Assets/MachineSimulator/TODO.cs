@@ -93,8 +93,9 @@
 
 // Continue work on this ↓
 // - [ ] we want a way to do the circle tilt continuously
-// approach:
-// - A:
+//     - [ ] add "Playback Async" and "Playback Async On Machine" buttons
+//     - [ ] Buttons need to execute code that resembles what we wrote below in approach A
+// - approach A:
 //   - 1. send command to go to start position
 //   - 2. send command to do one circle tilt after a small delay
 //   - 3. after a small delay which is almost exactly how long it takes the machine to perform 1 circle tilt: send commands for another circle tilt

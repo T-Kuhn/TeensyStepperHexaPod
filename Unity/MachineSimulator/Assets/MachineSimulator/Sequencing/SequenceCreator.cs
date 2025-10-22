@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MachineSimulator.Machine;
 using UnityEngine;
@@ -48,12 +49,14 @@ namespace MachineSimulator.Sequencing
             _sequence.Clear();
         }
 
-        public void StartStringedPlayback(bool sendToRealMachine = false)
+        public void StartStringedPlayback(bool sendToRealMachine = false, Action onBeforeSendAction = null)
         {
             var stringedInstructions = CreateListOfStringedHighLevelInstructions();
             // FIXME: Get rid of the need to go through the data and create two new lists here.
             var sringedHighLevelInstructions = stringedInstructions.Select(data => data.Item1).ToList();
             var stringedLowLevelInstuctions = stringedInstructions.Select(data => data.Item2).ToList();
+
+            onBeforeSendAction?.Invoke();
 
             if (sendToRealMachine)
             {

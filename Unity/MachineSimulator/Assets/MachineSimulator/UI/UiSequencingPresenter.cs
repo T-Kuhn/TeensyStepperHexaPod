@@ -1,3 +1,4 @@
+using System.Threading;
 using MachineSimulator.Sequencing;
 using UniRx;
 using UnityEngine;
@@ -16,6 +17,8 @@ namespace MachineSimulator.UI
         //       but I don't think we should go faster than that. (Observed skipping with 0.175 with no load attached)
         private readonly float _defaultCommandTime = 3f;
 
+        private CancellationTokenSource _cts = new();
+
         private void Awake()
         {
             _view.OnLoadSequenceFromCodeClicked.Subscribe(_ =>
@@ -32,6 +35,16 @@ namespace MachineSimulator.UI
                     _sequenceCreator.Add(SequenceFromCode.HLInstructionFromCurrentMachineState(_machineModel, _currentCommandTime));
                 }
             ).AddTo(this);
+
+            _view.OnPlaybackAsyncClicked.Subscribe(_ => { SequenceFromCode.StartAsyncExecutionAsync(_machineModel, _sequenceCreator, _currentCommandTime, _cts.Token).Forget(); }).AddTo(this);
+
+            _view.OnPlaybackAsyncOnMachineClicked.Subscribe(_ => { SequenceFromCode.StartAsyncExecutionAsync(_machineModel, _sequenceCreator, _currentCommandTime, _cts.Token, true).Forget(); }).AddTo(this);
+
+            _view.OnStopAllAsyncCLicked.Subscribe(_ =>
+            {
+                _cts.Cancel();
+                _cts = new CancellationTokenSource();
+            }).AddTo(this);
 
             _view.OnAddInstructionClicked.Subscribe(_ => { _sequenceCreator.Add(SequenceFromCode.HLInstructionFromCurrentMachineState(_machineModel, _defaultCommandTime)); }).AddTo(this);
 
