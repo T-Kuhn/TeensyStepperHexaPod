@@ -25,7 +25,7 @@ namespace MachineSimulator.UI
                     _machineModel.HexaPlateMover.TeleportToDefaultHeight();
 
                     // Sequence
-                    SequenceFromCode.UpIntoCircleMovementSequence(_machineModel, _sequenceCreator, _currentCommandTime);
+                    SequenceFromCode.UpIntoTiltCircleMovementSequence(_machineModel, _sequenceCreator, _currentCommandTime);
 
                     // Back to origin
                     _machineModel.HexaPlateMover.TeleportToDefaultHeight();

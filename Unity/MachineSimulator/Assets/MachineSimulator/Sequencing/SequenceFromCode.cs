@@ -16,15 +16,28 @@ namespace MachineSimulator.Sequencing
 
         public static void UpIntoCircleMovementSequence(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime)
         {
-            var rotation = Quaternion.identity;
+            var startRotation = Quaternion.identity;
             var startPosition = new Vector3(0f, 0.26f, 0.025f);
 
             // Go to startPosition
-            machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, rotation);
+            machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
             // circle strategy
             sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.MoveInCircle, 0f, Mathf.PI * 2f, commandTime));
+        }
+
+        public static void UpIntoTiltCircleMovementSequence(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime)
+        {
+            var startRotation = Quaternion.Euler(0f, 0f, 15f);
+            var startPosition = new Vector3(0f, 0.21f, 0f);
+
+            // Go to startPosition
+            machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
+            sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
+
+            // circle strategy
+            sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, 0f, Mathf.PI * 2f, commandTime));
         }
 
         public static HLInstruction HLInstructionFromCurrentMachineState(MachineModel.MachineModel machineModel, float commandTime)
