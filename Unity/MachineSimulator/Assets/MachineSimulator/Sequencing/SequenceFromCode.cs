@@ -98,18 +98,22 @@ namespace MachineSimulator.Sequencing
             sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.TeleportToDefaultHeight());
             await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
 
-            var tiltWaitDelay = Mathf.RoundToInt(Mathf.PI * 2f * 1000f);
+            var startTime = 0f;
+            var endTime = Mathf.PI * 2f;
+            var duration = endTime - startTime;
+            var timeMultiplier = commandTime / 3f;
+            var tiltWaitDelay = Mathf.RoundToInt(duration * timeMultiplier * 1000f);
 
             while (true)
             {
                 // circle strategy
                 sequenceCreator.ClearAll();
-                sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, 0f, Mathf.PI * 2f, commandTime, true));
+                sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, startTime, endTime, commandTime, false));
 
                 machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
                 sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation));
 
-                await UniTask.Delay(tiltWaitDelay, cancellationToken: ct);
+                await UniTask.Delay(tiltWaitDelay + 1, cancellationToken: ct);
             }
         }
 
