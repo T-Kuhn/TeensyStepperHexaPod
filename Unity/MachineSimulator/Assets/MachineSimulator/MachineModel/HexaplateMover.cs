@@ -63,11 +63,6 @@ namespace MachineSimulator.MachineModel
             ExecuteStrategie();
         }
 
-        private void LateUpdate()
-        {
-            // _logger.UpdateLogging(transform.position.y);
-        }
-
         private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions, bool isLinear)
         {
             _isInPlaybackMode = true;

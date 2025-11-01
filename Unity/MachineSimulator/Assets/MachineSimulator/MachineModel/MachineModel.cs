@@ -25,7 +25,7 @@ namespace MachineSimulator.MachineModel
 
         public Transform HexaPlateTransform => _hexaPlate.transform;
         public HexaplateMover HexaPlateMover => _hexaPlate;
-        
+
         public LLMachineStateProvider MachineStateProvider => _stateProvider;
 
         private void Start()

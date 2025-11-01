@@ -163,4 +163,3 @@
 // - 2025-07-14: Tightened nuts on last joint (where the arm is connected to the hexaplate) for better rigidity.
 // - 2025-07-14: No PID (open loop) seems better.
 
-
