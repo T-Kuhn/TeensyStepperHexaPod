@@ -101,24 +101,9 @@
 // A seems ideal since - if we ever happen to do anything with this machine - it will be in a way similar to this approach (e.g. ball juggling will use a similar approach)
 
 // Continue work on this ↓
-// - [ ] create a tilt-strategy that actually tilts around the center of the hexaplate (instead of "around a point a bit above the hexa plate")
-
-// - [ ] fix slight stutter on new command received
-// - the Serial command timing is unreliable. We send Serial data around +/-25ms
-//   - So whenever we are too early, we cut off the current command which leads to the next command having to move further which causes a visible stutter
-//   - And whenever we are too late the machine stops for a few milliseconds which also is not a good look
-// Thinking about how to improve this problem:
-//  - A: Adding a start/stop ramp instead of making the whole motion linear will improve the situation
-//      - ultimately, we will probably want to move with sinosoidal speed curves anyway,
-//        so fixing this problem probably shouldn't be super high priority
-//      - However, it WOULD be nice to get the forever-circle-tilt work seamlessly, wouldn't it?
-//  - B: Implement some sort of stack on the microcontroller's side will allow us to refill the stack with new
-//       commands even before the microcontroller has finished the current round of commands
-//      - Will not work forever since our stack will slowly grow in size
-//      - However, since our final application will not use this feature extensively,
-//        it doesn't need to work forever anyway
-
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
+
+// - [ ] create a tilt-strategy that actually tilts around the center of the hexaplate (instead of "around a point a bit above the hexa plate")
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
@@ -148,6 +133,22 @@
 // - [ ] Need a name for the thing. Some ideas:
 //   - u-joint. The UJ-Table
 //   - hexapod. The Hexa Bot.
+
+// ↓ We basically don't care enough for this right now... Probably will never go down this path.
+// - [ ] fix slight stutter on new command received
+// - the Serial command timing is unreliable. We send Serial data around +/-25ms
+//   - So whenever we are too early, we cut off the current command which leads to the next command having to move further which causes a visible stutter
+//   - And whenever we are too late the machine stops for a few milliseconds which also is not a good look
+// Thinking about how to improve this problem:
+//  - A: Adding a start/stop ramp instead of making the whole motion linear will improve the situation
+//      - ultimately, we will probably want to move with sinosoidal speed curves anyway,
+//        so fixing this problem probably shouldn't be super high priority
+//      - However, it WOULD be nice to get the forever-circle-tilt work seamlessly, wouldn't it?
+//  - B: Implement some sort of stack on the microcontroller's side will allow us to refill the stack with new
+//       commands even before the microcontroller has finished the current round of commands
+//      - Will not work forever since our stack will slowly grow in size
+//      - However, since our final application will not use this feature extensively,
+//        it doesn't need to work forever anyway
 
 // Thing to check:
 // - Wouldn't it also work if the 6 arms were placed one at a time at 60deg intervals instead of pairwise in 120deg intervals?
