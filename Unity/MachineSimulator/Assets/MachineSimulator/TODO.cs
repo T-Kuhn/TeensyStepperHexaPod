@@ -103,7 +103,18 @@
 // Continue work on this ↓
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
 
-// - [ ] create a tilt-strategy that actually tilts around the center of the hexaplate (instead of "around a point a bit above the hexa plate")
+
+// Ball position sensing ideas:
+// - [ ] use a camera + computer vision to track ball position
+// - [ ] use a light barried setup
+//     - maybe two tears so that we can get an idea where the ball is headed?
+//     - sensor array needs to be equipped with many sensors for this to work accurately
+//     - also looks a bit ugly (sensors all around the paddle)
+// - [ ] We shine a IR light onto the ball from below. IR sensors measure how much light is reflected back.
+//       The more light, the closer the ball is to the sensor. If we have multiple sensors, we can get an idea of the ball's position.
+// - [ ] Many, many ToF sensors? vl53l1x?
+//       - probably not ideal, since the ball is round and reflections are unreliable
+
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
@@ -111,6 +122,8 @@
 //     - The problem is that with the slicing approach, if the machine isn't in the exact state we expect it to be in, the first moveCommand
 //       might be at a way too high speed if the target position is too far away.
 //     - I don't think there's a ideal solution to fix/improve this though.
+
+// - [ ] create a tilt-strategy that actually tilts around the center of the hexaplate (instead of "around a point a bit above the hexa plate")
 
 // - [ ] test with different stepper driver PID settings
 //     -> this might be interesting, especially if we connect the driver to the setup software and look through all the settings,

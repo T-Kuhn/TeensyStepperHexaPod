@@ -54,7 +54,7 @@ namespace MachineSimulator.Sequencing
 
         private static async UniTask GoUpAndDownForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
         {
-            commandTime *= 0.2f;
+            commandTime *= 0.25f;
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             while (true)
@@ -62,7 +62,7 @@ namespace MachineSimulator.Sequencing
                 // move up
                 sequenceCreator.ClearAll();
                 var upRotation = Quaternion.Euler(0f, 0f, 0f);
-                var upPosition = new Vector3(0f, 0.18f, 0f);
+                var upPosition = new Vector3(0f, 0.2f, 0f);
                 machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
                 sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
