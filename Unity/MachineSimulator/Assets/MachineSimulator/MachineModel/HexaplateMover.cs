@@ -68,6 +68,13 @@ namespace MachineSimulator.MachineModel
             _isInPlaybackMode = true;
             _logger.StartLogging();
 
+            // NOTE: Need to wait two frames because if we start at the same frame the Playback
+            //       was requested we will get a high deltaTime due to the stringedMoveCommand-generation.
+            //       With the current way we are handling things, even 1 deltaTime over the commandTime will
+            //       cause the animation to not show correctly since we immediately early break thorugh all instructions.
+            await UniTask.Yield(PlayerLoopTiming.Update);
+            await UniTask.Yield(PlayerLoopTiming.Update);
+
             foreach (var instruction in instructions)
             {
                 var currentPosition = transform.position;
@@ -88,7 +95,6 @@ namespace MachineSimulator.MachineModel
 
                     if (t >= 1f)
                     {
-                        await UniTask.Yield(PlayerLoopTiming.Update);
                         break;
                     }
 
