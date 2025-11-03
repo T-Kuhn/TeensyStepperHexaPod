@@ -88,7 +88,7 @@ namespace MachineSimulator.MachineModel
 
                     if (t >= 1f)
                     {
-                        await UniTask.Yield();
+                        await UniTask.Yield(PlayerLoopTiming.Update);
                         break;
                     }
 
@@ -108,7 +108,7 @@ namespace MachineSimulator.MachineModel
 
                     UpdatePositionAndRotationTo(position, rotation);
 
-                    await UniTask.Yield();
+                    await UniTask.Yield(PlayerLoopTiming.Update);
                 }
             }
 
