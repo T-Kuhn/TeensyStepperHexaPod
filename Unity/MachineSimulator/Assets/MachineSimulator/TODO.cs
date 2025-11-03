@@ -102,6 +102,8 @@
 
 // Continue work on this ↓
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
+//     - maybe we could adjust the waitTime depending on how much longer it actually took until the next execution (so that little differences don't add up.)
+// - [ ] is there a way to control when unity will execute the next frame? This might be helpful for timing related things (e.g. sending the next command exactly 100ms after the previous one)
 
 
 // Ball position sensing ideas:
@@ -114,6 +116,8 @@
 //       The more light, the closer the ball is to the sensor. If we have multiple sensors, we can get an idea of the ball's position.
 // - [ ] Many, many ToF sensors? vl53l1x?
 //       - probably not ideal, since the ball is round and reflections are unreliable
+// - [ ] fpga-based camera processing?
+//    - [ ] maybe run unity-app on a raspberry pi without rendering much (use the dummy-display)?
 
 
 // Thinking:

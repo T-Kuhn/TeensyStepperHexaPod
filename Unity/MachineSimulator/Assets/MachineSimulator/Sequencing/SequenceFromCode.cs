@@ -49,12 +49,14 @@ namespace MachineSimulator.Sequencing
             CancellationToken ct,
             bool executeOnRealMachine = false)
         {
-            await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            //await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+			await TiltCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
+        // NOTE: command time and height cranked up near to limit (after pressing SpeedX3 button) to optimize for bounce ball height
         private static async UniTask GoUpAndDownForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
         {
-            commandTime *= 0.25f;
+            commandTime *= 0.225f;
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             while (true)
@@ -62,7 +64,7 @@ namespace MachineSimulator.Sequencing
                 // move up
                 sequenceCreator.ClearAll();
                 var upRotation = Quaternion.Euler(0f, 0f, 0f);
-                var upPosition = new Vector3(0f, 0.2f, 0f);
+                var upPosition = new Vector3(0f, 0.22f, 0f);
                 machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
                 sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
