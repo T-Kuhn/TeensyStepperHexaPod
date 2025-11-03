@@ -49,8 +49,9 @@ namespace MachineSimulator.Sequencing
             CancellationToken ct,
             bool executeOnRealMachine = false)
         {
-            //await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-			await TiltCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            // await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            // await TiltCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            await MoveCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
         // NOTE: command time and height cranked up near to limit (after pressing SpeedX3 button) to optimize for bounce ball height
@@ -112,6 +113,42 @@ namespace MachineSimulator.Sequencing
                 // circle strategy
                 sequenceCreator.ClearAll();
                 sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.CircleTilt, startTime, endTime, commandTime, false));
+
+                machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
+                sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation));
+
+                await UniTask.Delay(tiltWaitDelay + 1, cancellationToken: ct);
+            }
+        }
+
+        private static async UniTask MoveCircleForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
+        {
+            var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
+
+            // Go to startPosition
+            sequenceCreator.ClearAll();
+            var startRotation = Quaternion.identity;
+            var startPosition = new Vector3(0f, 0.26f, 0.025f);
+
+
+            machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
+            sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
+
+            machineModel.HexaPlateMover.TeleportToDefaultHeight();
+            sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.TeleportToDefaultHeight());
+            await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
+
+            var startTime = 0f;
+            var endTime = Mathf.PI * 2f;
+            var duration = endTime - startTime;
+            var timeMultiplier = commandTime / 3f;
+            var tiltWaitDelay = Mathf.RoundToInt(duration * timeMultiplier * 1000f);
+
+            while (true)
+            {
+                // circle strategy
+                sequenceCreator.ClearAll();
+                sequenceCreator.Add(new AbstractStrategyInstruction(StrategyName.MoveInCircle, startTime, endTime, commandTime, false));
 
                 machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation);
                 sequenceCreator.StartStringedPlayback(executeOnRealMachine, onBeforeSendAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(startPosition, startRotation));
