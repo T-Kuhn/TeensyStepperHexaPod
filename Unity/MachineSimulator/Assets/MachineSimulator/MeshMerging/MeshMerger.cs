@@ -6,6 +6,9 @@ namespace MeshMerging
     {
         [SerializeField] private MeshFilter[] _inputMeshFilters;
 
+        // NOTE: goes from 0 to 1 (0 = no simplification, 1 = full simplification)
+        [SerializeField, Range(0f, 1f)] private float _simplificationQuality = 0.5f;
+
         public void Merge()
         {
             if (_inputMeshFilters == null || _inputMeshFilters.Length == 0)
@@ -24,6 +27,9 @@ namespace MeshMerging
             var mergedMesh = new Mesh();
             mergedMesh.CombineMeshes(combine, true, false);
 
+            // Simplify the mesh
+            var simplifiedMesh = MeshSimplifier.Simplify(mergedMesh, _simplificationQuality);
+
             var go = new GameObject("MergedMesh");
             go.transform.SetParent(transform);
             go.transform.localPosition = Vector3.zero;
@@ -31,7 +37,7 @@ namespace MeshMerging
             go.transform.localScale = Vector3.one;
 
             var meshFilter = go.AddComponent<MeshFilter>();
-            meshFilter.sharedMesh = mergedMesh;
+            meshFilter.sharedMesh = simplifiedMesh;
 
             var meshRenderer = _inputMeshFilters[0].GetComponent<MeshRenderer>();
             if (meshRenderer != null)
@@ -40,7 +46,7 @@ namespace MeshMerging
                 childRenderer.sharedMaterial = meshRenderer.sharedMaterial;
             }
 
-            MeshExporter.SaveToObj(mergedMesh, "MergedMesh.obj");
+            MeshExporter.SaveToObj(simplifiedMesh, "MergedMesh.obj");
         }
     }
 }
