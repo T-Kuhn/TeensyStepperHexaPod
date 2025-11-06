@@ -101,9 +101,60 @@
 // A seems ideal since - if we ever happen to do anything with this machine - it will be in a way similar to this approach (e.g. ball juggling will use a similar approach)
 
 // Continue work on this ↓
+// - [ ] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes);
+//     - [ ] Merge some meshes.
+//     - [ ] Simplify meshes (holes are too complex. Could be simplified with vertex-reduction)
+//     - [ ] Export meshes as .obj files (this is to future proof our approach; we might want to use the meshes in the raspberry-pi-Godot-appraoch at some point in time)
+// - [ ] test camera we already have
+// - [ ] test ball throwing movement with ball on a little level a bit away from end-effector-triangle
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
+//     - maybe we could adjust the waitTime depending on how much longer it actually took until the next execution (so that little differences don't add up.)
+// - [ ] is there a way to control when unity will execute the next frame? This might be helpful for timing related things (e.g. sending the next command exactly 100ms after the previous one)
+// - [ ] Attach racket to machine
 
-// - [ ] create a tilt-strategy that actually tilts around the center of the hexaplate (instead of "around a point a bit above the hexa plate")
+
+// Thinking about that mesh merging script.
+// 1. Drop all the MeshFilters we want to merge into a public array on the MeshMerger component
+// 2. Mesh merger component generates a merges mesh and saves it as an obj file.
+// 3. we can use that mesh instead of the original meshes
+// 4. create a new prefab with optimized (merged) meshes
+// 5. get some sort of vertex-reduction going
+// 6. again, build a new prefab with merged and reduced meshes
+
+// - [ ] need to decide how we want to implement ball tracking:
+//     - [ ] A: use two cameras connected to PC via USB, do image processing in unity on the PC
+//         - advantages:
+//             - image processing can be screen recorded
+//             - we can be certain that this approach will work (no hardware/resource limitations)
+//             - simple
+//         - disadvantages:
+//             - if we end up going the raspberry-pi-image processing && Godot route, we end up buying the raspberry pi hardware with cameras anyway, so we will not need to USB cameras anymore.
+//             - need to be careful to not oversaturate the USB bus.
+//      - [ ] B: use a raspberry pi 5 to do two-camera-image-processing and get ball position via USB serial
+//         - advantages:
+//             - we can sync our global shutter cameras to take pictures at the exact same time (the syncing isn't really crucial though, just a nice to have)
+//             - raspberry pi
+//             - simplicity will be back once we are able to fully commit to GoDot/image processing route (and no PC will be needed anymore)
+//         - disadvantages:
+//             - simplicity is kinda lost (PC, Teensy, raspberry pi, ...)
+//             - seems harder to implement/debug (especially once we commit on the GoDot route)
+
+// Ball position sensing ideas:
+// - [ ] use a camera + computer vision to track ball position
+// - [ ] use a light barried setup
+//     - maybe two tears so that we can get an idea where the ball is headed?
+//     - sensor array needs to be equipped with many sensors for this to work accurately
+//     - also looks a bit ugly (sensors all around the paddle)
+// - [ ] We shine a IR light onto the ball from below. IR sensors measure how much light is reflected back.
+//       The more light, the closer the ball is to the sensor. If we have multiple sensors, we can get an idea of the ball's position.
+// - [ ] Many, many ToF sensors? vl53l1x?
+//       - probably not ideal, since the ball is round and reflections are unreliable
+// - [ ] fpga-based camera processing?
+//     - [ ] maybe run unity-app on a raspberry pi without rendering much (use the dummy-display)?
+
+// - [ ] At some stage I want to use a raspberry pi 5 to do both two-camera-image-processing and machine-control (IK).
+//     - this will probably be a bit later though. Like a quest you do after the main quest.
+//       could maybe do a video about porting the processing to the raspberry pi.
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
@@ -111,6 +162,8 @@
 //     - The problem is that with the slicing approach, if the machine isn't in the exact state we expect it to be in, the first moveCommand
 //       might be at a way too high speed if the target position is too far away.
 //     - I don't think there's a ideal solution to fix/improve this though.
+
+// - [ ] create a tilt-strategy that actually tilts around the center of the hexaplate (instead of "around a point a bit above the hexa plate")
 
 // - [ ] test with different stepper driver PID settings
 //     -> this might be interesting, especially if we connect the driver to the setup software and look through all the settings,
