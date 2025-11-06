@@ -104,7 +104,28 @@
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
 //     - maybe we could adjust the waitTime depending on how much longer it actually took until the next execution (so that little differences don't add up.)
 // - [ ] is there a way to control when unity will execute the next frame? This might be helpful for timing related things (e.g. sending the next command exactly 100ms after the previous one)
-// - [ ] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes); Merge some meshes.
+// - [ ] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes);
+//     - [ ] Merge some meshes.
+//     - [ ] Simplify meshes (holes are too complex. Could be simplified with vertex-reduction)
+// - [ ] Attach racket to machine
+
+// - [ ] need to decide how we want to implement ball tracking:
+//     - [ ] A: use two cameras connected to PC via USB, do image processing in unity on the PC
+//         - advantages:
+//             - image processing can be screen recorded
+//             - we can be certain that this approach will work (no hardware/resource limitations)
+//             - simple
+//         - disadvantages:
+//             - if we end up going the raspberry-pi-image processing && Godot route, we end up buying the raspberry pi hardware with cameras anyway, so we will not need to USB cameras anymore.
+//             - need to be careful to not oversaturate the USB bus.
+//      - [ ] B: use a raspberry pi 5 to do two-camera-image-processing and get ball position via USB serial
+//         - advantages:
+//             - we can sync our global shutter cameras to take pictures at the exact same time (the syncing isn't really crucial though, just a nice to have)
+//             - raspberry pi
+//             - simplicity will be back once we are able to fully commit to GoDot/image processing route (and no PC will be needed anymore)
+//         - disadvantages:
+//             - simplicity is kinda lost (PC, Teensy, raspberry pi, ...)
+//             - seems harder to implement/debug (especially once we commit on the GoDot route)
 
 // Ball position sensing ideas:
 // - [ ] use a camera + computer vision to track ball position
