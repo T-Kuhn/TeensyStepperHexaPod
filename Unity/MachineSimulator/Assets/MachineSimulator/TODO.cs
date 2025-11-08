@@ -99,22 +99,22 @@
 //   - 3. after a small delay which is almost exactly how long it takes the machine to perform 1 circle tilt: send commands for another circle tilt
 //   - 4. repeat 3 a few times
 // A seems ideal since - if we ever happen to do anything with this machine - it will be in a way similar to this approach (e.g. ball juggling will use a similar approach)
-
-// Continue work on this ↓
 // - [X] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes);
 //     - [X] Merge some meshes.
 //     - [X] Simplify meshes (holes are too complex. Could be simplified with vertex-reduction)
 //     - [X] Export meshes as .obj files (this is to future proof our approach; we might want to use the meshes in the raspberry-pi-Godot-appraoch at some point in time)
 //     - [X] Replace arm 0.4 left/right and base with simplified components that use .obj files
 //     - [X] Take After screenshot for comparison
-// - [ ] Add FPS counter to the UI so that we can get an idea of how efficient our rendering is.
-// - [ ] test camera we already have
-// - [ ] test ball throwing movement with ball on a little level a bit away from end-effector-triangle
-// - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
-//     - maybe we could adjust the waitTime depending on how much longer it actually took until the next execution (so that little differences don't add up.)
-// - [ ] is there a way to control when unity will execute the next frame? This might be helpful for timing related things (e.g. sending the next command exactly 100ms after the previous one)
-// - [ ] Attach racket to machine
+// - [X] Add FPS counter to the UI so that we can get an idea of how efficient our rendering is.
 
+// Continue work on this ↓
+// - [X] Make a new video showcasing all the moves we can do now at this point in time
+//      - [X] add a sequenceFromCode which showcases all the moves one after another
+//      - tiltCircle/translateCircle/turningAroundYAxis
+// - [ ] streamline the way we currently string together multiple moves in SequenceFromCode (add HelperMethods to be able to write instructions more concisely)
+// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+// - [ ] test camera we already have
+// - [ ] Attach racket to machine
 
 // Thinking about that mesh merging script.
 // 1. Drop all the MeshFilters we want to merge into a public array on the MeshMerger component
@@ -158,6 +158,9 @@
 // - [ ] At some stage I want to use a raspberry pi 5 to do both two-camera-image-processing and machine-control (IK).
 //     - this will probably be a bit later though. Like a quest you do after the main quest.
 //       could maybe do a video about porting the processing to the raspberry pi.
+
+// - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
+//     - maybe we could adjust the waitTime depending on how much longer it actually took until the next execution (so that little differences don't add up.)
 
 // Thinking:
 // - There's a slight problem with how the microcontroller handles moveCommands:
