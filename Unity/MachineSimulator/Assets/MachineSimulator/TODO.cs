@@ -101,12 +101,13 @@
 // A seems ideal since - if we ever happen to do anything with this machine - it will be in a way similar to this approach (e.g. ball juggling will use a similar approach)
 
 // Continue work on this ↓
-// - [ ] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes);
+// - [X] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes);
 //     - [X] Merge some meshes.
 //     - [X] Simplify meshes (holes are too complex. Could be simplified with vertex-reduction)
 //     - [X] Export meshes as .obj files (this is to future proof our approach; we might want to use the meshes in the raspberry-pi-Godot-appraoch at some point in time)
-//     - [ ] Replace arm 0.4 left/right and base with simplified components that use .obj files
-//     - [ ] Take After screenshot for comparison
+//     - [X] Replace arm 0.4 left/right and base with simplified components that use .obj files
+//     - [X] Take After screenshot for comparison
+// - [ ] Add FPS counter to the UI so that we can get an idea of how efficient our rendering is.
 // - [ ] test camera we already have
 // - [ ] test ball throwing movement with ball on a little level a bit away from end-effector-triangle
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation
