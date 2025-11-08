@@ -74,7 +74,7 @@ namespace MeshMerging
                 }
             }
 
-            var path = Path.Combine(Application.dataPath, filename);
+            var path = Path.Combine(Application.dataPath, "MachineSimulator", "ModelData", "SimplifiedMeshes", filename);
             File.WriteAllText(path, sb.ToString());
 
             Debug.Log($"Mesh exported to: {path}");
