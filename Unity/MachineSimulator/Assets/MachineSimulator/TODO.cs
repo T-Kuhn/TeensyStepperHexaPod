@@ -102,9 +102,11 @@
 
 // Continue work on this ↓
 // - [ ] rendering performance optimization. Too many drawcalls (shadowcaster/receive shadows/too many seperate meshes);
-//     - [ ] Merge some meshes.
-//     - [ ] Simplify meshes (holes are too complex. Could be simplified with vertex-reduction)
-//     - [ ] Export meshes as .obj files (this is to future proof our approach; we might want to use the meshes in the raspberry-pi-Godot-appraoch at some point in time)
+//     - [X] Merge some meshes.
+//     - [X] Simplify meshes (holes are too complex. Could be simplified with vertex-reduction)
+//     - [X] Export meshes as .obj files (this is to future proof our approach; we might want to use the meshes in the raspberry-pi-Godot-appraoch at some point in time)
+//     - [ ] Replace arm 0.4 left/right and base with simplified components that use .obj files
+//     - [ ] Take After screenshot for comparison
 // - [ ] test camera we already have
 // - [ ] test ball throwing movement with ball on a little level a bit away from end-effector-triangle
 // - [ ] fix problem where we can not test the stringed command execution in Unity because the execution takes slightly longer than expected due to it's implementation

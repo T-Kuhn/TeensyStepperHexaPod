@@ -18,26 +18,44 @@ namespace MeshMerging
 
             var combine = new CombineInstance[_inputMeshFilters.Length];
 
+            var commonScale = _inputMeshFilters[0].transform.localScale;
+            var hasCommonScale = true;
+
             for (var i = 0; i < _inputMeshFilters.Length; i++)
             {
                 combine[i].mesh = _inputMeshFilters[i].sharedMesh;
                 combine[i].transform = _inputMeshFilters[i].transform.localToWorldMatrix;
+
+                if (_inputMeshFilters[i].transform.localScale != commonScale)
+                {
+                    hasCommonScale = false;
+                }
             }
 
             var mergedMesh = new Mesh();
+            mergedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             mergedMesh.CombineMeshes(combine, true, false);
 
             // Simplify the mesh
             var simplifiedMesh = MeshSimplifier.Simplify(mergedMesh, _simplificationQuality);
 
+            var hash = System.Guid.NewGuid().ToString("N").Substring(0, 8);
+            var filename = $"MergedMesh_{hash}.obj";
+            MeshExporter.SaveToObj(simplifiedMesh, filename);
+
+#if UNITY_EDITOR
+            UnityEditor.AssetDatabase.Refresh();
+            var relativePath = $"Assets/MachineSimulator/ModelData/SimplifiedMeshes/{filename}";
+            var loadedMesh = UnityEditor.AssetDatabase.LoadAssetAtPath<Mesh>(relativePath);
+
             var go = new GameObject("MergedMesh");
             go.transform.SetParent(transform);
             go.transform.localPosition = Vector3.zero;
             go.transform.localRotation = Quaternion.identity;
-            go.transform.localScale = Vector3.one;
+            go.transform.localScale = hasCommonScale ? commonScale : Vector3.one;
 
             var meshFilter = go.AddComponent<MeshFilter>();
-            meshFilter.sharedMesh = simplifiedMesh;
+            meshFilter.sharedMesh = loadedMesh;
 
             var meshRenderer = _inputMeshFilters[0].GetComponent<MeshRenderer>();
             if (meshRenderer != null)
@@ -45,8 +63,7 @@ namespace MeshMerging
                 var childRenderer = go.AddComponent<MeshRenderer>();
                 childRenderer.sharedMaterial = meshRenderer.sharedMaterial;
             }
-
-            MeshExporter.SaveToObj(simplifiedMesh, "MergedMesh.obj");
+#endif
         }
     }
 }
