@@ -47,6 +47,8 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onPlaybackAsyncOnMachineClicked = new Subject<Unit>();
         private readonly Subject<Unit> _onStopAllAsync = new Subject<Unit>();
 
+        private Label _fpsCounterLabel;
+
         public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
         public IObservable<Unit> OnUpOriginClicked => _onUpOriginClicked;
         public IObservable<Unit> OnUpClicked => _onUpClicked;
@@ -86,6 +88,8 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnPlaybackAsyncClicked => _onPlaybackAsyncClicked;
         public IObservable<Unit> OnPlaybackAsyncOnMachineClicked => _onPlaybackAsyncOnMachineClicked;
         public IObservable<Unit> OnStopAllAsyncCLicked => _onStopAllAsync;
+        
+        public void SetTextOnFpsCounterLabelTo(string text) => _fpsCounterLabel.text = text;
 
         private void Awake()
         {
@@ -131,6 +135,8 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<Button>("PlaybackAsync"), _onPlaybackAsyncClicked);
             RegisterButton(root.Q<Button>("PlaybackAsyncOnMachine"), _onPlaybackAsyncOnMachineClicked);
             RegisterButton(root.Q<Button>("StopAllAsync"), _onStopAllAsync);
+
+            _fpsCounterLabel = root.Q<Label>("FpsCounterLabel");
         }
 
         private void RegisterButton(Button button, Subject<Unit> subject)

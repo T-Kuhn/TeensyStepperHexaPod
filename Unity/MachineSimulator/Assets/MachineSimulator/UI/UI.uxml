@@ -39,6 +39,9 @@
                     <ui:Button text="Apply Offset" display-tooltip-when-elided="true" name="ApplyOffset" class="CalibrateButton" style="width: 107px;" />
                 </ui:VisualElement>
             </ui:VisualElement>
+            <ui:VisualElement name="MidTopUI">
+                <ui:Label text="FPS:" display-tooltip-when-elided="true" name="FpsCounterLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
+            </ui:VisualElement>
             <ui:VisualElement name="CommandUI" style="align-items: center; width: 120px;">
                 <ui:Label text="Move" display-tooltip-when-elided="true" name="MoveLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
                 <ui:Button text="up-origin" display-tooltip-when-elided="true" name="UpOriginButton" class="CommandButton" />
