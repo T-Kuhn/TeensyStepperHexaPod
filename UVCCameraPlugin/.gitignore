@@ -5,7 +5,10 @@
 *.suo
 *.sln
 *.user
-*.unityproj
-*.booproj
+*.pdb
+*.dll
+*.lib
+*.exp
+*.obj
 .vs/
 

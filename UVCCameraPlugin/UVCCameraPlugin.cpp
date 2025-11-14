@@ -1,57 +1,130 @@
 #include "UVCCameraPlugin.h"
 #include <opencv2/opencv.hpp>
-#include <cstdio>
-#include "opencv2/imgcodecs.hpp"
-#include "opencv2/highgui.hpp"
-#include "opencv2/imgproc.hpp"
-
-using namespace cv;
-using namespace std;
+#include <cstring>
 
 void* getCamera()
 {
-    auto cap = new cv::VideoCapture(0);
+    // Try DirectShow backend first (better for UVC cameras on Windows)
+    cv::VideoCapture* cap = new cv::VideoCapture(0, cv::CAP_DSHOW);
+    
+    // If DirectShow fails, try default backend
+    if (!cap->isOpened()) {
+        delete cap;
+        cap = new cv::VideoCapture(0);
+    }
+
+    // Verify camera opened successfully
+    if (!cap->isOpened()) {
+        delete cap;
+        return nullptr;
+    }
 
     return static_cast<void*>(cap);
 }
 
-double getCameraProperty(void* camera, int propertyID) 
+double getCameraProperty(void* camera, int propertyID)
 {
-    auto cap = static_cast<cv::VideoCapture*>(camera);
+    if (camera == nullptr) {
+        return -1.0;
+    }
+
+    cv::VideoCapture* cap = static_cast<cv::VideoCapture*>(camera);
+
+    if (!cap->isOpened()) {
+        return -1.0;
+    }
+
     return cap->get(propertyID);
 }
 
-double setCameraProperty(void* camera, int propertyID, double value) 
+int setCameraProperty(void* camera, int propertyID, double value)
 {
-    auto cap = static_cast<cv::VideoCapture*>(camera);
-    return cap->set(propertyID, value);
+    if (camera == nullptr) {
+        return 0;
+    }
+
+    cv::VideoCapture* cap = static_cast<cv::VideoCapture*>(camera);
+
+    if (!cap->isOpened()) {
+        return 0;
+    }
+
+    return cap->set(propertyID, value) ? 1 : 0;
 }
 
 void releaseCamera(void* camera)
 {
-    auto cap = static_cast<cv::VideoCapture*>(camera);
+    if (camera == nullptr) {
+        return;
+    }
+
+    cv::VideoCapture* cap = static_cast<cv::VideoCapture*>(camera);
+    cap->release();
     delete cap;
 }
 
-void getCameraTexture(
-    void* camera,
-    unsigned char* data,
-    bool executeHT21,
-    bool executeMedianBlur,
-    double dp,
-    double minDist,
-    double param1,
-    double param2,
-    int minRadius,
-    int maxRadius)
+int getCameraDimensions(void* camera, int* width, int* height)
 {
-    auto cap = static_cast<cv::VideoCapture*>(camera);
+    if (camera == nullptr || width == nullptr || height == nullptr) {
+        return 0;
+    }
+
+    cv::VideoCapture* cap = static_cast<cv::VideoCapture*>(camera);
+
+    if (!cap->isOpened()) {
+        return 0;
+    }
+
+    *width = static_cast<int>(cap->get(cv::CAP_PROP_FRAME_WIDTH));
+    *height = static_cast<int>(cap->get(cv::CAP_PROP_FRAME_HEIGHT));
+
+    return (*width > 0 && *height > 0) ? 1 : 0;
+}
+
+int getCameraTexture(void* camera, unsigned char* data, int width, int height)
+{
+    if (camera == nullptr || data == nullptr) {
+        return -1; // Null pointer(s)
+    }
+
+    if (width <= 0 || height <= 0) {
+        return -2; // Invalid dimensions
+    }
+
+    cv::VideoCapture* cap = static_cast<cv::VideoCapture*>(camera);
+
+    if (!cap->isOpened()) {
+        return -3; // Camera not opened
+    }
 
     cv::Mat img;
-    *cap >> img;
-    Mat src = img;
+    // Try reading a frame, with retries (some cameras need a few attempts)
+    // Some cameras require grab() before read()
+
+    bool success = cap->read(img);
+    if (!success || img.empty()) {
+        return -4; // Frame read failed
+    }
+
+    // Validate dimensions match
+    if (img.cols != width || img.rows != height) {
+        // Resize to match expected dimensions
+        cv::Mat resized;
+        cv::resize(img, resized, cv::Size(width, height));
+        img = resized;
+    }
 
     cv::Mat rgba;
-    cv::cvtColor(src, rgba, cv::COLOR_BGR2RGBA);
-    std::memcpy(data, rgba.data, rgba.total() * rgba.elemSize());
+    cv::cvtColor(img, rgba, cv::COLOR_BGR2RGBA);
+
+    // Validate buffer size before copying
+    size_t expectedSize = width * height * 4; // RGBA = 4 bytes per pixel
+    size_t actualSize = rgba.total() * rgba.elemSize();
+
+    if (actualSize != expectedSize) {
+        return -5; // Size mismatch
+    }
+
+    std::memcpy(data, rgba.data, actualSize);
+    return 1; // Success
 }

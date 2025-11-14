@@ -1,23 +1,33 @@
 #pragma once
+
+#ifdef __cplusplus
 extern "C" {
+#endif
+
+    // Returns camera handle, or nullptr on failure
     __declspec(dllexport) void* getCamera();
+    
+    // Returns -1.0 on error, property value otherwise
     __declspec(dllexport) double getCameraProperty(void* camera, int propertyID);
-    __declspec(dllexport) double setCameraProperty(void* camera, int propertyID, double value);
+    
+    // Returns 0 on failure, 1 on success
+    __declspec(dllexport) int setCameraProperty(void* camera, int propertyID, double value);
+    
+    // Safely releases camera (handles nullptr)
     __declspec(dllexport) void releaseCamera(void* camera);
-    __declspec(dllexport) void getCameraTexture(
-        void* camera,
-        unsigned char* data,
-        bool executeHT21,
-        bool executeMedianBlur,
-        int imgMode,            // 0: src, 1: red, 2: green, 3: blue, 4: normalgray, 5: customgray 
-        double dp,
-        double minDist,
-        double param1,
-        double param2,
-        int minRadius,
-        int maxRadius
-    );
-    __declspec(dllexport) double getCircleCenter_x();
-    __declspec(dllexport) double getCircleCenter_y();
-    __declspec(dllexport) double getCircleRadius();
+    
+    // Returns 1 on success, negative values on failure:
+    //   -1: null pointer(s)
+    //   -2: invalid dimensions (width/height <= 0)
+    //   -3: camera not opened
+    //   -4: frame read failed
+    //   -5: size mismatch
+    // data must be pre-allocated with size = width * height * 4 (RGBA)
+    __declspec(dllexport) int getCameraTexture(void* camera, unsigned char* data, int width, int height);
+    
+    // Get camera frame dimensions (returns 1 on success, 0 on failure)
+    __declspec(dllexport) int getCameraDimensions(void* camera, int* width, int* height);
+
+#ifdef __cplusplus
 }
+#endif
