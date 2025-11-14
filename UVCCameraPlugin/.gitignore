@@ -1,0 +1,14 @@
+*.svd
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.pdb
+*.dll
+*.lib
+*.exp
+*.obj
+.vs/
+
