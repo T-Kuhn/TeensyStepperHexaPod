@@ -51,22 +51,14 @@ namespace MachineSimulator.UVCCamera
         void Start()
         {
             _camera = getCamera();
-            Debug.Log("Camera: " + _camera);
 
             var result = setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
-            Debug.Log("Set camera width: " + result);
-            result = setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
-            Debug.Log("Set camera height: " + result);
-            result = setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
-            Debug.Log("Set camera exposure: " + result);
-            result = setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
-            Debug.Log("Set camera gain: " + result);
-            result = setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
-            Debug.Log("Set camera saturation: " + result);
-            result = setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
-            Debug.Log("Set camera contrast: " + result);
-            result = setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
-            Debug.Log("Set camera FPS: " + result);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
 
             GetCameraProperties();
 
@@ -85,8 +77,7 @@ namespace MachineSimulator.UVCCamera
 
         private void SetCameraProperty(vcp property, double value)
         {
-            var result = setCameraProperty(_camera, (int)property, value);
-            Debug.Log("Set camera property XX:" + property + ": " + result);
+            setCameraProperty(_camera, (int)property, value);
         }
 
         public void GetCameraProperties()
@@ -112,18 +103,12 @@ namespace MachineSimulator.UVCCamera
 
         private void Update()
         {
-            Debug.Log("_camera: " + _camera);
-            Debug.Log("_pixelsPtr: " + _pixelsPtr);
-            Debug.Log("_defaultCameraProperties.Width: " + _defaultCameraProperties.Width);
-            Debug.Log("_defaultCameraProperties.Height: " + _defaultCameraProperties.Height);
-            
-            var result = getCameraTexture(
+            getCameraTexture(
                 _camera,
                 _pixelsPtr,
                 (int)_defaultCameraProperties.Width,
                 (int)_defaultCameraProperties.Height
             );
-            Debug.Log("Get camera texture: " + result);
 
             Texture.SetPixels32(_pixels);
             Texture.Apply();
