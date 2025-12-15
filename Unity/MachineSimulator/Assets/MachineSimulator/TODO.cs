@@ -111,7 +111,7 @@
 //      - tiltCircle/translateCircle/turningAroundYAxis
 
 // Continue work on this ↓
-// - [ ] streamline the way we currently string together multiple moves in SequenceFromCode
+// - [X] streamline the way we currently string together multiple moves in SequenceFromCode
 //       (add HelperMethods to be able to write instructions more concisely)
 // - [ ] play around with cameras and decide how to mount them (absolute vs relative tracking)
 // - [ ] work on double-camera-image-processing (work on nice buffering) maybe like this:
