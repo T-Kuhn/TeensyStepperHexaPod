@@ -122,9 +122,15 @@ namespace MachineSimulator.MachineModel
             _logger.StopLogging();
         }
 
+        public (Vector3 DefaultPosition, Quaternion DefaultRotation) GetDefaultHeightPositionAndRotation()
+        {
+            return (Vector3.up * DefaultHeight, Quaternion.identity);
+        }
+
         public void TeleportToDefaultHeight()
         {
-            UpdatePositionAndRotationTo(position: Vector3.up * DefaultHeight, rotation: Quaternion.identity, isTeleportToOriginPoseChange: true);
+            var (defaultPosition, defaultRotation) = GetDefaultHeightPositionAndRotation();
+            UpdatePositionAndRotationTo(position: defaultPosition, rotation: defaultRotation, isTeleportToOriginPoseChange: true);
         }
 
         public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null, bool isTeleportToOriginPoseChange = false)
