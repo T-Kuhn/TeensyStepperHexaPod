@@ -114,6 +114,15 @@
 // - [ ] streamline the way we currently string together multiple moves in SequenceFromCode
 //       (add HelperMethods to be able to write instructions more concisely)
 // - [ ] play around with cameras and decide how to mount them (absolute vs relative tracking)
+// - [ ] work on double-camera-image-processing (work on nice buffering) maybe like this:
+//        120fps Unity application.
+//       |  frame  |                       operation                       |
+//       |  1      |  cam 1: initiate capture                              |
+//       |  2      |  cam 2: initiate capture                              |
+//       |  3      |  cam 1: retrieve image-date and initiate next capture |
+//       |  4      |  cam 2: retrieve image-date and initiate next capture |
+//       |  5      |  cam 1: retrieve image-date and initiate next capture |
+//       |  6      |  cam 2: retrieve image-date and initiate next capture |
 // - [ ] test camera we already have
 // - [ ] Attach racket to machine
 // - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
