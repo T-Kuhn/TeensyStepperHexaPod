@@ -52,7 +52,7 @@ namespace MachineSimulator.UVCCamera
         {
             _camera = getCamera();
 
-            var result = setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
             setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
             setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
             setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);

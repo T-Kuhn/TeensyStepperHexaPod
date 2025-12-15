@@ -50,14 +50,16 @@ namespace MachineSimulator.Sequencing
             _sequence.Clear();
         }
 
-        public void StartStringedPlayback(bool sendToRealMachine = false, Action onBeforeSendAction = null)
+        public void StartStringedPlayback(bool sendToRealMachine = false, Action resetMachineToStartStateAction = null)
         {
+            resetMachineToStartStateAction?.Invoke();
+            
             var stringedInstructions = CreateListOfStringedHighLevelInstructions();
             // FIXME: Get rid of the need to go through the data and create two new lists here.
             var sringedHighLevelInstructions = stringedInstructions.Select(data => data.Item1).ToList();
             var stringedLowLevelInstuctions = stringedInstructions.Select(data => data.Item2).ToList();
 
-            onBeforeSendAction?.Invoke();
+            resetMachineToStartStateAction?.Invoke();
 
             if (sendToRealMachine)
             {
