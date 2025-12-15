@@ -106,15 +106,17 @@
 //     - [X] Replace arm 0.4 left/right and base with simplified components that use .obj files
 //     - [X] Take After screenshot for comparison
 // - [X] Add FPS counter to the UI so that we can get an idea of how efficient our rendering is.
-
-// Continue work on this ↓
 // - [X] Make a new video showcasing all the moves we can do now at this point in time
 //      - [X] add a sequenceFromCode which showcases all the moves one after another
 //      - tiltCircle/translateCircle/turningAroundYAxis
-// - [ ] streamline the way we currently string together multiple moves in SequenceFromCode (add HelperMethods to be able to write instructions more concisely)
-// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+
+// Continue work on this ↓
+// - [ ] streamline the way we currently string together multiple moves in SequenceFromCode
+//       (add HelperMethods to be able to write instructions more concisely)
+// - [ ] play around with cameras and decide how to mount them (absolute vs relative tracking)
 // - [ ] test camera we already have
 // - [ ] Attach racket to machine
+// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
 
 // Thinking about that mesh merging script.
 // 1. Drop all the MeshFilters we want to merge into a public array on the MeshMerger component
