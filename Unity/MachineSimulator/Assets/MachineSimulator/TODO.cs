@@ -109,11 +109,17 @@
 // - [X] Make a new video showcasing all the moves we can do now at this point in time
 //      - [X] add a sequenceFromCode which showcases all the moves one after another
 //      - tiltCircle/translateCircle/turningAroundYAxis
-
-// Continue work on this ↓
 // - [X] streamline the way we currently string together multiple moves in SequenceFromCode
 //       (add HelperMethods to be able to write instructions more concisely)
+
+// Continue work on this ↓
 // - [ ] play around with cameras and decide how to mount them (absolute vs relative tracking)
+//     - [ ] IF we decide to mount them at the end-effector (relative tracking), then we need
+//           to make sure we can reliably get a synced up machine state from the virtual machine
+//           in order to be able to calculate the absolute position of the camera.
+//         - [ ] we'd also need to make sure the two USB cables are flexible enough to move together with the end-effector.
+//     - [ ] IF we decide to mount them on the base-frame (absolute tracking), then we need to
+//           make sure the cameras will never get hit by the moving end-effector.
 // - [ ] work on double-camera-image-processing (work on nice buffering) maybe like this:
 //        120fps Unity application.
 //       |  frame  |                       operation                       |
