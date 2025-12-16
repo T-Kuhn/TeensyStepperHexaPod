@@ -4,7 +4,7 @@ To build this plugin, you need the following:
 
 ### Required Software
 
-> **Note:** We are using Visual Studio 2022 (MSVC Tools v14.37) and OpenCV 4.12.0 (opencv_world4120.lib). While other versions may work, these specific versions are tested and verified.
+**Note:** We are using Visual Studio 2022 (MSVC Tools v14.37) and OpenCV 4.12.0 (opencv_world4120.lib). While other versions may work, these specific versions are tested and verified.
 
 1. **Microsoft Visual Studio Build Tools 2022** (or Visual Studio 2022)
    - The build script looks for Visual Studio 2022 in the following locations:
@@ -30,9 +30,10 @@ To build this plugin, you need the following:
 - **Target:** Unity 2021 (x64)
 
 ## How To Build Plugin DLL
-1. cd into UVCCameraPlugin directory
-2. ctrl + shift + B
-3. build.bat should execute with below logs
+1. `cd` into UVCCameraPlugin directory
+2. `code .`
+3. ctrl + shift + B
+4. `build.bat` should execute with below logs
 ```
 Starting build script...
 Current directory: X:\git\TeensyStepperHexaPod\UVCCameraPlugin
