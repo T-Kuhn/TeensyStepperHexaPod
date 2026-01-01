@@ -50,7 +50,7 @@ namespace MachineSimulator.Sequencing
             bool executeOnRealMachine = false)
         {
             // await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            await ThrowBall(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
         private static bool IsDefaultPose(MachineModel.MachineModel machineModel, Vector3 position, Quaternion rotation)
@@ -366,9 +366,10 @@ namespace MachineSimulator.Sequencing
         }
 
         // NOTE: command time and height cranked up near to limit (after pressing SpeedX3 button) to optimize for bounce ball height
+        // NOTE: We verified that bouncing works with the below code
         private static async UniTask GoUpAndDownForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
         {
-            commandTime *= 0.225f;
+            commandTime *= 0.2f;
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             while (true)
@@ -376,7 +377,7 @@ namespace MachineSimulator.Sequencing
                 // move up
                 sequenceCreator.ClearAll();
                 var upRotation = Quaternion.Euler(0f, 0f, 0f);
-                var upPosition = new Vector3(0f, 0.22f, 0f);
+                var upPosition = new Vector3(0f, 0.2f, 0f);
                 machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
                 sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
