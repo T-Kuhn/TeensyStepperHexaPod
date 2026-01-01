@@ -49,10 +49,8 @@ namespace MachineSimulator.Sequencing
             CancellationToken ct,
             bool executeOnRealMachine = false)
         {
-            // await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            // await TiltCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            // await MoveCircleForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            // await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            await ThrowBall(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
         private static bool IsDefaultPose(MachineModel.MachineModel machineModel, Vector3 position, Quaternion rotation)
@@ -124,6 +122,62 @@ namespace MachineSimulator.Sequencing
             await UniTask.Delay(waitDelayInMs + 1, cancellationToken: ct);
         }
 
+        public static async UniTask ThrowBall(
+            MachineModel.MachineModel machineModel,
+            SequenceCreator sequenceCreator,
+            float commandTime,
+            CancellationToken ct,
+            bool executeOnRealMachine)
+        {
+            // Default height pose
+            var (defaultPosition, defaultRotation) = machineModel.HexaPlateMover.GetDefaultHeightPositionAndRotation();
+
+            var upRotationOne = Quaternion.Euler(10f, 0f, 0f);
+            var upRotationTwo = Quaternion.Euler(-10f, 0f, 0f);
+            var upPositionOne = new Vector3(0f, 0.20f, 0f);
+            var upPositionTwo = new Vector3(0f, 0.23f, 0f);
+
+            // Move to Start pos
+            await CreateAndPlayFromToSequence(
+                sequenceCreator,
+                machineModel,
+                fromPos: defaultPosition,
+                fromRot: defaultRotation,
+                toPos: upPositionOne,
+                toRot: upRotationOne,
+                commandTime,
+                executeOnRealMachine,
+                ct
+            );
+
+            // To throw end pos
+            await CreateAndPlayFromToSequence(
+                sequenceCreator,
+                machineModel,
+                fromPos: upPositionOne,
+                fromRot: upRotationOne,
+                toPos: upPositionTwo,
+                toRot: upRotationTwo,
+                commandTime / 5f,
+                executeOnRealMachine,
+                ct
+            );
+
+            // Back to origin
+            await CreateAndPlayFromToSequence(
+                sequenceCreator,
+                machineModel,
+                fromPos: upPositionTwo,
+                fromRot: upRotationTwo,
+                toPos: defaultPosition,
+                toRot: defaultRotation,
+                commandTime,
+                executeOnRealMachine,
+                ct
+            );
+        }
+
+
         // 1. Go up and down
         // 2. Tilt in circle
         // 3. Move in circle
@@ -139,7 +193,7 @@ namespace MachineSimulator.Sequencing
 
             // 1. Go up and down
             {
-                var upPosition = new Vector3(0f, 0.22f, 0f);
+                var upPosition = new Vector3(0f, 0.33f, 0f);
                 var upRotation = Quaternion.Euler(0f, 0f, 0f);
 
                 // From default to up

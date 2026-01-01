@@ -66,7 +66,7 @@ namespace MachineSimulator.MachineModel
         private async UniTaskVoid PlaybackSequenceAsync(List<HLInstruction> instructions, bool isLinear)
         {
             _isInPlaybackMode = true;
-            _logger.StartLogging();
+            // _logger.StartLogging();
 
             // NOTE: Need to wait two frames because if we start at the same frame the Playback
             //       was requested we will get a high deltaTime due to the stringedMoveCommand-generation.
@@ -119,7 +119,7 @@ namespace MachineSimulator.MachineModel
             }
 
             _isInPlaybackMode = false;
-            _logger.StopLogging();
+            // _logger.StopLogging();
         }
 
         public (Vector3 DefaultPosition, Quaternion DefaultRotation) GetDefaultHeightPositionAndRotation()
