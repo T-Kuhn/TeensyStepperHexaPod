@@ -111,15 +111,18 @@
 //      - tiltCircle/translateCircle/turningAroundYAxis
 // - [X] streamline the way we currently string together multiple moves in SequenceFromCode
 //       (add HelperMethods to be able to write instructions more concisely)
+// - [X] play around with cameras and decide how to mount them (absolute vs relative tracking)
+//     - [X] we'd also need to make sure the two USB cables are flexible enough to move together with the end-effector.
+//     - [/] IF we decide to mount them on the base-frame (absolute tracking), then we need to
+//           make sure the cameras will never get hit by the moving end-effector.
+// - [X] test camera we already have
+// - [X] Attach racket to machine
 
 // Continue work on this ↓
-// - [ ] play around with cameras and decide how to mount them (absolute vs relative tracking)
-//     - [ ] IF we decide to mount them at the end-effector (relative tracking), then we need
-//           to make sure we can reliably get a synced up machine state from the virtual machine
-//           in order to be able to calculate the absolute position of the camera.
-//         - [ ] we'd also need to make sure the two USB cables are flexible enough to move together with the end-effector.
-//     - [ ] IF we decide to mount them on the base-frame (absolute tracking), then we need to
-//           make sure the cameras will never get hit by the moving end-effector.
+// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+// - [ ] We decide to mount them at the end-effector (relative tracking), then we need
+//       to make sure we can reliably get a synced up machine state from the virtual machine
+//       in order to be able to calculate the absolute position of the ping pong ball.
 // - [ ] work on double-camera-image-processing (work on nice buffering) maybe like this:
 //        120fps Unity application.
 //       |  frame  |                       operation                       |
@@ -129,17 +132,6 @@
 //       |  4      |  cam 2: retrieve image-date and initiate next capture |
 //       |  5      |  cam 1: retrieve image-date and initiate next capture |
 //       |  6      |  cam 2: retrieve image-date and initiate next capture |
-// - [ ] test camera we already have
-// - [ ] Attach racket to machine
-// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
-
-// Thinking about that mesh merging script.
-// 1. Drop all the MeshFilters we want to merge into a public array on the MeshMerger component
-// 2. Mesh merger component generates a merges mesh and saves it as an obj file.
-// 3. we can use that mesh instead of the original meshes
-// 4. create a new prefab with optimized (merged) meshes
-// 5. get some sort of vertex-reduction going
-// 6. again, build a new prefab with merged and reduced meshes
 
 // - [ ] need to decide how we want to implement ball tracking:
 //     - [ ] A: use two cameras connected to PC via USB, do image processing in unity on the PC
@@ -180,6 +172,15 @@
 //     - maybe we could adjust the waitTime depending on how much longer it actually took until the next execution (so that little differences don't add up.)
 
 // Thinking:
+
+// Thinking about that mesh merging script.
+// 1. Drop all the MeshFilters we want to merge into a public array on the MeshMerger component
+// 2. Mesh merger component generates a merges mesh and saves it as an obj file.
+// 3. we can use that mesh instead of the original meshes
+// 4. create a new prefab with optimized (merged) meshes
+// 5. get some sort of vertex-reduction going
+// 6. again, build a new prefab with merged and reduced meshes
+
 // - There's a slight problem with how the microcontroller handles moveCommands:
 //     - The microcontroller remembers all the current motor positions and calculates the steps needed to reach a target rotation for each motor
 //     - The problem is that with the slicing approach, if the machine isn't in the exact state we expect it to be in, the first moveCommand
