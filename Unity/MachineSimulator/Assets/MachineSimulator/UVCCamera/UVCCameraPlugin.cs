@@ -46,10 +46,7 @@ namespace MachineSimulator.UVCCamera
                 Contrast = 15,
                 FPS = 120
             };
-        }
 
-        void Start()
-        {
             _camera = getCamera();
 
             setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
