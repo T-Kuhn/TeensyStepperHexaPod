@@ -97,10 +97,8 @@ int getCameraTexture(void* camera, unsigned char* data, int width, int height)
         return -3; // Camera not opened
     }
 
+    // Read a frame
     cv::Mat img;
-    // Try reading a frame, with retries (some cameras need a few attempts)
-    // Some cameras require grab() before read()
-
     bool success = cap->read(img);
     if (!success || img.empty()) {
         return -4; // Frame read failed
