@@ -30,42 +30,22 @@ namespace MachineSimulator.UVCCamera
         private Color32[] _pixels;
         private GCHandle _pixelsHandle;
         private IntPtr _pixelsPtr;
-        private CameraProperties _defaultCameraProperties;
+
+        private readonly CameraProperties _defaultCameraProperties = new CameraProperties()
+        {
+            // NOTE: Our camera's lowest supported resolution is 1280x720
+            Width = 1280,
+            Height = 720,
+            Exposure = -7,
+            Gain = 2,
+            Saturation = 55,
+            Contrast = 15,
+            FPS = 120
+        };
 
         [SerializeField] private CameraProperties _cameraProperties;
 
-        private void Awake()
-        {
-            _defaultCameraProperties = new CameraProperties()
-            {
-                Width = 640,
-                Height = 480,
-                Exposure = -7,
-                Gain = 2,
-                Saturation = 55,
-                Contrast = 15,
-                FPS = 120
-            };
-
-            _camera = getCamera();
-
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
-
-            GetCameraProperties();
-
-            Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
-                TextureFormat.ARGB32, false);
-            _pixels = Texture.GetPixels32();
-
-            _pixelsHandle = GCHandle.Alloc(_pixels, GCHandleType.Pinned);
-            _pixelsPtr = _pixelsHandle.AddrOfPinnedObject();
-        }
+        public bool CameraIsInitialized { get; private set; }
 
         private double GetCameraProperty(vcp property)
         {
@@ -98,8 +78,37 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperty(vcp.CAP_PROP_SATURATION, _cameraProperties.Saturation);
         }
 
+        private void InitializeCamera()
+        {
+            _camera = getCamera();
+
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
+
+            Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
+                TextureFormat.ARGB32, false);
+            _pixels = Texture.GetPixels32();
+
+            _pixelsHandle = GCHandle.Alloc(_pixels, GCHandleType.Pinned);
+            _pixelsPtr = _pixelsHandle.AddrOfPinnedObject();
+
+            GetCameraProperties();
+
+            CameraIsInitialized = true;
+        }
+
         private void Update()
         {
+            if (!CameraIsInitialized)
+            {
+                InitializeCamera();
+            }
+
             getCameraTexture(
                 _camera,
                 _pixelsPtr,
