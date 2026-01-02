@@ -118,7 +118,7 @@ int getCameraTexture(void* camera, unsigned char* data, int width, int height)
     size_t actualSize = rgba.total() * rgba.elemSize();
 
     if (actualSize != expectedSize) {
-        return -5; // Size mismatch
+        return -6; // data size mismatch
     }
 
     std::memcpy(data, rgba.data, actualSize);
