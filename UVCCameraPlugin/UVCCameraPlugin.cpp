@@ -106,12 +106,8 @@ int getCameraTexture(void* camera, unsigned char* data, int width, int height)
         return -4; // Frame read failed
     }
 
-    // Validate dimensions match
     if (img.cols != width || img.rows != height) {
-        // Resize to match expected dimensions
-        cv::Mat resized;
-        cv::resize(img, resized, cv::Size(width, height));
-        img = resized;
+        return -5; // width/height mismatch
     }
 
     cv::Mat rgba;
