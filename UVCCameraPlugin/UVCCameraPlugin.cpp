@@ -2,15 +2,15 @@
 #include <opencv2/opencv.hpp>
 #include <cstring>
 
-void* getCamera()
+void* getCamera(int id)
 {
     // Try DirectShow backend first (better for UVC cameras on Windows)
-    cv::VideoCapture* cap = new cv::VideoCapture(0, cv::CAP_DSHOW);
+    cv::VideoCapture* cap = new cv::VideoCapture(id, cv::CAP_DSHOW);
     
     // If DirectShow fails, try default backend
     if (!cap->isOpened()) {
         delete cap;
-        cap = new cv::VideoCapture(0);
+        cap = new cv::VideoCapture(id);
     }
 
     // Verify camera opened successfully
@@ -97,21 +97,15 @@ int getCameraTexture(void* camera, unsigned char* data, int width, int height)
         return -3; // Camera not opened
     }
 
+    // Read a frame
     cv::Mat img;
-    // Try reading a frame, with retries (some cameras need a few attempts)
-    // Some cameras require grab() before read()
-
     bool success = cap->read(img);
     if (!success || img.empty()) {
         return -4; // Frame read failed
     }
 
-    // Validate dimensions match
     if (img.cols != width || img.rows != height) {
-        // Resize to match expected dimensions
-        cv::Mat resized;
-        cv::resize(img, resized, cv::Size(width, height));
-        img = resized;
+        return -5; // width/height mismatch
     }
 
     cv::Mat rgba;
@@ -122,7 +116,7 @@ int getCameraTexture(void* camera, unsigned char* data, int width, int height)
     size_t actualSize = rgba.total() * rgba.elemSize();
 
     if (actualSize != expectedSize) {
-        return -5; // Size mismatch
+        return -6; // data size mismatch
     }
 
     std::memcpy(data, rgba.data, actualSize);

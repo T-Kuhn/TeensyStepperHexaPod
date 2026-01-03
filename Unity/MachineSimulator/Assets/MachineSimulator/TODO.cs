@@ -117,9 +117,17 @@
 //           make sure the cameras will never get hit by the moving end-effector.
 // - [X] test camera we already have
 // - [X] Attach racket to machine
+// - [X] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+//     -> Tested. Didn't work satisfactorily.
 
 // Continue work on this ↓
-// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+// - [ ] Babysteps towards working multi-camera-image-processing:
+//     - [ ] initialize both cameras and then expose two functions to get a frame from each camera.
+//         - [ ] add a parameter to control which camera to get with getCamera() (0 or 1)
+//         - [ ] save the intPtr for both cameras and set parameters for both (maybe a second UVCCameraPlugin instance is cleanest?)
+//     - [ ] show the image data for both cameras?
+//     - [ ] check if getting rid of the image data conversion will improve performance enough so that it's worth the trouble (should be)
+
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
 //       in order to be able to calculate the absolute position of the ping pong ball.
