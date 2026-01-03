@@ -2,15 +2,15 @@
 #include <opencv2/opencv.hpp>
 #include <cstring>
 
-void* getCamera()
+void* getCamera(int id)
 {
     // Try DirectShow backend first (better for UVC cameras on Windows)
-    cv::VideoCapture* cap = new cv::VideoCapture(0, cv::CAP_DSHOW);
+    cv::VideoCapture* cap = new cv::VideoCapture(id, cv::CAP_DSHOW);
     
     // If DirectShow fails, try default backend
     if (!cap->isOpened()) {
         delete cap;
-        cap = new cv::VideoCapture(0);
+        cap = new cv::VideoCapture(id);
     }
 
     // Verify camera opened successfully

@@ -8,7 +8,7 @@ namespace MachineSimulator.UVCCamera
     public class UVCCameraPlugin : MonoBehaviour
     {
         [DllImport("UVCCameraPlugin")]
-        private static extern IntPtr getCamera();
+        private static extern IntPtr getCamera(int id);
 
         [DllImport("UVCCameraPlugin")]
         private static extern double getCameraProperty(IntPtr camera, int propertyId);
@@ -25,6 +25,8 @@ namespace MachineSimulator.UVCCamera
         [DllImport("UVCCameraPlugin")]
         private static extern int getCameraDimensions(IntPtr camera, out int width, out int height);
 
+        [SerializeField] private int _id;
+
         private IntPtr _camera;
         public Texture2D Texture;
         private Color32[] _pixels;
@@ -40,7 +42,7 @@ namespace MachineSimulator.UVCCamera
             Gain = 2,
             Saturation = 55,
             Contrast = 15,
-            FPS = 120
+            FPS = 60
         };
 
         [SerializeField] private CameraProperties _cameraProperties;
@@ -80,7 +82,7 @@ namespace MachineSimulator.UVCCamera
 
         private void InitializeCamera()
         {
-            _camera = getCamera();
+            _camera = getCamera(_id);
 
             setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
             setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
