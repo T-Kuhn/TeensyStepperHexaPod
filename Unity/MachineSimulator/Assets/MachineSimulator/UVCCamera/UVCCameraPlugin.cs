@@ -129,14 +129,22 @@ namespace MachineSimulator.UVCCamera
 
         private void CameraLoop()
         {
+            var sw = new System.Diagnostics.Stopwatch();
             while (_isRunning)
             {
+                sw.Restart();
                 var result = getCameraTexture(
                     _camera,
                     _pixelsBackPtr,
                     (int)_defaultCameraProperties.Width,
                     (int)_defaultCameraProperties.Height
                 );
+                sw.Stop();
+
+                if (sw.ElapsedMilliseconds > 50)
+                {
+                    Debug.Log($"Image retrieval took {sw.ElapsedMilliseconds}ms on camera with ID: " + _id);
+                }
 
                 if (result < 0)
                 {

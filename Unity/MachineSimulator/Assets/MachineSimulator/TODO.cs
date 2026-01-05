@@ -136,14 +136,13 @@
 //                   -> disabling cam1: still get peaks on cam2 stream
 //             - [X] ...we set the cameras to 60FPS instead of 120FPS
 //                   -> we still get peaks but now the peak is 110ms long
-// Continue work on this ↓
-//     - [ ] check if getting rid of the image data conversion will improve performance enough so that it's worth the trouble (should be)
-//         - [ ] log timestamp data inside the plugin getCameraTexture() function before and after conversion.
-//     - BEFORE: 3~4ms for getCameraTexture()
-
 // - [X] ultimately, we do not need to get to the root of above load-peak-problem. We can work around it.
 //     - [X] workaround would include getting image data on different threads. Threads just copy frame data into newest data buffer.
 //     - [X] Unity runs on 120FPS and uses newest data (maybe includes timestamp so we have a way of knowing whether the data is old or not)
+//     - [X] check if getting rid of the image data conversion will improve performance enough so that it's worth the trouble (should be)
+//         - [X] log timestamp data inside the plugin getCameraTexture() function before and after conversion.
+// - [X] add a log when the image retrieval takes longer than expected (e.g. longer than 50ms)
+// - [X] add custom shader to display OpenCVs BGR pixel data correctly
 
 
 
