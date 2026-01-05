@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using UniRx;
 using vcp = MachineSimulator.UVCCamera.OpenCVConstants.VideoCaptureProperties;
 using UnityEngine;
 
@@ -58,6 +59,9 @@ namespace MachineSimulator.UVCCamera
         };
 
         [SerializeField] private CameraProperties _cameraProperties;
+
+        public int ImageRetrievalTookTooLongCount { get; private set; }
+        public long LastImageRetrievalTime { get; private set; }
 
         public bool CameraIsInitialized { get; private set; }
 
@@ -141,9 +145,11 @@ namespace MachineSimulator.UVCCamera
                 );
                 sw.Stop();
 
-                if (sw.ElapsedMilliseconds > 50)
+                if (sw.ElapsedMilliseconds > 20)
                 {
                     Debug.Log($"Image retrieval took {sw.ElapsedMilliseconds}ms on camera with ID: " + _id);
+                    ImageRetrievalTookTooLongCount++;
+                    LastImageRetrievalTime = sw.ElapsedMilliseconds;
                 }
 
                 if (result < 0)

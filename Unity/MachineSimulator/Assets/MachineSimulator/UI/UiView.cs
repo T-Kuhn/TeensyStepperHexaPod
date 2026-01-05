@@ -48,6 +48,8 @@ namespace MachineSimulator.UI
         private readonly Subject<Unit> _onStopAllAsync = new Subject<Unit>();
 
         private Label _fpsCounterLabel;
+        private Label _camOneCounterLabel;
+        private Label _camTwoCounterLabel;
 
         public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
         public IObservable<Unit> OnUpOriginClicked => _onUpOriginClicked;
@@ -90,6 +92,10 @@ namespace MachineSimulator.UI
         public IObservable<Unit> OnStopAllAsyncCLicked => _onStopAllAsync;
         
         public void SetTextOnFpsCounterLabelTo(string text) => _fpsCounterLabel.text = text;
+        
+        public void SetTextOnCamOneCounterLabelTo(string text) => _camOneCounterLabel.text = text;
+        
+        public void SetTextOnCamTwoCounterLabelTo(string text) => _camTwoCounterLabel.text = text;
 
         private void Awake()
         {
@@ -137,6 +143,8 @@ namespace MachineSimulator.UI
             RegisterButton(root.Q<Button>("StopAllAsync"), _onStopAllAsync);
 
             _fpsCounterLabel = root.Q<Label>("FpsCounterLabel");
+            _camOneCounterLabel = root.Q<Label>("CamOneCounterLabel");
+            _camTwoCounterLabel = root.Q<Label>("CamTwoCounterLabel");
         }
 
         private void RegisterButton(Button button, Subject<Unit> subject)

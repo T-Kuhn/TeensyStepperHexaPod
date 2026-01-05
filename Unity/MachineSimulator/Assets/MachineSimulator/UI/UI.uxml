@@ -39,8 +39,16 @@
                     <ui:Button text="Apply Offset" display-tooltip-when-elided="true" name="ApplyOffset" class="CalibrateButton" style="width: 107px;" />
                 </ui:VisualElement>
             </ui:VisualElement>
-            <ui:VisualElement name="MidTopUI">
-                <ui:Label text="FPS:" display-tooltip-when-elided="true" name="FpsCounterLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
+            <ui:VisualElement name="MidTopUI" style="flex-direction: row;">
+                <ui:VisualElement name="CamOneContainer" style="width: 210px;">
+                    <ui:Label text="Cam1: xxx yyms" display-tooltip-when-elided="true" name="CamOneCounterLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="CamTwoContainer" style="width: 210px; margin-left: 30px;">
+                    <ui:Label text="Cam2: xxx yyms" display-tooltip-when-elided="true" name="CamTwoCounterLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
+                <ui:VisualElement name="FPSContainer" style="width: 210px; align-items: flex-start; margin-left: 30px;">
+                    <ui:Label text="FPS:" display-tooltip-when-elided="true" name="FpsCounterLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
+                </ui:VisualElement>
             </ui:VisualElement>
             <ui:VisualElement name="CommandUI" style="align-items: center; width: 120px;">
                 <ui:Label text="Move" display-tooltip-when-elided="true" name="MoveLabel" style="font-size: 24px; color: rgb(255, 255, 255);" />
