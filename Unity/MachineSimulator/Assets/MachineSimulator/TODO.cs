@@ -139,10 +139,11 @@
 // Continue work on this ↓
 //     - [ ] check if getting rid of the image data conversion will improve performance enough so that it's worth the trouble (should be)
 //         - [ ] log timestamp data inside the plugin getCameraTexture() function before and after conversion.
+//     - BEFORE: 3~4ms for getCameraTexture()
 
-// - [ ] ultimately, we do not need to get to the root of above load-peak-problem. We can work around it.
-//     - workaround would include getting image data on different threads. Threads just copy frame data into newest data buffer.
-//     - Unity runs on 120FPS and uses newest data (maybe includes timestamp so we have a way of knowing whether the data is old or not)
+// - [X] ultimately, we do not need to get to the root of above load-peak-problem. We can work around it.
+//     - [X] workaround would include getting image data on different threads. Threads just copy frame data into newest data buffer.
+//     - [X] Unity runs on 120FPS and uses newest data (maybe includes timestamp so we have a way of knowing whether the data is old or not)
 
 
 

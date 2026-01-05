@@ -108,17 +108,14 @@ int getCameraTexture(void* camera, unsigned char* data, int width, int height)
         return -5; // width/height mismatch
     }
 
-    cv::Mat rgba;
-    cv::cvtColor(img, rgba, cv::COLOR_BGR2RGBA);
-
     // Validate buffer size before copying
-    size_t expectedSize = width * height * 4; // RGBA = 4 bytes per pixel
-    size_t actualSize = rgba.total() * rgba.elemSize();
+    size_t expectedSize = width * height * 3; // BGR = 3 bytes per pixel
+    size_t actualSize = img.total() * img.elemSize();
 
     if (actualSize != expectedSize) {
         return -6; // data size mismatch
     }
 
-    std::memcpy(data, rgba.data, actualSize);
+    std::memcpy(data, img.data, actualSize);
     return 1; // Success
 }

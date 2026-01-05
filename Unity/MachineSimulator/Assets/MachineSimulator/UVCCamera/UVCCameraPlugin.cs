@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using vcp = MachineSimulator.UVCCamera.OpenCVConstants.VideoCaptureProperties;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace MachineSimulator.UVCCamera
         [DllImport("UVCCameraPlugin")]
         private static extern void releaseCamera(IntPtr camera);
 
+
         [DllImport("UVCCameraPlugin")]
         private static extern int getCameraTexture(IntPtr camera, IntPtr data, int width, int height);
 
@@ -29,9 +31,19 @@ namespace MachineSimulator.UVCCamera
 
         private IntPtr _camera;
         public Texture2D Texture;
-        private Color32[] _pixels;
-        private GCHandle _pixelsHandle;
-        private IntPtr _pixelsPtr;
+
+        private byte[] _pixelsFront;
+        private GCHandle _pixelsFrontHandle;
+        private IntPtr _pixelsFrontPtr;
+
+        private byte[] _pixelsBack;
+        private GCHandle _pixelsBackHandle;
+        private IntPtr _pixelsBackPtr;
+
+        private Thread _cameraThread;
+        private volatile bool _isRunning;
+        private readonly object _lock = new object();
+        private bool _hasNewFrame;
 
         private readonly CameraProperties _defaultCameraProperties = new CameraProperties()
         {
@@ -93,15 +105,55 @@ namespace MachineSimulator.UVCCamera
             setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
 
             Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
-                TextureFormat.ARGB32, false);
-            _pixels = Texture.GetPixels32();
+                TextureFormat.RGB24, false);
 
-            _pixelsHandle = GCHandle.Alloc(_pixels, GCHandleType.Pinned);
-            _pixelsPtr = _pixelsHandle.AddrOfPinnedObject();
+            // BGR
+            var byteCount = (int)_defaultCameraProperties.Width * (int)_defaultCameraProperties.Height * 3;
+            _pixelsFront = new byte[byteCount];
+            _pixelsFrontHandle = GCHandle.Alloc(_pixelsFront, GCHandleType.Pinned);
+            _pixelsFrontPtr = _pixelsFrontHandle.AddrOfPinnedObject();
+
+            _pixelsBack = new byte[byteCount];
+            _pixelsBackHandle = GCHandle.Alloc(_pixelsBack, GCHandleType.Pinned);
+            _pixelsBackPtr = _pixelsBackHandle.AddrOfPinnedObject();
 
             GetCameraProperties();
 
+            _isRunning = true;
+            _cameraThread = new Thread(CameraLoop);
+            _cameraThread.IsBackground = true;
+            _cameraThread.Start();
+
             CameraIsInitialized = true;
+        }
+
+        private void CameraLoop()
+        {
+            while (_isRunning)
+            {
+                var result = getCameraTexture(
+                    _camera,
+                    _pixelsBackPtr,
+                    (int)_defaultCameraProperties.Width,
+                    (int)_defaultCameraProperties.Height
+                );
+
+                if (result < 0)
+                {
+                    Debug.LogError($"getCameraTexture returned error code: {result}");
+                    Thread.Sleep(10); // Sleep a bit on error
+                    continue;
+                }
+
+                lock (_lock)
+                {
+                    // Swap pointers/buffers
+                    (_pixelsBackPtr, _pixelsFrontPtr) = (_pixelsFrontPtr, _pixelsBackPtr);
+                    (_pixelsBack, _pixelsFront) = (_pixelsFront, _pixelsBack);
+
+                    _hasNewFrame = true;
+                }
+            }
         }
 
         private void Update()
@@ -111,26 +163,45 @@ namespace MachineSimulator.UVCCamera
                 InitializeCamera();
             }
 
-            var result = getCameraTexture(
-                _camera,
-                _pixelsPtr,
-                (int)_defaultCameraProperties.Width,
-                (int)_defaultCameraProperties.Height
-            );
-
-            if (result < 0)
+            if (_hasNewFrame)
             {
-                Debug.LogError($"getCameraTexture returned error code: {result}");
+                lock (_lock)
+                {
+                    Texture.SetPixelData(_pixelsFront, 0);
+                    _hasNewFrame = false;
+                }
+
+                Texture.Apply();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            _isRunning = false;
+
+            if (_cameraThread != null && _cameraThread.IsAlive)
+            {
+                // Wait for the thread to finish. 
+                // We give it some time, but not forever to avoid freezing Unity.
+                if (!_cameraThread.Join(1000))
+                {
+                    Debug.LogWarning("Camera thread did not terminate in time. Memory might leak or crash on exit.");
+                }
             }
 
-            Texture.SetPixels32(_pixels);
-            Texture.Apply();
+            if (_pixelsFrontHandle.IsAllocated) _pixelsFrontHandle.Free();
+            if (_pixelsBackHandle.IsAllocated) _pixelsBackHandle.Free();
+
+            if (_camera != IntPtr.Zero)
+            {
+                releaseCamera(_camera);
+                _camera = IntPtr.Zero;
+            }
         }
 
         private void OnApplicationQuit()
         {
-            _pixelsHandle.Free();
-            releaseCamera(_camera);
+            OnDestroy();
         }
     }
 
