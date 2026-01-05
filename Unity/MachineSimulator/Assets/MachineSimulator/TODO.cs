@@ -143,7 +143,8 @@
 //         - [X] log timestamp data inside the plugin getCameraTexture() function before and after conversion.
 // - [X] add a log when the image retrieval takes longer than expected (e.g. longer than 50ms)
 // - [X] add custom shader to display OpenCVs BGR pixel data correctly
-
+// - [ ] maybe add a counter next to the FPS counter on the top of the screen.
+//       The counter should show how many times the image retrieval took longer than 50ms for each camera (show like this "<cameraId>:<count>")
 
 
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need

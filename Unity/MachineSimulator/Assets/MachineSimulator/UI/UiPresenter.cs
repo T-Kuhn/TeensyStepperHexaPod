@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MachineSimulator.Machine;
+using MachineSimulator.UVCCamera;
 using UniRx;
 using UnityEngine;
 
@@ -10,6 +11,8 @@ namespace MachineSimulator.UI
     {
         [SerializeField] private UiView _view;
         [SerializeField] private RealMachine _realMachine;
+        [SerializeField] private UVCCameraPlugin _uvcOne;
+        [SerializeField] private UVCCameraPlugin _uvcTwo;
 
         private float _currentCommandTime = 3f;
         private readonly float _defaultCommandTime = 3f;
@@ -91,6 +94,18 @@ namespace MachineSimulator.UI
             observable
                 .Subscribe(_ => _realMachine.Instruct(instructions))
                 .AddTo(this);
+        }
+
+        private void Update()
+        {
+            var countOne = _uvcOne.ImageRetrievalTookTooLongCount;
+            var timeOne = _uvcOne.LastImageRetrievalTime;
+            _view.SetTextOnCamOneCounterLabelTo($"camOne: {countOne}, {timeOne}ms");
+            
+            var countTwo = _uvcTwo.ImageRetrievalTookTooLongCount;
+            var timeTwo = _uvcTwo.LastImageRetrievalTime;
+            _view.SetTextOnCamTwoCounterLabelTo($"camTwo: {countTwo}, {timeTwo}ms");
+
         }
     }
 }
