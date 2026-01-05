@@ -1,6 +1,6 @@
 A hexapod powered by Teensy 4.0 driven Nema23 Steppers.
 
-<img width="957" height="540" alt="image" src="https://github.com/user-attachments/assets/3ca79f7d-5716-4ea7-bdd7-52f61b8a0b55" />
+<img width="959" height="539" alt="image" src="https://github.com/user-attachments/assets/8beb6a72-b063-44e0-af06-1270b93b9aa3" />
 
 1. Press "Apply Offset": This will bring the machine to origin height
 2. Move hexaplate
