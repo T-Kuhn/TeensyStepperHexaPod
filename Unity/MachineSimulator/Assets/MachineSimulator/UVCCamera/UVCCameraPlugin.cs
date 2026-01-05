@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using vcp = MachineSimulator.UVCCamera.OpenCVConstants.VideoCaptureProperties;
 using UnityEngine;
 
@@ -8,7 +9,7 @@ namespace MachineSimulator.UVCCamera
     public class UVCCameraPlugin : MonoBehaviour
     {
         [DllImport("UVCCameraPlugin")]
-        private static extern IntPtr getCamera();
+        private static extern IntPtr getCamera(int id);
 
         [DllImport("UVCCameraPlugin")]
         private static extern double getCameraProperty(IntPtr camera, int propertyId);
@@ -19,56 +20,46 @@ namespace MachineSimulator.UVCCamera
         [DllImport("UVCCameraPlugin")]
         private static extern void releaseCamera(IntPtr camera);
 
+
         [DllImport("UVCCameraPlugin")]
         private static extern int getCameraTexture(IntPtr camera, IntPtr data, int width, int height);
 
         [DllImport("UVCCameraPlugin")]
         private static extern int getCameraDimensions(IntPtr camera, out int width, out int height);
 
+        [SerializeField] private int _id;
+
         private IntPtr _camera;
         public Texture2D Texture;
-        private Color32[] _pixels;
-        private GCHandle _pixelsHandle;
-        private IntPtr _pixelsPtr;
-        private CameraProperties _defaultCameraProperties;
+
+        private byte[] _pixelsFront;
+        private GCHandle _pixelsFrontHandle;
+        private IntPtr _pixelsFrontPtr;
+
+        private byte[] _pixelsBack;
+        private GCHandle _pixelsBackHandle;
+        private IntPtr _pixelsBackPtr;
+
+        private Thread _cameraThread;
+        private volatile bool _isRunning;
+        private readonly object _lock = new object();
+        private bool _hasNewFrame;
+
+        private readonly CameraProperties _defaultCameraProperties = new CameraProperties()
+        {
+            // NOTE: Our camera's lowest supported resolution is 1280x720
+            Width = 1280,
+            Height = 720,
+            Exposure = -7,
+            Gain = 2,
+            Saturation = 55,
+            Contrast = 15,
+            FPS = 120
+        };
 
         [SerializeField] private CameraProperties _cameraProperties;
 
-        private void Awake()
-        {
-            _defaultCameraProperties = new CameraProperties()
-            {
-                Width = 640,
-                Height = 480,
-                Exposure = -7,
-                Gain = 2,
-                Saturation = 55,
-                Contrast = 15,
-                FPS = 120
-            };
-        }
-
-        void Start()
-        {
-            _camera = getCamera();
-
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
-
-            GetCameraProperties();
-
-            Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
-                TextureFormat.ARGB32, false);
-            _pixels = Texture.GetPixels32();
-
-            _pixelsHandle = GCHandle.Alloc(_pixels, GCHandleType.Pinned);
-            _pixelsPtr = _pixelsHandle.AddrOfPinnedObject();
-        }
+        public bool CameraIsInitialized { get; private set; }
 
         private double GetCameraProperty(vcp property)
         {
@@ -101,23 +92,124 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperty(vcp.CAP_PROP_SATURATION, _cameraProperties.Saturation);
         }
 
+        private void InitializeCamera()
+        {
+            _camera = getCamera(_id);
+
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
+
+            Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
+                TextureFormat.RGB24, false);
+
+            // BGR
+            var byteCount = (int)_defaultCameraProperties.Width * (int)_defaultCameraProperties.Height * 3;
+            _pixelsFront = new byte[byteCount];
+            _pixelsFrontHandle = GCHandle.Alloc(_pixelsFront, GCHandleType.Pinned);
+            _pixelsFrontPtr = _pixelsFrontHandle.AddrOfPinnedObject();
+
+            _pixelsBack = new byte[byteCount];
+            _pixelsBackHandle = GCHandle.Alloc(_pixelsBack, GCHandleType.Pinned);
+            _pixelsBackPtr = _pixelsBackHandle.AddrOfPinnedObject();
+
+            GetCameraProperties();
+
+            _isRunning = true;
+            _cameraThread = new Thread(CameraLoop);
+            _cameraThread.IsBackground = true;
+            _cameraThread.Start();
+
+            CameraIsInitialized = true;
+        }
+
+        private void CameraLoop()
+        {
+            var sw = new System.Diagnostics.Stopwatch();
+            while (_isRunning)
+            {
+                sw.Restart();
+                var result = getCameraTexture(
+                    _camera,
+                    _pixelsBackPtr,
+                    (int)_defaultCameraProperties.Width,
+                    (int)_defaultCameraProperties.Height
+                );
+                sw.Stop();
+
+                if (sw.ElapsedMilliseconds > 50)
+                {
+                    Debug.Log($"Image retrieval took {sw.ElapsedMilliseconds}ms on camera with ID: " + _id);
+                }
+
+                if (result < 0)
+                {
+                    Debug.LogError($"getCameraTexture returned error code: {result}");
+                    Thread.Sleep(10); // Sleep a bit on error
+                    continue;
+                }
+
+                lock (_lock)
+                {
+                    // Swap pointers/buffers
+                    (_pixelsBackPtr, _pixelsFrontPtr) = (_pixelsFrontPtr, _pixelsBackPtr);
+                    (_pixelsBack, _pixelsFront) = (_pixelsFront, _pixelsBack);
+
+                    _hasNewFrame = true;
+                }
+            }
+        }
+
         private void Update()
         {
-            getCameraTexture(
-                _camera,
-                _pixelsPtr,
-                (int)_defaultCameraProperties.Width,
-                (int)_defaultCameraProperties.Height
-            );
+            if (!CameraIsInitialized)
+            {
+                InitializeCamera();
+            }
 
-            Texture.SetPixels32(_pixels);
-            Texture.Apply();
+            if (_hasNewFrame)
+            {
+                lock (_lock)
+                {
+                    Texture.SetPixelData(_pixelsFront, 0);
+                    _hasNewFrame = false;
+                }
+
+                Texture.Apply();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            _isRunning = false;
+
+            if (_cameraThread != null && _cameraThread.IsAlive)
+            {
+                // Wait for the thread to finish. 
+                // We give it some time, but not forever to avoid freezing Unity.
+                if (!_cameraThread.Join(1000))
+                {
+                    Debug.LogWarning("Camera thread did not terminate in time. Memory might leak or crash on exit.");
+                }
+            }
+
+            if (_pixelsFrontHandle.IsAllocated) _pixelsFrontHandle.Free();
+            if (_pixelsBackHandle.IsAllocated) _pixelsBackHandle.Free();
+
+            if (_camera != IntPtr.Zero)
+            {
+                releaseCamera(_camera);
+                _camera = IntPtr.Zero;
+            }
         }
 
         private void OnApplicationQuit()
         {
-            _pixelsHandle.Free();
-            releaseCamera(_camera);
+            OnDestroy();
         }
     }
 

@@ -117,9 +117,35 @@
 //           make sure the cameras will never get hit by the moving end-effector.
 // - [X] test camera we already have
 // - [X] Attach racket to machine
+// - [X] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+//     -> Tested. Didn't work satisfactorily.
 
-// Continue work on this ↓
-// - [ ] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
+// - [ ] Babysteps towards working multi-camera-image-processing:
+//     - [X] initialize both cameras and then expose two functions to get a frame from each camera.
+//         - [X] add a parameter to control which camera to get with getCamera() (0 or 1)
+//         - [X] save the intPtr for both cameras and set parameters for both (maybe a second UVCCameraPlugin instance is cleanest?)
+//     - [X] show the image data for both cameras?
+//     - [X] we suspect the 120FPS multi-camera-streaming is currently not working because it's just too much data to put through the same USB 3.0 bus.
+//           See what happens if we use different USB controllers for each camera.
+//           -> fixed by adding PCI-E USB 3.0 controller
+//     - [X] investigate reaccuring 70ms load peaks
+//         - they happen with image acquisition
+//         - [X] check if the same peaks still occur when...
+//             - [X] ...we only use one camera instead of two
+//                   -> disabling cam2: still get peaks on cam1 stream
+//                   -> disabling cam1: still get peaks on cam2 stream
+//             - [X] ...we set the cameras to 60FPS instead of 120FPS
+//                   -> we still get peaks but now the peak is 110ms long
+// - [X] ultimately, we do not need to get to the root of above load-peak-problem. We can work around it.
+//     - [X] workaround would include getting image data on different threads. Threads just copy frame data into newest data buffer.
+//     - [X] Unity runs on 120FPS and uses newest data (maybe includes timestamp so we have a way of knowing whether the data is old or not)
+//     - [X] check if getting rid of the image data conversion will improve performance enough so that it's worth the trouble (should be)
+//         - [X] log timestamp data inside the plugin getCameraTexture() function before and after conversion.
+// - [X] add a log when the image retrieval takes longer than expected (e.g. longer than 50ms)
+// - [X] add custom shader to display OpenCVs BGR pixel data correctly
+
+
+
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
 //       in order to be able to calculate the absolute position of the ping pong ball.
