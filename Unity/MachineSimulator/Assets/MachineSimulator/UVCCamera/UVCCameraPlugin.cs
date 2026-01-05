@@ -42,7 +42,7 @@ namespace MachineSimulator.UVCCamera
             Gain = 2,
             Saturation = 55,
             Contrast = 15,
-            FPS = 60
+            FPS = 120
         };
 
         [SerializeField] private CameraProperties _cameraProperties;
@@ -111,12 +111,17 @@ namespace MachineSimulator.UVCCamera
                 InitializeCamera();
             }
 
-            getCameraTexture(
+            var result = getCameraTexture(
                 _camera,
                 _pixelsPtr,
                 (int)_defaultCameraProperties.Width,
                 (int)_defaultCameraProperties.Height
             );
+
+            if (result < 0)
+            {
+                Debug.LogError($"getCameraTexture returned error code: {result}");
+            }
 
             Texture.SetPixels32(_pixels);
             Texture.Apply();
