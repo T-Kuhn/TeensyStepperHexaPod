@@ -119,8 +119,7 @@
 // - [X] Attach racket to machine
 // - [X] test ball throwing movement with ball on a little lever a bit away from end-effector-triangle
 //     -> Tested. Didn't work satisfactorily.
-
-// - [ ] Babysteps towards working multi-camera-image-processing:
+// - [X] Babysteps towards working multi-camera-image-processing:
 //     - [X] initialize both cameras and then expose two functions to get a frame from each camera.
 //         - [X] add a parameter to control which camera to get with getCamera() (0 or 1)
 //         - [X] save the intPtr for both cameras and set parameters for both (maybe a second UVCCameraPlugin instance is cleanest?)
@@ -143,22 +142,17 @@
 //         - [X] log timestamp data inside the plugin getCameraTexture() function before and after conversion.
 // - [X] add a log when the image retrieval takes longer than expected (e.g. longer than 50ms)
 // - [X] add custom shader to display OpenCVs BGR pixel data correctly
-// - [ ] maybe add a counter next to the FPS counter on the top of the screen.
+// - [X] maybe add a counter next to the FPS counter on the top of the screen.
 //       The counter should show how many times the image retrieval took longer than 50ms for each camera (show like this "<cameraId>:<count>")
+
+// - [ ] add image processing to find position ping pong ball in image data (re-use approach used in octo-bouncer project?)
+// - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
 
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
 //       in order to be able to calculate the absolute position of the ping pong ball.
-// - [ ] work on double-camera-image-processing (work on nice buffering) maybe like this:
-//        120fps Unity application.
-//       |  frame  |                       operation                       |
-//       |  1      |  cam 1: initiate capture                              |
-//       |  2      |  cam 2: initiate capture                              |
-//       |  3      |  cam 1: retrieve image-date and initiate next capture |
-//       |  4      |  cam 2: retrieve image-date and initiate next capture |
-//       |  5      |  cam 1: retrieve image-date and initiate next capture |
-//       |  6      |  cam 2: retrieve image-date and initiate next capture |
+// - [X] work on double-camera-image-processing (work on nice buffering) 
 
 // - [ ] need to decide how we want to implement ball tracking:
 //     - [ ] A: use two cameras connected to PC via USB, do image processing in unity on the PC
