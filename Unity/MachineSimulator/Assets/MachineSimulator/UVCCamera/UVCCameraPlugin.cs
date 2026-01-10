@@ -55,7 +55,8 @@ namespace MachineSimulator.UVCCamera
             Gain = 2,
             Saturation = 55,
             Contrast = 15,
-            FPS = 120
+            FPS = 120,
+            AutoWhiteBalance = 0 // OFF
         };
 
         [SerializeField] private CameraProperties _cameraProperties;
@@ -85,6 +86,7 @@ namespace MachineSimulator.UVCCamera
             _cameraProperties.Contrast = GetCameraProperty(vcp.CAP_PROP_CONTRAST);
             _cameraProperties.ISO = GetCameraProperty(vcp.CAP_PROP_ISO_SPEED);
             _cameraProperties.Saturation = GetCameraProperty(vcp.CAP_PROP_SATURATION);
+            _cameraProperties.AutoWhiteBalance = GetCameraProperty(vcp.CAP_PROP_AUTO_WB) == 1.0 ? 1 : 0;
         }
 
         public void SetCameraProperties()
@@ -94,6 +96,7 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperty(vcp.CAP_PROP_CONTRAST, _cameraProperties.Contrast);
             SetCameraProperty(vcp.CAP_PROP_ISO_SPEED, _cameraProperties.ISO);
             SetCameraProperty(vcp.CAP_PROP_SATURATION, _cameraProperties.Saturation);
+            SetCameraProperty(vcp.CAP_PROP_AUTO_WB, _cameraProperties.AutoWhiteBalance);
         }
 
         private void InitializeCamera()
@@ -107,6 +110,7 @@ namespace MachineSimulator.UVCCamera
             setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
             setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
             setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
+            setCameraProperty(_camera, (int)vcp.CAP_PROP_AUTO_WB, 0);
 
             Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
                 TextureFormat.RGB24, false);
@@ -230,5 +234,6 @@ namespace MachineSimulator.UVCCamera
         public double Contrast;
         public double ISO;
         public double Saturation;
+        public int AutoWhiteBalance;
     }
 }
