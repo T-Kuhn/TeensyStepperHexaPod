@@ -13,7 +13,7 @@ namespace MachineSimulator
         public static readonly int CameraResolutionWidth = 1280;
         public static readonly int CameraResolutionHeight = 720;
         
-        public static Byte Threshold = 70;
-        public static int PixelSpacing = 30;
+        public static Byte Threshold = 100;
+        public static int PixelSpacing = 50;
     }
 }

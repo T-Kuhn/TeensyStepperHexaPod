@@ -114,26 +114,39 @@ namespace Unity.MachineSimulator.ImageProcessing
             _detectedObjects = new List<(Vector2Int center, float radius)>();
         }
 
-        public List<BallRadiusAndPosition> BallDataFromPixelBoarders(Color32[] pixels)
+        // NOTE: BGR pixels
+        public List<BallRadiusAndPosition> BallDataFromPixelBoarders(byte[] pixels, int startWidthPixel)
         {
+            // NOTE: Draw green line to show where the valid area for image processing starts
+            if (startWidthPixel >= 0 && startWidthPixel < c.CameraResolutionWidth)
+            {
+                for (var height = 0; height < c.CameraResolutionHeight; height++)
+                {
+                    var index = (height * c.CameraResolutionWidth + startWidthPixel) * 3;
+                    pixels[index] = 0;     // B
+                    pixels[index + 1] = 255; // G
+                    pixels[index + 2] = 0;   // R
+                }
+            }
+
             _positiveProbePoints.Clear();
 
             // we are trying to find the boarders of all r == 255 pixel clusters.
-            for (int height = 0; height < c.CameraResolutionHeight; height += c.PixelSpacing)
+            for (var height = 0; height < c.CameraResolutionHeight; height += c.PixelSpacing)
             {
-                for (int width = 0; width < c.CameraResolutionWidth; width += c.PixelSpacing)
+                for (var width = startWidthPixel; width < c.CameraResolutionWidth; width += c.PixelSpacing)
                 {
-                    var index = height * c.CameraResolutionWidth + width;
+                    var index = (height * c.CameraResolutionWidth + width) * 3;
 
-                    if (pixels[index].b > c.Threshold)
+                    if (pixels[index] > c.Threshold)
                     {
-                        pixels[index].g = 255;
+                        pixels[index + 1] = 255;
                         // we found a ball-pixel
                         _positiveProbePoints.Add(new Vector2Int(width, height));
                     }
                     else
                     {
-                        pixels[index].g = 0;
+                        pixels[index + 1] = 0;
                     }
                 }
             }
@@ -159,8 +172,12 @@ namespace Unity.MachineSimulator.ImageProcessing
 
                 // find boarder pixel
                 var offset = -1;
-                while (pixels.AtPosition(probe + Vector2Int.right * offset).b > c.Threshold)
+                while (true)
                 {
+                    var pos = probe + Vector2Int.right * offset;
+                    if (!pos.IsInBounds()) break;
+                    var idx = pos.GetBGRIndex();
+                    if (pixels[idx] <= c.Threshold) break;
                     offset--;
                 }
 
@@ -169,7 +186,10 @@ namespace Unity.MachineSimulator.ImageProcessing
                 var currentPixel = probe + Vector2Int.right * offset;
                 var startPixelPosition = currentPixel;
                 var lastProbePositionRelativeToCurrentPixel = Vector2Int.left;
-                pixels.AtPosition(currentPixel).r = 255;
+                if (currentPixel.IsInBounds())
+                {
+                    pixels[currentPixel.GetBGRIndex() + 2] = 255;
+                }
 
                 _boarderPixelPositions.Clear();
 
@@ -180,17 +200,22 @@ namespace Unity.MachineSimulator.ImageProcessing
 
                     for (int i = 0; i < 8; i++)
                     {
-                        if (pixels.AtPosition(currentPixel + cyclePattern[i]).b > c.Threshold)
+                        var pos = currentPixel + cyclePattern[i];
+                        if (pos.IsInBounds())
                         {
-                            // we found a new foreground pixel!
-                            lastProbePositionRelativeToCurrentPixel = cyclePattern[i - 1] - cyclePattern[i];
+                            var idx = pos.GetBGRIndex();
+                            if (pixels[idx] > c.Threshold)
+                            {
+                                // we found a new foreground pixel!
+                                lastProbePositionRelativeToCurrentPixel = cyclePattern[i - 1] - cyclePattern[i];
 
-                            currentPixel = currentPixel + cyclePattern[i];
-                            pixels.AtPosition(currentPixel).r = 255;
-                            _boarderPixelPositions.Add(currentPixel);
+                                currentPixel = pos;
+                                pixels[idx + 2] = 255;
+                                _boarderPixelPositions.Add(currentPixel);
 
-                            foundPixel = true;
-                            break;
+                                foundPixel = true;
+                                break;
+                            }
                         }
                     }
 
@@ -219,8 +244,8 @@ namespace Unity.MachineSimulator.ImageProcessing
                             .Take(numberOfIterations / 2)
                             .ToList();
 
-                        Vector2Int accumulatedCenter = new Vector2Int(0, 0);
-                        float accumulatedRadius = 0f;
+                        var accumulatedCenter = new Vector2Int(0, 0);
+                        var accumulatedRadius = 0f;
                         foreach (var dataPoint in biggestHalf)
                         {
                             accumulatedCenter += dataPoint.center;
@@ -240,14 +265,18 @@ namespace Unity.MachineSimulator.ImageProcessing
 
             var sortedData = _detectedObjects
                 .OrderByDescending(data => data.radius)
-                .Take(2)
+                .Take(3)
                 .ToList();
 
             foreach (var data in sortedData)
             {
                 for (int i = 0; i < (int) data.radius; i++)
                 {
-                    pixels.AtPosition(data.center + Vector2Int.right * i).r = 255;
+                    var pos = data.center + Vector2Int.right * i;
+                    if (pos.IsInBounds())
+                    {
+                        pixels[pos.GetBGRIndex() + 2] = 255;
+                    }
                 }
             }
 
@@ -323,7 +352,7 @@ namespace Unity.MachineSimulator.ImageProcessing
         }
 
 
-        public BallRadiusAndPosition BallDataFromArea(Color32[] pixels)
+        public BallRadiusAndPosition BallDataFromArea(byte[] pixels, int startWidthPixel)
         {
             int numberOfWhitePixels = 0;
             var pixelWidth = c.CameraResolutionWidth;
@@ -333,24 +362,28 @@ namespace Unity.MachineSimulator.ImageProcessing
             // 1. We are using the red channel to first create our black-and-white base data
             //    0: background
             //    1: foreground
-            for (int i = 0; i < pixels.Length; i++)
+            for (int i = 0; i < pixels.Length / 3; i++)
             {
-                pixels[i].b = 0;
+                var x = i % pixelWidth;
+                if (x < startWidthPixel) continue;
 
-                if (pixels[i].r > 70)
+                var idx = i * 3;
+                pixels[idx] = 0; // Blue
+
+                if (pixels[idx + 2] > 70) // Red channel
                 {
                     accumulatedPixelX += i % pixelWidth;
                     accumulatedPixelY += i / pixelWidth;
                     numberOfWhitePixels++;
-                    pixels[i].r = 255;
-                    pixels[i].g = 100;
-                    pixels[i].b = 0;
+                    pixels[idx + 2] = 255; // Red
+                    pixels[idx + 1] = 100; // Green
+                    pixels[idx] = 0;       // Blue
                 }
                 else
                 {
-                    pixels[i].r = 0;
-                    pixels[i].g = 0;
-                    pixels[i].b = 0;
+                    pixels[idx + 2] = 0;
+                    pixels[idx + 1] = 0;
+                    pixels[idx] = 0;
                 }
             }
 

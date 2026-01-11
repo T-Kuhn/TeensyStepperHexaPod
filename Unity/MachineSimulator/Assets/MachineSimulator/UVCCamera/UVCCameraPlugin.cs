@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 using UniRx;
+using Unity.MachineSimulator.ImageProcessing;
 using vcp = MachineSimulator.UVCCamera.OpenCVConstants.VideoCaptureProperties;
 using UnityEngine;
 
@@ -175,6 +176,9 @@ namespace MachineSimulator.UVCCamera
             }
         }
 
+
+        private BallDetection _ballDetection = new BallDetection();
+        
         private void Update()
         {
             if (!CameraIsInitialized)
@@ -186,6 +190,8 @@ namespace MachineSimulator.UVCCamera
             {
                 lock (_lock)
                 {
+                    _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+                    
                     Texture.SetPixelData(_pixelsFront, 0);
                     _hasNewFrame = false;
                 }
