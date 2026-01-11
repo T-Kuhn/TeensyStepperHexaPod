@@ -129,6 +129,7 @@ namespace MachineSimulator.UVCCamera
 
             _isRunning = true;
             _cameraThread = new Thread(CameraLoop);
+            _cameraThread.Priority = System.Threading.ThreadPriority.Highest;
             _cameraThread.IsBackground = true;
             _cameraThread.Start();
 

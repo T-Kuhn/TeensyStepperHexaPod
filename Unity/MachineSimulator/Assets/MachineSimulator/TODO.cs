@@ -148,6 +148,9 @@
 // - [X] make sure auto white balance gets turned off on initialization
 
 // - [ ] add image processing to find position ping pong ball in image data (re-use approach used in octo-bouncer project?)
+//     - check "BallDataFromPixelBoarders"
+//     - also note that we only care for a certain area above the paddle, so there's a min y value we can savely ignore.
+//     - pixel brightness should be good enough
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
 
