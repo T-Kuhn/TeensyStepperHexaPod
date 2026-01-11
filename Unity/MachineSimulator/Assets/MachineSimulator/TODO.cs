@@ -145,11 +145,14 @@
 // - [X] maybe add a counter next to the FPS counter on the top of the screen.
 //       The counter should show how many times the image retrieval took longer than 50ms for each camera (show like this "<cameraId>:<count>")
 // - [X] make sure auto white balance gets turned off on initialization
-
-// - [ ] add image processing to find position ping pong ball in image data (re-use approach used in octo-bouncer project?)
+// - [X] add image processing to find position ping pong ball in image data (re-use approach used in octo-bouncer project?)
 //     - check "BallDataFromPixelBoarders"
 //     - also note that we only care for a certain area above the paddle, so there's a min y value we can savely ignore.
 //     - pixel brightness should be good enough
+
+// - [ ] make thick cross where the imageProcessing thinks the ball is.
+// - [ ] experiment: ball at different heights, how many pixels per 2cm?
+// - [ ] maybe adjust camera angles so that they are roughly the same
 
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
