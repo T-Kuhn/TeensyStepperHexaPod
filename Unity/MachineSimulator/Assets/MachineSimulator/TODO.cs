@@ -149,14 +149,20 @@
 //     - check "BallDataFromPixelBoarders"
 //     - also note that we only care for a certain area above the paddle, so there's a min y value we can savely ignore.
 //     - pixel brightness should be good enough
+// - [X] maybe adjust camera angles so that they are roughly the same
 
+// - [ ] end-effector model so that it contains camera holder
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
-// - [ ] maybe adjust camera angles so that they are roughly the same
+// - [ ] draw gizmo lines showing where the camera things the ball is
+// - [ ] quad and plane-intersect-approach to get 3D ball position from two camera ball position data
 // - [ ] update README pic
 // - [ ] read BallDataFromPixelBorders and see if we still agree with the approach.
-
+// - [ ] Check: can we get raw camera data (UYVY) via OpenCV?
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
+
+// - [ ] occesional-70ms-image-aqcuisition-waiting-time-problem
+//     - [ ] We could see if using the extension API and setting the FPS control to 100FPS changes anything
 
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
