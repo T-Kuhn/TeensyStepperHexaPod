@@ -153,6 +153,8 @@
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
 // - [ ] maybe adjust camera angles so that they are roughly the same
+// - [ ] update README pic
+// - [ ] read BallDataFromPixelBorders and see if we still agree with the approach.
 
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 

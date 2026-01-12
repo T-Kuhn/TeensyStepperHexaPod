@@ -23,7 +23,7 @@ extern "C" {
     //   -4: frame read failed
     //   -5: width/height mismatch
     //   -6: data size mismatch
-    // data must be pre-allocated with size = width * height * 4 (RGBA)
+    // data must be pre-allocated with size = width * height * 3 (BGR)
     __declspec(dllexport) int getCameraTexture(void* camera, unsigned char* data, int width, int height);
 
     // Get camera frame dimensions (returns 1 on success, 0 on failure)

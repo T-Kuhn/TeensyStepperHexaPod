@@ -4,20 +4,8 @@
 
 void* getCamera(int id)
 {
-    // Try DirectShow backend first (better for UVC cameras on Windows)
-    cv::VideoCapture* cap = new cv::VideoCapture(id, cv::CAP_DSHOW);
-    
-    // If DirectShow fails, try default backend
-    if (!cap->isOpened()) {
-        delete cap;
-        cap = new cv::VideoCapture(id);
-    }
-
-    // Verify camera opened successfully
-    if (!cap->isOpened()) {
-        delete cap;
-        return nullptr;
-    }
+    // NOTE: used to be cv::CAP_DSHOW
+    cv::VideoCapture* cap = new cv::VideoCapture(id);
 
     return static_cast<void*>(cap);
 }

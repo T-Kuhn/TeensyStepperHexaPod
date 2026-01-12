@@ -160,8 +160,7 @@ namespace MachineSimulator.UVCCamera
 
                 if (result < 0)
                 {
-                    Debug.LogError($"getCameraTexture returned error code: {result}");
-                    Thread.Sleep(10); // Sleep a bit on error
+                    Debug.Log($"getCameraTexture returned error code: {result}");
                     continue;
                 }
 
