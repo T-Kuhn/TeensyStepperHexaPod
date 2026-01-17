@@ -9,8 +9,7 @@ namespace MachineSimulator.UVCCamera
     {
         public unsafe void Initialize()
         {
-            var deviceCnt = 0;
-            if (!DShowNativeMethods.GetDevicesCount(out deviceCnt) || deviceCnt <= 0)
+            if (!DShowNativeMethods.GetDevicesCount(out var deviceCnt) || deviceCnt <= 0)
             {
                 Debug.Log("No devices found or GetDevicesCount failed.");
                 return;
