@@ -74,7 +74,11 @@ namespace MachineSimulator.UVCCamera
 
         private void SetCameraProperty(vcp property, double value)
         {
-            setCameraProperty(_camera, (int)property, value);
+            var result = setCameraProperty(_camera, (int)property, value);
+            if (result == 0)
+            {
+                Debug.LogWarning($"Failed to set camera property {property} to {value}");
+            }
         }
 
         public void GetCameraProperties()
@@ -92,6 +96,7 @@ namespace MachineSimulator.UVCCamera
 
         public void SetCameraProperties()
         {
+            SetCameraProperty(vcp.CAP_PROP_AUTO_EXPOSURE, 0.0);
             SetCameraProperty(vcp.CAP_PROP_EXPOSURE, _cameraProperties.Exposure);
             SetCameraProperty(vcp.CAP_PROP_GAIN, _cameraProperties.Gain);
             SetCameraProperty(vcp.CAP_PROP_CONTRAST, _cameraProperties.Contrast);
@@ -177,7 +182,7 @@ namespace MachineSimulator.UVCCamera
 
 
         private BallDetection _ballDetection = new BallDetection();
-        
+
         private void Update()
         {
             if (!CameraIsInitialized)
@@ -190,7 +195,7 @@ namespace MachineSimulator.UVCCamera
                 lock (_lock)
                 {
                     _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
-                    
+
                     Texture.SetPixelData(_pixelsFront, 0);
                     _hasNewFrame = false;
                 }

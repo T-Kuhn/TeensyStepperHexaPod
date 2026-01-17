@@ -150,19 +150,24 @@
 //     - also note that we only care for a certain area above the paddle, so there's a min y value we can savely ignore.
 //     - pixel brightness should be good enough
 // - [X] maybe adjust camera angles so that they are roughly the same
+// - [X] Check: can we get raw camera data (UYVY) via OpenCV?
+//     - [X] nope. data gets converted to BGR internally. We can only get that BGR data.
 
-// - [ ] end-effector model so that it contains camera holder
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
+// - [ ] update end-effector model so that it contains camera holder
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
 // - [ ] draw gizmo lines showing where the camera things the ball is
 // - [ ] quad and plane-intersect-approach to get 3D ball position from two camera ball position data
 // - [ ] update README pic
 // - [ ] read BallDataFromPixelBorders and see if we still agree with the approach.
-// - [ ] Check: can we get raw camera data (UYVY) via OpenCV?
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
 // - [ ] occesional-70ms-image-aqcuisition-waiting-time-problem
 //     - [ ] We could see if using the extension API and setting the FPS control to 100FPS changes anything
+//     - [ ] we could stop using OpenCV and instead write a native DirectShow plugin and see if that helps
+//     - [ ] crucial piece of information: From what we can tell, the problem appears in Unity
+//           (even when only using one camera at 60 FPS) but NOT when we use e-CAMview. This suggests that
+//           there IS a correct way to interface with the camera without the problem occuring.
 
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
