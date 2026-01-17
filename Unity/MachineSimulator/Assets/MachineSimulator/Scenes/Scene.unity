@@ -297,15 +297,12 @@ MonoBehaviour:
   _id: 1
   Texture: {fileID: 0}
   _cameraProperties:
-    Width: 0
-    Height: 0
-    FPS: 0
-    Exposure: 0
-    Gain: 0
-    Contrast: 0
-    ISO: 0
-    Saturation: 0
-    AutoWhiteBalance: 0
+    Width: 1280
+    Height: 720
+    FPS: 120
+    Exposure: -7
+    Gain: 2
+    Contrast: 15
 --- !u!4 &239239971
 Transform:
   m_ObjectHideFlags: 0
@@ -1420,15 +1417,12 @@ MonoBehaviour:
   _id: 0
   Texture: {fileID: 0}
   _cameraProperties:
-    Width: 0
-    Height: 0
-    FPS: 0
-    Exposure: 0
-    Gain: 0
-    Contrast: 0
-    ISO: 0
-    Saturation: 0
-    AutoWhiteBalance: 0
+    Width: 1280
+    Height: 720
+    FPS: 120
+    Exposure: -7
+    Gain: 2
+    Contrast: 15
 --- !u!4 &1203267606
 Transform:
   m_ObjectHideFlags: 0

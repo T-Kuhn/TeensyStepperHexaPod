@@ -70,10 +70,12 @@ namespace MachineSimulator.UVCCamera
                                     Debug.Log($"Successfully locked Auto Functions for device {i + 1}");
                                 }
 
-                                // Enable Grayscale Effect (0x07)
-                                if (DShowNativeMethods.SetSpecialEffects24CUG(0x07))
+                                // NOTE:
+                                //     - 0x07: Grayscale Effect
+                                //     - 0x01: Normal
+                                if (DShowNativeMethods.SetSpecialEffects24CUG(0x01))
                                 {
-                                    Debug.Log($"Successfully enabled Grayscale Effect for device {i + 1}");
+                                    Debug.Log($"Successfully set SpecialEffects for device {i + 1}");
                                 }
                             }
                             finally

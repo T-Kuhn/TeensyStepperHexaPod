@@ -162,12 +162,16 @@
 // - [ ] read BallDataFromPixelBorders and see if we still agree with the approach.
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
-// - [ ] occesional-70ms-image-aqcuisition-waiting-time-problem
-//     - [ ] We could see if using the extension API and setting the FPS control to 100FPS changes anything
+// - [ ] occasional-70ms-image-aqcuisition-waiting-time-problem
+//     - [X] We could see if using the extension API and setting the FPS control to 100FPS changes anything
+//          -> nope.
 //     - [ ] we could stop using OpenCV and instead write a native DirectShow plugin and see if that helps
 //     - [ ] crucial piece of information: From what we can tell, the problem appears in Unity
 //           (even when only using one camera at 60 FPS) but NOT when we use e-CAMview. This suggests that
 //           there IS a correct way to interface with the camera without the problem occuring.
+//     - [ ] other information: Interestingly, if we try to get exposure, gain, contrast through our OpenCV plugin,
+//           we only get the camera default values (instead the ones we set and which are clearly applied)
+//           Not sure if this has something to do with the occasional 70ms load peaks we are seeing.
 
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
