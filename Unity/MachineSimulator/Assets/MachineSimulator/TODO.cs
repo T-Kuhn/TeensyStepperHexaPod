@@ -165,6 +165,10 @@
 // - [ ] occasional-70ms-image-aqcuisition-waiting-time-problem
 //     - [X] We could see if using the extension API and setting the FPS control to 100FPS changes anything
 //          -> nope.
+//     - [ ] Do the ping pong ball swing back and forth in front of camera for 3 mins. See if any of the 70ms peaks occur...
+//          - [ ] ...when using the e-CAMview app
+//          - [ ] ...our OpenCV plugin && Unity app
+//     - [ ] Cobble together a crude DirectShow C++ app and see if we get the peaks there
 //     - [ ] we could stop using OpenCV and instead write a native DirectShow plugin and see if that helps
 //     - [ ] crucial piece of information: From what we can tell, the problem appears in Unity
 //           (even when only using one camera at 60 FPS) but NOT when we use e-CAMview. This suggests that

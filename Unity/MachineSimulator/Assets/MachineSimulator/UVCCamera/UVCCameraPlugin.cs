@@ -152,7 +152,7 @@ namespace MachineSimulator.UVCCamera
                 );
                 sw.Stop();
 
-                if (sw.ElapsedMilliseconds > 20)
+                if (sw.ElapsedMilliseconds > 50)
                 {
                     Debug.Log($"Image retrieval took {sw.ElapsedMilliseconds}ms on camera with ID: " + _id);
                     ImageRetrievalTookTooLongCount++;
