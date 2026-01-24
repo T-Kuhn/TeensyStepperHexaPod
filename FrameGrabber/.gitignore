@@ -11,4 +11,4 @@
 *.exp
 *.obj
 .vs/
-
+build/
