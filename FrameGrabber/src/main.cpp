@@ -1,16 +1,13 @@
 #include <windows.h>
 #include <dshow.h>
-#include <comdef.h>
 #include <strmif.h>
 #include <uuids.h>
-#include <dvdmedia.h>
 #include <iostream>
 #include <string>
 #include <conio.h>
 #include <iomanip>
 #include <vector>
 #include <algorithm>
-#include <cmath>
 #include <cwctype>
 
 // Sample Grabber interfaces (qedit.h is not available in standard Windows SDK)
@@ -342,32 +339,6 @@ public:
             std::wcout << L"No slow frames recorded yet." << std::endl;
         }
         std::wcout.flush();
-    }
-
-    void ResetStatistics()
-    {
-        EnterCriticalSection(&m_cs);
-        m_intervals.clear();
-        m_slowIntervals.clear();
-        m_slowFrameCount = 0;
-        m_totalFrameCount = 0;
-        m_lastFrameTime = 0;
-        m_statsReady = false;
-        m_statsPositionSet = false;
-        m_statsStartPosition = {0, 0};
-        m_streamStartTime = 0;
-        LARGE_INTEGER currentTime;
-        QueryPerformanceCounter(&currentTime);
-        m_lastStatsTime = currentTime.QuadPart;
-        LeaveCriticalSection(&m_cs);
-    }
-
-    size_t GetSlowFrameCount() const
-    {
-        EnterCriticalSection(&m_cs);
-        size_t count = m_slowFrameCount;
-        LeaveCriticalSection(&m_cs);
-        return count;
     }
 
     bool AreStatsReady() const
@@ -711,7 +682,6 @@ HRESULT DisableAllAutomaticControls(IBaseFilter* pCaptureFilter)
     if (!pCaptureFilter)
         return E_POINTER;
 
-    HRESULT hr = S_OK;
     HRESULT hrTemp = S_OK;
 
     // Disable automatic camera controls (IAMCameraControl)
@@ -954,7 +924,7 @@ HRESULT DisableAllAutomaticControls(IBaseFilter* pCaptureFilter)
     }
 
     std::wcout << L"Finished disabling all automatic camera controls" << std::endl;
-    return hr;
+    return S_OK;
 }
 
 HRESULT TryRegisterSampleGrabber()
@@ -1088,12 +1058,10 @@ int main()
     }
 
     // Create Sample Grabber filter for frame timing measurement
-    bool bSampleGrabberAvailable = false;
     std::wcout << L"Creating Sample Grabber filter for frame timing..." << std::endl;
 
     // First, try to register qedit.dll if it exists
-    HRESULT regHr = TryRegisterSampleGrabber();
-    if (SUCCEEDED(regHr))
+    if (SUCCEEDED(TryRegisterSampleGrabber()))
     {
         std::wcout << L"Successfully registered Sample Grabber filter" << std::endl;
     }
@@ -1175,13 +1143,10 @@ int main()
     }
 
     std::wcout << L"Frame timing callback configured successfully" << std::endl;
-    bSampleGrabberAvailable = true;
 
     // Render the video stream
-    if (bSampleGrabberAvailable)
-    {
-        // Render: Capture -> Sample Grabber -> Renderer
-        std::wcout << L"Connecting filters: Capture -> Sample Grabber -> Renderer..." << std::endl;
+    // Render: Capture -> Sample Grabber -> Renderer
+    std::wcout << L"Connecting filters: Capture -> Sample Grabber -> Renderer..." << std::endl;
 
         // First render from capture to sample grabber
         hr = g_pCaptureGraphBuilder->RenderStream(
@@ -1287,7 +1252,6 @@ int main()
                 return 1;
             }
         }
-    }
 
     // Get video window interface
     hr = g_pGraph->QueryInterface(IID_PPV_ARGS(&g_pVideoWindow));
