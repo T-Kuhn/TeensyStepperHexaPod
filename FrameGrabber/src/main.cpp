@@ -85,10 +85,7 @@ HRESULT CreateCaptureGraph(IGraphBuilder** ppGraph, IBaseFilter** ppCaptureFilte
 HRESULT SetCameraResolutionAndFPS(IBaseFilter* pCaptureFilter, int width, int height, int fps);
 HRESULT SetCameraExposure(IBaseFilter* pCaptureFilter, long exposureValue);
 HRESULT DisableAllAutomaticControls(IBaseFilter* pCaptureFilter);
-HRESULT MinimizeBuffering(IBaseFilter* pCaptureFilter);
-HRESULT ConfigureRendererForLowLatency(IBaseFilter* pRendererFilter);
 HRESULT TryRegisterSampleGrabber();
-HRESULT SetupFrameTimingViaRenderer(IBaseFilter* pRendererFilter);
 void CleanupInterfaces();
 
 // Frame timing callback class
@@ -149,8 +146,8 @@ public:
             m_intervals.push_back(intervalMs);
             m_totalFrameCount++; // Accumulative total
 
-            // Track frames that take 20ms or more (accumulative)
-            if (intervalMs >= 20.0)
+            // Track frames that take 30ms or more (accumulative)
+            if (intervalMs >= 30.0)
             {
                 m_slowFrameCount++;
 
@@ -960,81 +957,6 @@ HRESULT DisableAllAutomaticControls(IBaseFilter* pCaptureFilter)
     return hr;
 }
 
-HRESULT MinimizeBuffering(IBaseFilter* pCaptureFilter)
-{
-    if (!pCaptureFilter)
-        return E_POINTER;
-
-    // Find the capture pin
-    IEnumPins* pEnumPins = nullptr;
-    HRESULT hr = pCaptureFilter->EnumPins(&pEnumPins);
-    if (FAILED(hr))
-        return hr;
-
-    IPin* pPin = nullptr;
-    while (pEnumPins->Next(1, &pPin, nullptr) == S_OK)
-    {
-        PIN_INFO pinInfo;
-        if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
-        {
-            if (pinInfo.dir == PINDIR_OUTPUT)
-            {
-                // Check if this is the capture pin
-                IAMBufferNegotiation* pBufferNeg = nullptr;
-                hr = pPin->QueryInterface(IID_IAMBufferNegotiation, (void**)&pBufferNeg);
-                if (SUCCEEDED(hr))
-                {
-                    // Request minimal buffering - only 1 buffer
-                    ALLOCATOR_PROPERTIES props;
-                    props.cBuffers = 1;  // Minimum number of buffers
-                    props.cbBuffer = -1; // Let the allocator decide the size
-                    props.cbAlign = -1;  // Let the allocator decide alignment
-                    props.cbPrefix = -1; // Let the allocator decide prefix
-
-                    hr = pBufferNeg->SuggestAllocatorProperties(&props);
-                    if (SUCCEEDED(hr))
-                    {
-                        std::wcout << L"Configured minimal buffering (1 buffer) on capture pin" << std::endl;
-                    }
-                    else
-                    {
-                        std::wcout << L"Warning: Failed to set minimal buffering. Error: 0x" << std::hex << hr << std::endl;
-                    }
-                    pBufferNeg->Release();
-                }
-            }
-            if (pinInfo.pFilter)
-                pinInfo.pFilter->Release();
-        }
-        pPin->Release();
-    }
-    pEnumPins->Release();
-    return S_OK;
-}
-
-HRESULT ConfigureRendererForLowLatency(IBaseFilter* pRendererFilter)
-{
-    if (!pRendererFilter)
-        return E_POINTER;
-
-    // The main optimization is done through allocator configuration
-    // which is handled separately in main() after the graph is built
-    // This function is a placeholder for any renderer-specific optimizations
-
-    // Try to get IQualProp interface for monitoring (optional)
-    IQualProp* pQualProp = nullptr;
-    HRESULT hr = pRendererFilter->QueryInterface(IID_IQualProp, (void**)&pQualProp);
-    if (SUCCEEDED(hr))
-    {
-        // This interface allows monitoring frame drops
-        // We can use it later for diagnostics if needed
-        pQualProp->Release();
-    }
-
-    std::wcout << L"Renderer configured for low latency" << std::endl;
-    return S_OK;
-}
-
 HRESULT TryRegisterSampleGrabber()
 {
     // Try to find and register qedit.dll
@@ -1068,14 +990,6 @@ HRESULT TryRegisterSampleGrabber()
         }
     }
     return E_FAIL;
-}
-
-HRESULT SetupFrameTimingViaRenderer(IBaseFilter* pRendererFilter)
-{
-    // This is a placeholder - the custom allocator approach is complex and may not work
-    // The best solution is to ensure Sample Grabber is registered
-    // For now, return failure to force using Sample Grabber
-    return E_NOTIMPL;
 }
 
 void CleanupInterfaces()
@@ -1172,15 +1086,6 @@ int main()
     {
         std::wcout << L"Warning: Failed to disable some automatic controls. Continuing..." << std::endl;
     }
-
-    // Minimize buffering on capture pin BEFORE rendering
-    /*
-    hr = MinimizeBuffering(g_pCaptureFilter);
-    if (FAILED(hr))
-    {
-        std::wcout << L"Warning: Failed to minimize buffering. Continuing..." << std::endl;
-    }
-    */
 
     // Create Sample Grabber filter for frame timing measurement
     bool bSampleGrabberAvailable = false;
@@ -1382,13 +1287,6 @@ int main()
                 return 1;
             }
         }
-    }
-
-    // Configure renderer for low latency AFTER rendering
-    hr = ConfigureRendererForLowLatency(g_pRendererFilter);
-    if (FAILED(hr))
-    {
-        std::wcout << L"Warning: Failed to configure renderer for low latency. Continuing..." << std::endl;
     }
 
     // Get video window interface
