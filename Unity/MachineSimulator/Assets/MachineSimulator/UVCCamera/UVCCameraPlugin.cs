@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using UniRx;
+using Unity.MachineSimulator.ImageProcessing;
 using vcp = MachineSimulator.UVCCamera.OpenCVConstants.VideoCaptureProperties;
 using UnityEngine;
 
@@ -46,19 +46,12 @@ namespace MachineSimulator.UVCCamera
         private readonly object _lock = new object();
         private bool _hasNewFrame;
 
-        private readonly CameraProperties _defaultCameraProperties = new CameraProperties()
-        {
-            // NOTE: Our camera's lowest supported resolution is 1280x720
-            Width = 1280,
-            Height = 720,
-            Exposure = -7,
-            Gain = 2,
-            Saturation = 55,
-            Contrast = 15,
-            FPS = 120
-        };
+        [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
 
-        [SerializeField] private CameraProperties _cameraProperties;
+        public void Reset()
+        {
+            _cameraProperties = new CameraProperties();
+        }
 
         public int ImageRetrievalTookTooLongCount { get; private set; }
         public long LastImageRetrievalTime { get; private set; }
@@ -72,7 +65,11 @@ namespace MachineSimulator.UVCCamera
 
         private void SetCameraProperty(vcp property, double value)
         {
-            setCameraProperty(_camera, (int)property, value);
+            var result = setCameraProperty(_camera, (int)property, value);
+            if (result == 0)
+            {
+                Debug.LogWarning($"Failed to set camera property {property} to {value}");
+            }
         }
 
         public void GetCameraProperties()
@@ -83,8 +80,17 @@ namespace MachineSimulator.UVCCamera
             _cameraProperties.Exposure = GetCameraProperty(vcp.CAP_PROP_EXPOSURE);
             _cameraProperties.Gain = GetCameraProperty(vcp.CAP_PROP_GAIN);
             _cameraProperties.Contrast = GetCameraProperty(vcp.CAP_PROP_CONTRAST);
-            _cameraProperties.ISO = GetCameraProperty(vcp.CAP_PROP_ISO_SPEED);
-            _cameraProperties.Saturation = GetCameraProperty(vcp.CAP_PROP_SATURATION);
+        }
+
+        public void InitializeCameraProperties()
+        {
+            // NOTE: Below Properties can only be set if the camera isn't streaming yet
+            SetCameraProperty(vcp.CAP_PROP_FRAME_WIDTH, _cameraProperties.Width);
+            SetCameraProperty(vcp.CAP_PROP_FRAME_HEIGHT, _cameraProperties.Height);
+            SetCameraProperty(vcp.CAP_PROP_FPS, _cameraProperties.FPS);
+
+            // NOTE: We're not sure whether below is getting through to the camera
+            SetCameraProperty(vcp.CAP_PROP_AUTO_EXPOSURE, 0.0);
         }
 
         public void SetCameraProperties()
@@ -92,27 +98,27 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperty(vcp.CAP_PROP_EXPOSURE, _cameraProperties.Exposure);
             SetCameraProperty(vcp.CAP_PROP_GAIN, _cameraProperties.Gain);
             SetCameraProperty(vcp.CAP_PROP_CONTRAST, _cameraProperties.Contrast);
-            SetCameraProperty(vcp.CAP_PROP_ISO_SPEED, _cameraProperties.ISO);
-            SetCameraProperty(vcp.CAP_PROP_SATURATION, _cameraProperties.Saturation);
         }
 
         private void InitializeCamera()
         {
+            if (_cameraProperties.Width == 0) _cameraProperties.Width = 1280;
+            if (_cameraProperties.Height == 0) _cameraProperties.Height = 720;
+            if (_cameraProperties.FPS == 0) _cameraProperties.FPS = 120;
+            if (_cameraProperties.Exposure == 0) _cameraProperties.Exposure = -7;
+            if (_cameraProperties.Gain == 0) _cameraProperties.Gain = 2;
+            if (_cameraProperties.Contrast == 0) _cameraProperties.Contrast = 15;
+
             _camera = getCamera(_id);
 
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_WIDTH, _defaultCameraProperties.Width);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FRAME_HEIGHT, _defaultCameraProperties.Height);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_EXPOSURE, _defaultCameraProperties.Exposure);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_GAIN, _defaultCameraProperties.Gain);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_SATURATION, _defaultCameraProperties.Saturation);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_CONTRAST, _defaultCameraProperties.Contrast);
-            setCameraProperty(_camera, (int)vcp.CAP_PROP_FPS, _defaultCameraProperties.FPS);
+            InitializeCameraProperties();
+            SetCameraProperties();
 
-            Texture = new Texture2D((int)_defaultCameraProperties.Width, (int)_defaultCameraProperties.Height,
+            Texture = new Texture2D((int)_cameraProperties.Width, (int)_cameraProperties.Height,
                 TextureFormat.RGB24, false);
 
             // BGR
-            var byteCount = (int)_defaultCameraProperties.Width * (int)_defaultCameraProperties.Height * 3;
+            var byteCount = (int)_cameraProperties.Width * (int)_cameraProperties.Height * 3;
             _pixelsFront = new byte[byteCount];
             _pixelsFrontHandle = GCHandle.Alloc(_pixelsFront, GCHandleType.Pinned);
             _pixelsFrontPtr = _pixelsFrontHandle.AddrOfPinnedObject();
@@ -125,6 +131,7 @@ namespace MachineSimulator.UVCCamera
 
             _isRunning = true;
             _cameraThread = new Thread(CameraLoop);
+            _cameraThread.Priority = System.Threading.ThreadPriority.Highest;
             _cameraThread.IsBackground = true;
             _cameraThread.Start();
 
@@ -140,12 +147,12 @@ namespace MachineSimulator.UVCCamera
                 var result = getCameraTexture(
                     _camera,
                     _pixelsBackPtr,
-                    (int)_defaultCameraProperties.Width,
-                    (int)_defaultCameraProperties.Height
+                    (int)_cameraProperties.Width,
+                    (int)_cameraProperties.Height
                 );
                 sw.Stop();
 
-                if (sw.ElapsedMilliseconds > 20)
+                if (sw.ElapsedMilliseconds > 50)
                 {
                     Debug.Log($"Image retrieval took {sw.ElapsedMilliseconds}ms on camera with ID: " + _id);
                     ImageRetrievalTookTooLongCount++;
@@ -154,8 +161,7 @@ namespace MachineSimulator.UVCCamera
 
                 if (result < 0)
                 {
-                    Debug.LogError($"getCameraTexture returned error code: {result}");
-                    Thread.Sleep(10); // Sleep a bit on error
+                    Debug.Log($"getCameraTexture returned error code: {result}");
                     continue;
                 }
 
@@ -170,6 +176,9 @@ namespace MachineSimulator.UVCCamera
             }
         }
 
+
+        private BallDetection _ballDetection = new BallDetection();
+
         private void Update()
         {
             if (!CameraIsInitialized)
@@ -181,6 +190,8 @@ namespace MachineSimulator.UVCCamera
             {
                 lock (_lock)
                 {
+                    _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+
                     Texture.SetPixelData(_pixelsFront, 0);
                     _hasNewFrame = false;
                 }
@@ -220,15 +231,13 @@ namespace MachineSimulator.UVCCamera
     }
 
     [Serializable]
-    struct CameraProperties
+    public class CameraProperties
     {
-        public double Width;
-        public double Height;
-        public double FPS;
-        public double Exposure;
-        public double Gain;
-        public double Contrast;
-        public double ISO;
-        public double Saturation;
+        public double Width = 1280;
+        public double Height = 720;
+        public double FPS = 120;
+        public double Exposure = -7;
+        public double Gain = 2;
+        public double Contrast = 15;
     }
 }

@@ -21,6 +21,11 @@ namespace MachineSimulator.UVCCamera
             {
                 script.SetCameraProperties();
             }
+
+            if (GUILayout.Button("Reset", GUILayout.Width(200)))
+            {
+                script.Reset();
+            }
         }
     }
 }
