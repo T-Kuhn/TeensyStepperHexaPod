@@ -89,7 +89,7 @@ void CleanupInterfaces();
 class FrameTimingCallback : public ISampleGrabberCB
 {
 public:
-    FrameTimingCallback() : m_cRef(1), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({0, 0}), m_statsPositionSet(false), m_streamStartTime(0)
+    FrameTimingCallback() : m_cRef(1), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({ 0, 0 }), m_statsPositionSet(false), m_streamStartTime(0)
     {
         InitializeCriticalSection(&m_cs);
         LARGE_INTEGER freq;
@@ -197,7 +197,7 @@ public:
                 m_statsReady = false;
             }
             // Note: m_intervals, m_slowIntervals, m_slowFrameCount, and m_totalFrameCount are NOT cleared
-            
+
             // Update last stats time
             LARGE_INTEGER currentTime;
             QueryPerformanceCounter(&currentTime);
@@ -235,11 +235,11 @@ public:
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO csbi;
         COORD currentPos;
-        
+
         if (GetConsoleScreenBufferInfo(hConsole, &csbi))
         {
             currentPos = csbi.dwCursorPosition;
-            
+
             // If this is the first time printing stats, save the position
             // Otherwise, move cursor back to the saved position
             if (!m_statsPositionSet)
@@ -256,7 +256,7 @@ public:
             {
                 // Move cursor back to the start of stats section
                 SetConsoleCursorPosition(hConsole, m_statsStartPosition);
-                
+
                 // Calculate how many lines we need to clear (estimate based on slow intervals)
                 // We'll clear enough lines to cover the previous output
                 int linesToClear = 4; // Header + time + average + percentage
@@ -268,13 +268,13 @@ public:
                 {
                     linesToClear += 1; // "No slow frames" line
                 }
-                
+
                 // Clear the lines by printing spaces
                 for (int i = 0; i < linesToClear; ++i)
                 {
                     std::wcout << std::wstring(csbi.dwSize.X, L' ') << std::endl;
                 }
-                
+
                 // Move cursor back to start position
                 SetConsoleCursorPosition(hConsole, m_statsStartPosition);
             }
@@ -300,7 +300,7 @@ public:
 
         std::wcout << L"=== Frame Timing Statistics ===" << std::endl;
         std::wcout << L"Time: " << std::fixed << std::setprecision(2) << elapsedSeconds << L" s" << std::endl;
-        
+
         // Calculate average interval for current period (only if we have intervals)
         double avgInterval = 0.0;
         if (!intervals.empty())
@@ -317,7 +317,7 @@ public:
         {
             std::wcout << L"Average interval: N/A (no frames in this period)" << std::endl;
         }
-        
+
         std::wcout << L"Percentage of slow frames: " << std::fixed << std::setprecision(2)
             << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0) << L"%" << std::endl;
 
@@ -471,7 +471,7 @@ HRESULT CreateCaptureGraph(IGraphBuilder** ppGraph, IBaseFilter** ppCaptureFilte
                 // Check if "See3CAM" is in the camera name (case-insensitive)
                 std::wstring cameraName(var.bstrVal);
                 std::wstring searchTerm(L"See3CAM");
-                
+
                 // Convert to uppercase for case-insensitive comparison
                 std::wstring upperCameraName = cameraName;
                 std::wstring upperSearchTerm = searchTerm;
@@ -1150,102 +1150,83 @@ int main()
     // Render: Capture -> Sample Grabber -> Renderer
     std::wcout << L"Connecting filters: Capture -> Sample Grabber -> Renderer..." << std::endl;
 
-        // First render from capture to sample grabber
-        hr = g_pCaptureGraphBuilder->RenderStream(
-            &PIN_CATEGORY_CAPTURE,
-            &MEDIATYPE_Video,
-            g_pCaptureFilter,
-            nullptr,
-            g_pSampleGrabberFilter);
+    // First render from capture to sample grabber
+    hr = g_pCaptureGraphBuilder->RenderStream(
+        &PIN_CATEGORY_CAPTURE,
+        &MEDIATYPE_Video,
+        g_pCaptureFilter,
+        nullptr,
+        g_pSampleGrabberFilter);
 
-        if (FAILED(hr))
+    if (FAILED(hr))
+    {
+        std::wcout << L"ERROR: Failed to connect capture to sample grabber. Error: 0x" << std::hex << hr << std::endl;
+        std::wcout << L"Frame timing is REQUIRED. Cannot continue without it." << std::endl;
+        CleanupInterfaces();
+        CoUninitialize();
+        return 1;
+    }
+    else
+    {
+        // Then render from sample grabber to renderer
+        IPin* pSampleGrabberOutPin = nullptr;
+        IPin* pRendererInPin = nullptr;
+
+        // Find sample grabber output pin
+        IEnumPins* pEnumPins = nullptr;
+        hr = g_pSampleGrabberFilter->EnumPins(&pEnumPins);
+        if (SUCCEEDED(hr))
         {
-            std::wcout << L"ERROR: Failed to connect capture to sample grabber. Error: 0x" << std::hex << hr << std::endl;
-            std::wcout << L"Frame timing is REQUIRED. Cannot continue without it." << std::endl;
-            CleanupInterfaces();
-            CoUninitialize();
-            return 1;
+            IPin* pPin = nullptr;
+            while (pEnumPins->Next(1, &pPin, nullptr) == S_OK)
+            {
+                PIN_INFO pinInfo;
+                if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
+                {
+                    if (pinInfo.dir == PINDIR_OUTPUT)
+                    {
+                        pSampleGrabberOutPin = pPin;
+                        pSampleGrabberOutPin->AddRef();
+                    }
+                    if (pinInfo.pFilter)
+                        pinInfo.pFilter->Release();
+                }
+                pPin->Release();
+            }
+            pEnumPins->Release();
         }
-        else
+
+        // Find renderer input pin
+        pEnumPins = nullptr;
+        hr = g_pRendererFilter->EnumPins(&pEnumPins);
+        if (SUCCEEDED(hr))
         {
-            // Then render from sample grabber to renderer
-            IPin* pSampleGrabberOutPin = nullptr;
-            IPin* pRendererInPin = nullptr;
-
-            // Find sample grabber output pin
-            IEnumPins* pEnumPins = nullptr;
-            hr = g_pSampleGrabberFilter->EnumPins(&pEnumPins);
-            if (SUCCEEDED(hr))
+            IPin* pPin = nullptr;
+            while (pEnumPins->Next(1, &pPin, nullptr) == S_OK)
             {
-                IPin* pPin = nullptr;
-                while (pEnumPins->Next(1, &pPin, nullptr) == S_OK)
+                PIN_INFO pinInfo;
+                if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
                 {
-                    PIN_INFO pinInfo;
-                    if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
+                    if (pinInfo.dir == PINDIR_INPUT)
                     {
-                        if (pinInfo.dir == PINDIR_OUTPUT)
-                        {
-                            pSampleGrabberOutPin = pPin;
-                            pSampleGrabberOutPin->AddRef();
-                        }
-                        if (pinInfo.pFilter)
-                            pinInfo.pFilter->Release();
+                        pRendererInPin = pPin;
+                        pRendererInPin->AddRef();
                     }
-                    pPin->Release();
+                    if (pinInfo.pFilter)
+                        pinInfo.pFilter->Release();
                 }
-                pEnumPins->Release();
+                pPin->Release();
             }
+            pEnumPins->Release();
+        }
 
-            // Find renderer input pin
-            pEnumPins = nullptr;
-            hr = g_pRendererFilter->EnumPins(&pEnumPins);
-            if (SUCCEEDED(hr))
+        // Connect sample grabber to renderer
+        if (pSampleGrabberOutPin && pRendererInPin)
+        {
+            hr = g_pGraph->Connect(pSampleGrabberOutPin, pRendererInPin);
+            if (FAILED(hr))
             {
-                IPin* pPin = nullptr;
-                while (pEnumPins->Next(1, &pPin, nullptr) == S_OK)
-                {
-                    PIN_INFO pinInfo;
-                    if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
-                    {
-                        if (pinInfo.dir == PINDIR_INPUT)
-                        {
-                            pRendererInPin = pPin;
-                            pRendererInPin->AddRef();
-                        }
-                        if (pinInfo.pFilter)
-                            pinInfo.pFilter->Release();
-                    }
-                    pPin->Release();
-                }
-                pEnumPins->Release();
-            }
-
-            // Connect sample grabber to renderer
-            if (pSampleGrabberOutPin && pRendererInPin)
-            {
-                hr = g_pGraph->Connect(pSampleGrabberOutPin, pRendererInPin);
-                if (FAILED(hr))
-                {
-                    std::wcout << L"ERROR: Failed to connect sample grabber to renderer. Error: 0x" << std::hex << hr << std::endl;
-                    std::wcout << L"Frame timing is REQUIRED. Cannot continue without it." << std::endl;
-                    if (pSampleGrabberOutPin) pSampleGrabberOutPin->Release();
-                    if (pRendererInPin) pRendererInPin->Release();
-                    CleanupInterfaces();
-                    CoUninitialize();
-                    return 1;
-                }
-                else
-                {
-                    std::wcout << L"Successfully connected Sample Grabber to Renderer" << std::endl;
-                    std::wcout << L"Frame timing measurement enabled." << std::endl;
-                }
-
-                if (pSampleGrabberOutPin) pSampleGrabberOutPin->Release();
-                if (pRendererInPin) pRendererInPin->Release();
-            }
-            else
-            {
-                std::wcout << L"ERROR: Failed to find pins for connection" << std::endl;
+                std::wcout << L"ERROR: Failed to connect sample grabber to renderer. Error: 0x" << std::hex << hr << std::endl;
                 std::wcout << L"Frame timing is REQUIRED. Cannot continue without it." << std::endl;
                 if (pSampleGrabberOutPin) pSampleGrabberOutPin->Release();
                 if (pRendererInPin) pRendererInPin->Release();
@@ -1253,7 +1234,26 @@ int main()
                 CoUninitialize();
                 return 1;
             }
+            else
+            {
+                std::wcout << L"Successfully connected Sample Grabber to Renderer" << std::endl;
+                std::wcout << L"Frame timing measurement enabled." << std::endl;
+            }
+
+            if (pSampleGrabberOutPin) pSampleGrabberOutPin->Release();
+            if (pRendererInPin) pRendererInPin->Release();
         }
+        else
+        {
+            std::wcout << L"ERROR: Failed to find pins for connection" << std::endl;
+            std::wcout << L"Frame timing is REQUIRED. Cannot continue without it." << std::endl;
+            if (pSampleGrabberOutPin) pSampleGrabberOutPin->Release();
+            if (pRendererInPin) pRendererInPin->Release();
+            CleanupInterfaces();
+            CoUninitialize();
+            return 1;
+        }
+    }
 
     // Get video window interface
     hr = g_pGraph->QueryInterface(IID_PPV_ARGS(&g_pVideoWindow));
@@ -1377,7 +1377,7 @@ int main()
         {
             bool statsReady = g_pFrameCallback->AreStatsReady();
             bool timeUpdate = g_pFrameCallback->ShouldUpdateStatsByTime();
-            
+
             if (statsReady || timeUpdate)
             {
                 g_pFrameCallback->PrintStatistics(timeUpdate && !statsReady);
