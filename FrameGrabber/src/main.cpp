@@ -55,8 +55,8 @@ static const GUID IID_ISampleGrabber =
 #pragma comment(lib, "quartz.lib")
 
 // Camera resolution and FPS constants
-const int CAMERA_WIDTH = 640; //1280
-const int CAMERA_HEIGHT = 480; //720
+const int CAMERA_WIDTH = 1280;
+const int CAMERA_HEIGHT = 720;
 const int CAMERA_FPS = 120;
 
 // Helper function to delete media type (if not available from headers)
@@ -1052,14 +1052,14 @@ void QueryAndLogVideoFormat(ISampleGrabber* pSampleGrabber)
     }
     else
     {
-        std::wcout << L"Major Type: Unknown (GUID: " << std::hex << mt.majortype.Data1 << L"-"
-            << mt.majortype.Data2 << L"-" << mt.majortype.Data3 << L")" << std::endl;
+        std::wcout << L"Major Type: Unknown (GUID: " << std::hex << mt.majortype.Data1 << L"-" 
+                   << mt.majortype.Data2 << L"-" << mt.majortype.Data3 << L")" << std::endl;
     }
 
     // Log subtype (this tells us the color format)
     const GUID& subtype = mt.subtype;
     std::wstring formatName = L"Unknown";
-
+    
     // Common video format GUIDs
     if (subtype == MEDIASUBTYPE_UYVY)
     {
