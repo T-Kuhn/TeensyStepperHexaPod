@@ -161,13 +161,13 @@ public:
                 {
                     m_slowIntervals.erase(m_slowIntervals.begin());
                 }
-            }
 
-            // Signal that stats are ready to print every 1000 frames
-            // Don't print here - let main thread do it to avoid blocking
-            if (m_frameCount >= 1000 && !m_intervals.empty())
-            {
-                m_statsReady = true;
+                // Signal that stats are ready to print whenever we detect a slow frame
+                // Don't print here - let main thread do it to avoid blocking
+                if (!m_intervals.empty())
+                {
+                    m_statsReady = true;
+                }
             }
         }
 
