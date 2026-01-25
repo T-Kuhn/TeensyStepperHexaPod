@@ -54,6 +54,11 @@ static const GUID IID_ISampleGrabber =
 #pragma comment(lib, "oleaut32.lib")
 #pragma comment(lib, "quartz.lib")
 
+// Camera resolution and FPS constants
+const int CAMERA_WIDTH = 1280;
+const int CAMERA_HEIGHT = 720;
+const int CAMERA_FPS = 120;
+
 // Helper function to delete media type (if not available from headers)
 #ifndef DeleteMediaType
 void DeleteMediaType(AM_MEDIA_TYPE* pmt)
@@ -1046,7 +1051,7 @@ int main()
     }
 
     // Set camera resolution and FPS
-    hr = SetCameraResolutionAndFPS(g_pCaptureFilter, 1280, 720, 120);
+    hr = SetCameraResolutionAndFPS(g_pCaptureFilter, CAMERA_WIDTH, CAMERA_HEIGHT, CAMERA_FPS);
     if (FAILED(hr))
     {
         std::wcout << L"Warning: Failed to set camera resolution/FPS. Continuing with default settings..." << std::endl;
@@ -1264,8 +1269,8 @@ int main()
         g_pVideoWindow->put_WindowStyle(WS_OVERLAPPEDWINDOW);
 
         // Set window position and size
-        int width = 1280;
-        int height = 720;
+        int width = CAMERA_WIDTH;
+        int height = CAMERA_HEIGHT;
 
         // Center the window on screen
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -1274,7 +1279,9 @@ int main()
         int y = (screenHeight - height) / 2;
 
         g_pVideoWindow->SetWindowPosition(x, y, width, height);
-        BSTR caption = SysAllocString(L"UVC Camera - 1280x720 @ 120 FPS");
+        // Build caption string with constants
+        std::wstring captionStr = L"UVC Camera - " + std::to_wstring(CAMERA_WIDTH) + L"x" + std::to_wstring(CAMERA_HEIGHT) + L" @ " + std::to_wstring(CAMERA_FPS) + L" FPS";
+        BSTR caption = SysAllocString(captionStr.c_str());
         g_pVideoWindow->put_Caption(caption);
         SysFreeString(caption);
     }
@@ -1330,7 +1337,8 @@ int main()
     if (g_pVideoWindow)
     {
         // Find the video window by its caption
-        hwnd = FindWindowW(nullptr, L"UVC Camera - 1280x720 @ 120 FPS");
+        std::wstring captionStr = L"UVC Camera - " + std::to_wstring(CAMERA_WIDTH) + L"x" + std::to_wstring(CAMERA_HEIGHT) + L" @ " + std::to_wstring(CAMERA_FPS) + L" FPS";
+        hwnd = FindWindowW(nullptr, captionStr.c_str());
     }
 
     // Message loop to handle window messages (prevents window from becoming unresponsive)
