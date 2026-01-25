@@ -95,7 +95,7 @@ void CleanupInterfaces();
 class FrameTimingCallback : public ISampleGrabberCB
 {
 public:
-    FrameTimingCallback() : m_cRef(1), m_frameCount(0), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false)
+    FrameTimingCallback() : m_cRef(1), m_frameCount(0), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({0, 0}), m_statsPositionSet(false)
     {
         InitializeCriticalSection(&m_cs);
         QueryPerformanceFrequency((LARGE_INTEGER*)&m_frequency);
@@ -236,7 +236,65 @@ public:
         }
         double avgInterval = sum / intervals.size();
 
-        std::wcout << L"\n=== Frame Timing Statistics ===" << std::endl;
+        // Get console handle and current cursor position
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        COORD currentPos;
+        
+        if (GetConsoleScreenBufferInfo(hConsole, &csbi))
+        {
+            currentPos = csbi.dwCursorPosition;
+            
+            // If this is the first time printing stats, save the position
+            // Otherwise, move cursor back to the saved position
+            if (!m_statsPositionSet)
+            {
+                std::wcout << L"\n"; // Start on a new line for first print
+                // Save position after the newline (one line down)
+                if (GetConsoleScreenBufferInfo(hConsole, &csbi))
+                {
+                    m_statsStartPosition = csbi.dwCursorPosition;
+                    m_statsPositionSet = true;
+                }
+            }
+            else
+            {
+                // Move cursor back to the start of stats section
+                SetConsoleCursorPosition(hConsole, m_statsStartPosition);
+                
+                // Calculate how many lines we need to clear (estimate based on slow intervals)
+                // We'll clear enough lines to cover the previous output
+                int linesToClear = 3; // Header + average + percentage
+                if (!slowIntervals.empty())
+                {
+                    linesToClear += 1 + (slowIntervals.size() + 9) / 10; // Header + data lines
+                }
+                else
+                {
+                    linesToClear += 1; // "No slow frames" line
+                }
+                
+                // Clear the lines by printing spaces
+                for (int i = 0; i < linesToClear; ++i)
+                {
+                    std::wcout << std::wstring(csbi.dwSize.X, L' ') << std::endl;
+                }
+                
+                // Move cursor back to start position
+                SetConsoleCursorPosition(hConsole, m_statsStartPosition);
+            }
+        }
+        else
+        {
+            // Fallback: if we can't get console info, just print normally
+            if (!m_statsPositionSet)
+            {
+                std::wcout << L"\n";
+                m_statsPositionSet = true;
+            }
+        }
+
+        std::wcout << L"=== Frame Timing Statistics ===" << std::endl;
         std::wcout << L"Average interval: " << std::fixed << std::setprecision(3) << avgInterval << L" ms" << std::endl;
         std::wcout << L"Percentage of slow frames: " << std::fixed << std::setprecision(2)
             << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0) << L"%" << std::endl;
@@ -273,6 +331,8 @@ public:
         m_totalFrameCount = 0;
         m_lastFrameTime = 0;
         m_statsReady = false;
+        m_statsPositionSet = false;
+        m_statsStartPosition = {0, 0};
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
         m_lastStatsTime = currentTime.QuadPart;
@@ -315,6 +375,8 @@ private:
     std::vector<double> m_intervals;
     std::vector<double> m_slowIntervals; // Accumulative list of slow frames (last 1000)
     bool m_statsReady; // Flag to indicate stats are ready to print (set by callback, checked by main thread)
+    COORD m_statsStartPosition; // Cursor position where stats section starts
+    bool m_statsPositionSet; // Whether the stats position has been set
 };
 
 // Global COM interfaces
