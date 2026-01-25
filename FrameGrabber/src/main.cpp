@@ -95,7 +95,7 @@ void CleanupInterfaces();
 class FrameTimingCallback : public ISampleGrabberCB
 {
 public:
-    FrameTimingCallback() : m_cRef(1), m_frameCount(0), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({0, 0}), m_statsPositionSet(false)
+    FrameTimingCallback() : m_cRef(1), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({0, 0}), m_statsPositionSet(false), m_streamStartTime(0)
     {
         InitializeCriticalSection(&m_cs);
         QueryPerformanceFrequency((LARGE_INTEGER*)&m_frequency);
@@ -147,7 +147,6 @@ public:
             // Calculate interval in milliseconds
             double intervalMs = ((double)(currentTime.QuadPart - m_lastFrameTime) * 1000.0) / m_frequency;
             m_intervals.push_back(intervalMs);
-            m_frameCount++;
             m_totalFrameCount++; // Accumulative total
 
             // Track frames that take 20ms or more (accumulative)
@@ -179,33 +178,41 @@ public:
 
     // Check if stats are ready and return a copy of the data for printing
     // Returns true if stats should be printed, false otherwise
+    // forceUpdate: if true, print stats even if no new frames detected (for time-based updates)
     bool GetStatsForPrinting(std::vector<double>& intervals, std::vector<double>& slowIntervals,
-        size_t& frameCount, size_t& slowFrameCount, size_t& totalFrameCount)
+        size_t& slowFrameCount, size_t& totalFrameCount, bool forceUpdate = false)
     {
         EnterCriticalSection(&m_cs);
-        bool shouldPrint = m_statsReady && !m_intervals.empty();
+        bool shouldPrint = forceUpdate || (m_statsReady && !m_intervals.empty());
 
         if (shouldPrint)
         {
             // Copy data while holding the lock
             intervals = m_intervals;
             slowIntervals = m_slowIntervals; // Accumulative - don't clear
-            frameCount = m_frameCount;
             slowFrameCount = m_slowFrameCount; // Accumulative - don't clear
             totalFrameCount = m_totalFrameCount; // Accumulative total
 
-            // Clear only current period statistics (but keep accumulative slow frames)
-            m_intervals.clear();
-            m_frameCount = 0;
-            m_statsReady = false;
-            // Note: m_slowIntervals, m_slowFrameCount, and m_totalFrameCount are NOT cleared
+            // Clear only current period statistics (but keep accumulative slow frames and intervals)
+            // Only clear if we had actual frame data, not for forced time-based updates
+            if (!forceUpdate)
+            {
+                // m_intervals is no longer cleared - it accumulates all intervals
+                m_statsReady = false;
+            }
+            // Note: m_intervals, m_slowIntervals, m_slowFrameCount, and m_totalFrameCount are NOT cleared
+            
+            // Update last stats time
+            LARGE_INTEGER currentTime;
+            QueryPerformanceCounter(&currentTime);
+            m_lastStatsTime = currentTime.QuadPart;
         }
 
         LeaveCriticalSection(&m_cs);
         return shouldPrint;
     }
 
-    void PrintStatistics()
+    void PrintStatistics(bool forceUpdate = false)
     {
         // Check stream state before starting
         if (!std::wcout.good())
@@ -217,24 +224,16 @@ public:
         // Get a copy of the data first
         std::vector<double> intervals;
         std::vector<double> slowIntervals;
-        size_t frameCount = 0;
         size_t slowFrameCount = 0;
         size_t totalFrameCount = 0;
 
-        if (!GetStatsForPrinting(intervals, slowIntervals, frameCount, slowFrameCount, totalFrameCount))
+        if (!GetStatsForPrinting(intervals, slowIntervals, slowFrameCount, totalFrameCount, forceUpdate))
         {
             return; // No stats ready
         }
 
-        if (intervals.empty()) return;
-
-        // Calculate average interval for current period
-        double sum = 0;
-        for (double interval : intervals)
-        {
-            sum += interval;
-        }
-        double avgInterval = sum / intervals.size();
+        // For time-based updates, allow printing even with empty intervals (to update Time log)
+        if (intervals.empty() && !forceUpdate) return;
 
         // Get console handle and current cursor position
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -264,7 +263,7 @@ public:
                 
                 // Calculate how many lines we need to clear (estimate based on slow intervals)
                 // We'll clear enough lines to cover the previous output
-                int linesToClear = 3; // Header + average + percentage
+                int linesToClear = 4; // Header + time + average + percentage
                 if (!slowIntervals.empty())
                 {
                     linesToClear += 1 + (slowIntervals.size() + 9) / 10; // Header + data lines
@@ -294,8 +293,35 @@ public:
             }
         }
 
+        // Calculate elapsed time since stream started
+        LARGE_INTEGER currentTime;
+        QueryPerformanceCounter(&currentTime);
+        double elapsedSeconds = 0.0;
+        if (m_streamStartTime > 0)
+        {
+            elapsedSeconds = ((double)(currentTime.QuadPart - m_streamStartTime)) / m_frequency;
+        }
+
         std::wcout << L"=== Frame Timing Statistics ===" << std::endl;
-        std::wcout << L"Average interval: " << std::fixed << std::setprecision(3) << avgInterval << L" ms" << std::endl;
+        std::wcout << L"Time: " << std::fixed << std::setprecision(2) << elapsedSeconds << L" s" << std::endl;
+        
+        // Calculate average interval for current period (only if we have intervals)
+        double avgInterval = 0.0;
+        if (!intervals.empty())
+        {
+            double sum = 0;
+            for (double interval : intervals)
+            {
+                sum += interval;
+            }
+            avgInterval = sum / intervals.size();
+            std::wcout << L"Average interval: " << std::fixed << std::setprecision(3) << avgInterval << L" ms" << std::endl;
+        }
+        else
+        {
+            std::wcout << L"Average interval: N/A (no frames in this period)" << std::endl;
+        }
+        
         std::wcout << L"Percentage of slow frames: " << std::fixed << std::setprecision(2)
             << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0) << L"%" << std::endl;
 
@@ -326,25 +352,17 @@ public:
         EnterCriticalSection(&m_cs);
         m_intervals.clear();
         m_slowIntervals.clear();
-        m_frameCount = 0;
         m_slowFrameCount = 0;
         m_totalFrameCount = 0;
         m_lastFrameTime = 0;
         m_statsReady = false;
         m_statsPositionSet = false;
         m_statsStartPosition = {0, 0};
+        m_streamStartTime = 0;
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
         m_lastStatsTime = currentTime.QuadPart;
         LeaveCriticalSection(&m_cs);
-    }
-
-    size_t GetFrameCount() const
-    {
-        EnterCriticalSection(&m_cs);
-        size_t count = m_frameCount;
-        LeaveCriticalSection(&m_cs);
-        return count;
     }
 
     size_t GetSlowFrameCount() const
@@ -363,10 +381,30 @@ public:
         return ready;
     }
 
+    // Check if 1 second has passed since last stats update
+    bool ShouldUpdateStatsByTime() const
+    {
+        EnterCriticalSection(&m_cs);
+        LARGE_INTEGER currentTime;
+        QueryPerformanceCounter(&currentTime);
+        double elapsedSeconds = ((double)(currentTime.QuadPart - m_lastStatsTime)) / m_frequency;
+        bool shouldUpdate = elapsedSeconds >= 1.0;
+        LeaveCriticalSection(&m_cs);
+        return shouldUpdate;
+    }
+
+    void SetStreamStartTime()
+    {
+        EnterCriticalSection(&m_cs);
+        LARGE_INTEGER currentTime;
+        QueryPerformanceCounter(&currentTime);
+        m_streamStartTime = currentTime.QuadPart;
+        LeaveCriticalSection(&m_cs);
+    }
+
 private:
     mutable CRITICAL_SECTION m_cs; // Protects all member variables
     LONG m_cRef;
-    size_t m_frameCount;
     size_t m_slowFrameCount; // Accumulative count of slow frames
     size_t m_totalFrameCount; // Accumulative total frame count
     LONGLONG m_lastFrameTime;
@@ -377,6 +415,7 @@ private:
     bool m_statsReady; // Flag to indicate stats are ready to print (set by callback, checked by main thread)
     COORD m_statsStartPosition; // Cursor position where stats section starts
     bool m_statsPositionSet; // Whether the stats position has been set
+    LONGLONG m_streamStartTime; // Time when the camera stream started
 };
 
 // Global COM interfaces
@@ -1450,6 +1489,12 @@ int main()
         return 1;
     }
 
+    // Record the stream start time
+    if (g_pFrameCallback)
+    {
+        g_pFrameCallback->SetStreamStartTime();
+    }
+
     // Wait a brief moment for graph to start, then try to optimize allocator again
     // Sometimes allocator properties can be adjusted after graph starts
     Sleep(100);
@@ -1556,10 +1601,16 @@ int main()
         }
 
         // Check if statistics are ready to print (called from main thread to avoid blocking callback)
-        // Only call PrintStatistics() when stats are actually ready to avoid unnecessary calls
-        if (g_pFrameCallback && g_pFrameCallback->AreStatsReady())
+        // Update stats when a new frame is detected OR if 1 second has passed (mainly to update the "Time" log)
+        if (g_pFrameCallback)
         {
-            g_pFrameCallback->PrintStatistics();
+            bool statsReady = g_pFrameCallback->AreStatsReady();
+            bool timeUpdate = g_pFrameCallback->ShouldUpdateStatsByTime();
+            
+            if (statsReady || timeUpdate)
+            {
+                g_pFrameCallback->PrintStatistics(timeUpdate && !statsReady);
+            }
         }
 
         // For high-frequency updates, use a very short timeout (0ms) to check for messages
@@ -1574,7 +1625,6 @@ int main()
         }
         // If WAIT_OBJECT_0, messages are available, continue loop to process them
     }
-    std::wcout << L"Final Frame: " << g_pFrameCallback->GetFrameCount() << std::endl;
 
     // Print final statistics before cleanup
     if (g_pFrameCallback)
