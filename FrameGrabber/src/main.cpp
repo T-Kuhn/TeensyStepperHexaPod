@@ -55,8 +55,8 @@ static const GUID IID_ISampleGrabber =
 #pragma comment(lib, "quartz.lib")
 
 // Camera resolution and FPS constants
-const int CAMERA_WIDTH = 1280;
-const int CAMERA_HEIGHT = 720;
+const int CAMERA_WIDTH = 640; //1280
+const int CAMERA_HEIGHT = 480; //720
 const int CAMERA_FPS = 120;
 
 // Helper function to delete media type (if not available from headers)
@@ -89,6 +89,7 @@ HRESULT SetCameraExposure(IBaseFilter* pCaptureFilter, long exposureValue);
 HRESULT DisableAllAutomaticControls(IBaseFilter* pCaptureFilter);
 HRESULT TryRegisterSampleGrabber();
 void CleanupInterfaces();
+void QueryAndLogVideoFormat(ISampleGrabber* pSampleGrabber);
 
 // Frame timing callback class
 class FrameTimingCallback : public ISampleGrabberCB
@@ -267,7 +268,7 @@ public:
                 int linesToClear = 4; // Header + time + average + percentage
                 if (!slowIntervals.empty())
                 {
-                    linesToClear += 1 + (slowIntervals.size() + 9) / 10; // Header + data lines
+                    linesToClear += 1 + static_cast<int>((slowIntervals.size() + 9) / 10); // Header + data lines
                 }
                 else
                 {
@@ -1029,6 +1030,85 @@ void CleanupInterfaces()
     }
 }
 
+void QueryAndLogVideoFormat(ISampleGrabber* pSampleGrabber)
+{
+    if (!pSampleGrabber)
+        return;
+
+    AM_MEDIA_TYPE mt;
+    HRESULT hr = pSampleGrabber->GetConnectedMediaType(&mt);
+    if (FAILED(hr))
+    {
+        std::wcout << L"Failed to query video format. Error: 0x" << std::hex << hr << std::endl;
+        return;
+    }
+
+    std::wcout << L"\n=== Video Format Information ===" << std::endl;
+
+    // Log major type
+    if (mt.majortype == MEDIATYPE_Video)
+    {
+        std::wcout << L"Major Type: Video" << std::endl;
+    }
+    else
+    {
+        std::wcout << L"Major Type: Unknown (GUID: " << std::hex << mt.majortype.Data1 << L"-"
+            << mt.majortype.Data2 << L"-" << mt.majortype.Data3 << L")" << std::endl;
+    }
+
+    // Log subtype (this tells us the color format)
+    const GUID& subtype = mt.subtype;
+    std::wstring formatName = L"Unknown";
+
+    // Common video format GUIDs
+    if (subtype == MEDIASUBTYPE_UYVY)
+    {
+        formatName = L"UYVY";
+    }
+    else if (subtype == MEDIASUBTYPE_YUY2)
+    {
+        formatName = L"YUY2";
+    }
+    else if (subtype == MEDIASUBTYPE_YV12)
+    {
+        formatName = L"YV12";
+    }
+    else if (subtype == MEDIASUBTYPE_NV12)
+    {
+        formatName = L"NV12";
+    }
+    else if (subtype == MEDIASUBTYPE_RGB24)
+    {
+        formatName = L"RGB24";
+    }
+    else if (subtype == MEDIASUBTYPE_RGB32)
+    {
+        formatName = L"RGB32";
+    }
+    else if (subtype == MEDIASUBTYPE_RGB555)
+    {
+        formatName = L"RGB555";
+    }
+    else if (subtype == MEDIASUBTYPE_RGB565)
+    {
+        formatName = L"RGB565";
+    }
+    else
+    {
+        // Format GUID as string
+        WCHAR guidStr[64];
+        StringFromGUID2(subtype, guidStr, 64);
+        formatName = std::wstring(L"Unknown (") + guidStr + L")";
+    }
+
+    std::wcout << L"Color Format: " << formatName << std::endl;
+
+    std::wcout << L"===============================\n" << std::endl;
+
+    // Free the media type
+    DeleteMediaType(&mt);
+}
+
 int main()
 {
     // Initialize COM
@@ -1321,6 +1401,16 @@ int main()
     {
         g_pFrameCallback->SetStreamStartTime();
     }
+
+    /*
+    // Query and log the actual video format being used
+    if (g_pSampleGrabber)
+    {
+        // Wait a brief moment for the graph to fully connect and negotiate the format
+        Sleep(100);
+        QueryAndLogVideoFormat(g_pSampleGrabber);
+    }
+    */
 
     // Set camera exposure to -7
     hr = SetCameraExposure(g_pCaptureFilter, -7);
