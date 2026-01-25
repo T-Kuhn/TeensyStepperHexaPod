@@ -92,7 +92,9 @@ public:
     FrameTimingCallback() : m_cRef(1), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({0, 0}), m_statsPositionSet(false), m_streamStartTime(0)
     {
         InitializeCriticalSection(&m_cs);
-        QueryPerformanceFrequency((LARGE_INTEGER*)&m_frequency);
+        LARGE_INTEGER freq;
+        QueryPerformanceFrequency(&freq);
+        m_frequency = freq.QuadPart;
         m_intervals.reserve(10000); // Reserve space for 10k measurements
         m_slowIntervals.reserve(1000); // Reserve space for last 1000 slow frames (accumulative)
         // Initialize last stats time to current time
