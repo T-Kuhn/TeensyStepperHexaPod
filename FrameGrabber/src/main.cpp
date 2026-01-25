@@ -1297,50 +1297,6 @@ int main()
         pMediaFilter->Release();
     }
 
-    // Additional optimization: Try to configure allocator properties on the renderer input pin
-    // to minimize buffering in the renderer as well
-    IEnumPins* pEnumPins = nullptr;
-    if (g_pRendererFilter && SUCCEEDED(g_pRendererFilter->EnumPins(&pEnumPins)))
-    {
-        IPin* pPin = nullptr;
-        while (pEnumPins->Next(1, &pPin, nullptr) == S_OK)
-        {
-            PIN_INFO pinInfo;
-            if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
-            {
-                if (pinInfo.dir == PINDIR_INPUT)
-                {
-                    // Try to get the allocator and configure it for minimal buffering
-                    IMemInputPin* pMemInputPin = nullptr;
-                    if (SUCCEEDED(pPin->QueryInterface(IID_IMemInputPin, (void**)&pMemInputPin)))
-                    {
-                        IMemAllocator* pAllocator = nullptr;
-                        if (SUCCEEDED(pMemInputPin->GetAllocator(&pAllocator)))
-                        {
-                            ALLOCATOR_PROPERTIES props;
-                            if (SUCCEEDED(pAllocator->GetProperties(&props)))
-                            {
-                                // Request minimal buffering - reduce to 1-2 buffers if possible
-                                props.cBuffers = 1;
-                                ALLOCATOR_PROPERTIES actualProps;
-                                if (SUCCEEDED(pAllocator->SetProperties(&props, &actualProps)))
-                                {
-                                    std::wcout << L"Reduced renderer buffering to " << actualProps.cBuffers << L" buffer(s)" << std::endl;
-                                }
-                            }
-                            pAllocator->Release();
-                        }
-                        pMemInputPin->Release();
-                    }
-                }
-                if (pinInfo.pFilter)
-                    pinInfo.pFilter->Release();
-            }
-            pPin->Release();
-        }
-        pEnumPins->Release();
-    }
-
     // Run the graph
     hr = g_pMediaControl->Run();
     if (FAILED(hr))
@@ -1355,55 +1311,6 @@ int main()
     if (g_pFrameCallback)
     {
         g_pFrameCallback->SetStreamStartTime();
-    }
-
-    // Wait a brief moment for graph to start, then try to optimize allocator again
-    // Sometimes allocator properties can be adjusted after graph starts
-    Sleep(100);
-
-    // Try again to minimize renderer buffering after graph is running
-    IEnumPins* pEnumPins2 = nullptr;
-    if (g_pRendererFilter && SUCCEEDED(g_pRendererFilter->EnumPins(&pEnumPins2)))
-    {
-        IPin* pPin = nullptr;
-        while (pEnumPins2->Next(1, &pPin, nullptr) == S_OK)
-        {
-            PIN_INFO pinInfo;
-            if (SUCCEEDED(pPin->QueryPinInfo(&pinInfo)))
-            {
-                if (pinInfo.dir == PINDIR_INPUT)
-                {
-                    IMemInputPin* pMemInputPin = nullptr;
-                    if (SUCCEEDED(pPin->QueryInterface(IID_IMemInputPin, (void**)&pMemInputPin)))
-                    {
-                        IMemAllocator* pAllocator = nullptr;
-                        if (SUCCEEDED(pMemInputPin->GetAllocator(&pAllocator)))
-                        {
-                            ALLOCATOR_PROPERTIES props;
-                            if (SUCCEEDED(pAllocator->GetProperties(&props)))
-                            {
-                                if (props.cBuffers > 1)
-                                {
-                                    // Try to reduce buffers even after graph is running
-                                    props.cBuffers = 1;
-                                    ALLOCATOR_PROPERTIES actualProps;
-                                    if (SUCCEEDED(pAllocator->SetProperties(&props, &actualProps)))
-                                    {
-                                        std::wcout << L"Further reduced renderer buffering to " << actualProps.cBuffers << L" buffer(s)" << std::endl;
-                                    }
-                                }
-                            }
-                            pAllocator->Release();
-                        }
-                        pMemInputPin->Release();
-                    }
-                }
-                if (pinInfo.pFilter)
-                    pinInfo.pFilter->Release();
-            }
-            pPin->Release();
-        }
-        pEnumPins2->Release();
     }
 
     // Set camera exposure to -7
