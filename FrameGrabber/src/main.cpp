@@ -1235,7 +1235,7 @@ int main()
                 else
                 {
                     std::wcout << L"Successfully connected Sample Grabber to Renderer" << std::endl;
-                    std::wcout << L"Frame timing measurement enabled. Statistics will be printed every 10 seconds." << std::endl;
+                    std::wcout << L"Frame timing measurement enabled." << std::endl;
                 }
 
                 if (pSampleGrabberOutPin) pSampleGrabberOutPin->Release();
