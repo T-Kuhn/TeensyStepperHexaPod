@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Unity.MachineSimulator.ImageProcessing;
@@ -177,6 +179,9 @@ namespace MachineSimulator.UVCCamera
 
         private readonly BallDetection _ballDetection = new BallDetection();
 
+        private bool _isLogging;
+        private readonly List<string> _ballPositionLogs = new List<string>();
+
         private void Update()
         {
             if (!CameraIsInitialized)
@@ -192,7 +197,14 @@ namespace MachineSimulator.UVCCamera
                 (int)_cameraProperties.Height
             );
 
-            _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+            var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+
+            if (_isLogging && res.Count > 0)
+            {
+                var time = (long)(Time.realtimeSinceStartup * 1000);
+                var ball = res[0];
+                _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
+            }
             
             if (result > 0)
             {
@@ -203,11 +215,16 @@ namespace MachineSimulator.UVCCamera
             if (Input.GetKeyDown(KeyCode.S))
             {
                 Debug.Log("Start");
+                _isLogging = true;
+                _ballPositionLogs.Clear();
             }
             
             if (Input.GetKeyDown(KeyCode.E))
             {
                 Debug.Log("End");
+                _isLogging = false;
+                File.WriteAllLines("ballpositionlogs.txt", _ballPositionLogs);
+                _ballPositionLogs.Clear();
             }
 
             return;
