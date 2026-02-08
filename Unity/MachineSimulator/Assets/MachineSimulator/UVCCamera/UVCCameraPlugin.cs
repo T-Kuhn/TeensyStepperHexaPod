@@ -48,7 +48,7 @@ namespace MachineSimulator.UVCCamera
 
         [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
 
-        public void Reset()
+        public void ResetCameraProperties()
         {
             _cameraProperties = new CameraProperties();
         }
@@ -102,12 +102,7 @@ namespace MachineSimulator.UVCCamera
 
         private void InitializeCamera()
         {
-            if (_cameraProperties.Width == 0) _cameraProperties.Width = 1280;
-            if (_cameraProperties.Height == 0) _cameraProperties.Height = 720;
-            if (_cameraProperties.FPS == 0) _cameraProperties.FPS = 120;
-            if (_cameraProperties.Exposure == 0) _cameraProperties.Exposure = -7;
-            if (_cameraProperties.Gain == 0) _cameraProperties.Gain = 2;
-            if (_cameraProperties.Contrast == 0) _cameraProperties.Contrast = 15;
+            ResetCameraProperties();
 
             _camera = getCamera(_id);
 
@@ -129,11 +124,14 @@ namespace MachineSimulator.UVCCamera
 
             GetCameraProperties();
 
+            // Uncomment when done with synced testing
+            /*
             _isRunning = true;
             _cameraThread = new Thread(CameraLoop);
             _cameraThread.Priority = System.Threading.ThreadPriority.Highest;
             _cameraThread.IsBackground = true;
             _cameraThread.Start();
+            */
 
             CameraIsInitialized = true;
         }
@@ -177,7 +175,7 @@ namespace MachineSimulator.UVCCamera
         }
 
 
-        private BallDetection _ballDetection = new BallDetection();
+        private readonly BallDetection _ballDetection = new BallDetection();
 
         private void Update()
         {
@@ -185,6 +183,35 @@ namespace MachineSimulator.UVCCamera
             {
                 InitializeCamera();
             }
+
+            // DEBUG
+            var result = getCameraTexture(
+                _camera,
+                _pixelsFrontPtr,
+                (int)_cameraProperties.Width,
+                (int)_cameraProperties.Height
+            );
+
+            _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+            
+            if (result > 0)
+            {
+                Texture.SetPixelData(_pixelsFront, 0);
+                Texture.Apply();
+            }
+
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Debug.Log("Start");
+            }
+            
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Debug.Log("End");
+            }
+
+            return;
+            // DEBUG
 
             if (_hasNewFrame)
             {

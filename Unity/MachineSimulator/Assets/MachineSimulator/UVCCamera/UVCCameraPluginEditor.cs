@@ -11,7 +11,7 @@ namespace MachineSimulator.UVCCamera
         {
             DrawDefaultInspector();
 
-            var script = (UVCCameraPlugin) target;
+            var script = (UVCCameraPlugin)target;
             if (GUILayout.Button("GetProperties", GUILayout.Width(200)))
             {
                 script.GetCameraProperties();
@@ -22,9 +22,9 @@ namespace MachineSimulator.UVCCamera
                 script.SetCameraProperties();
             }
 
-            if (GUILayout.Button("Reset", GUILayout.Width(200)))
+            if (GUILayout.Button("ResetCameraProperties", GUILayout.Width(200)))
             {
-                script.Reset();
+                script.ResetCameraProperties();
             }
         }
     }

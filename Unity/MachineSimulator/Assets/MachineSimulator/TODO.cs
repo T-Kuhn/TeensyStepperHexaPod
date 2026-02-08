@@ -180,6 +180,9 @@
 //     - [X] write email explaining situation with camera and 70ms peak problem
 
 // - [ ] gather swinging ball pixel position data (ball position per frame)
+//     - [ ] both with synced apprach...
+//     - [ ] and thread-based image acquisition approach
+
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] update end-effector model so that it contains camera holder
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
