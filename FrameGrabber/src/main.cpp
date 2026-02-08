@@ -1052,14 +1052,14 @@ void QueryAndLogVideoFormat(ISampleGrabber* pSampleGrabber)
     }
     else
     {
-        std::wcout << L"Major Type: Unknown (GUID: " << std::hex << mt.majortype.Data1 << L"-" 
-                   << mt.majortype.Data2 << L"-" << mt.majortype.Data3 << L")" << std::endl;
+        std::wcout << L"Major Type: Unknown (GUID: " << std::hex << mt.majortype.Data1 << L"-"
+            << mt.majortype.Data2 << L"-" << mt.majortype.Data3 << L")" << std::endl;
     }
 
     // Log subtype (this tells us the color format)
     const GUID& subtype = mt.subtype;
     std::wstring formatName = L"Unknown";
-    
+
     // Common video format GUIDs
     if (subtype == MEDIASUBTYPE_UYVY)
     {
