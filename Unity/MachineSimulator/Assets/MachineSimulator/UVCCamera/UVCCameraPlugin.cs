@@ -126,14 +126,11 @@ namespace MachineSimulator.UVCCamera
 
             GetCameraProperties();
 
-            // Uncomment when done with synced testing
-            /*
             _isRunning = true;
             _cameraThread = new Thread(CameraLoop);
             _cameraThread.Priority = System.Threading.ThreadPriority.Highest;
             _cameraThread.IsBackground = true;
             _cameraThread.Start();
-            */
 
             CameraIsInitialized = true;
         }
@@ -189,36 +186,13 @@ namespace MachineSimulator.UVCCamera
                 InitializeCamera();
             }
 
-            // DEBUG
-            var result = getCameraTexture(
-                _camera,
-                _pixelsFrontPtr,
-                (int)_cameraProperties.Width,
-                (int)_cameraProperties.Height
-            );
-
-            var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
-
-            if (_isLogging && res.Count > 0)
-            {
-                var time = (long)(Time.realtimeSinceStartup * 1000);
-                var ball = res[0];
-                _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
-            }
-            
-            if (result > 0)
-            {
-                Texture.SetPixelData(_pixelsFront, 0);
-                Texture.Apply();
-            }
-
             if (Input.GetKeyDown(KeyCode.S))
             {
                 Debug.Log("Start");
                 _isLogging = true;
                 _ballPositionLogs.Clear();
             }
-            
+
             if (Input.GetKeyDown(KeyCode.E))
             {
                 Debug.Log("End");
@@ -227,20 +201,24 @@ namespace MachineSimulator.UVCCamera
                 _ballPositionLogs.Clear();
             }
 
-            return;
-            // DEBUG
-
             if (_hasNewFrame)
             {
                 lock (_lock)
                 {
-                    _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+                    var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 220);
+
+                    if (_isLogging && res.Count > 0)
+                    {
+                        var time = (long)(Time.realtimeSinceStartup * 1000);
+                        var ball = res[0];
+                        _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
+                    }
 
                     Texture.SetPixelData(_pixelsFront, 0);
+                    Texture.Apply();
+
                     _hasNewFrame = false;
                 }
-
-                Texture.Apply();
             }
         }
 
@@ -277,8 +255,8 @@ namespace MachineSimulator.UVCCamera
     [Serializable]
     public class CameraProperties
     {
-        public double Width = 1280;
-        public double Height = 720;
+        public double Width = 640;
+        public double Height = 480;
         public double FPS = 120;
         public double Exposure = -7;
         public double Gain = 2;
