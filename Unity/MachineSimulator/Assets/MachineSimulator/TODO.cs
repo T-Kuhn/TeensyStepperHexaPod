@@ -152,7 +152,34 @@
 // - [X] maybe adjust camera angles so that they are roughly the same
 // - [X] Check: can we get raw camera data (UYVY) via OpenCV?
 //     - [X] nope. data gets converted to BGR internally. We can only get that BGR data.
+// - [X] work on double-camera-image-processing (work on nice buffering) 
+// - [X] test old camera (See3CAM_CU135) to see whether we'd get smooth results with that one.
+// - [X] occasional-70ms-image-aqcuisition-waiting-time-problem
+//     - [X] We could see if using the extension API and setting the FPS control to 100FPS changes anything
+//          -> nope.
+//     - [X] Do the ping pong ball swing back and forth in front of camera for 3 mins. See if any of the 70ms peaks occur...
+//          - [X] ...when using the e-CAMview app
+//              -> Yep!
+//          - [X] ...our OpenCV plugin && Unity app
+//              -> Yep!
+//     - [/] we could stop using OpenCV and instead write a native DirectShow plugin and see if that helps
+//          - [X] first standalone app
+//          - [X] set exposure to -7
+//          - [/] then standalone app that can be opened two times for both cameras
+//          - [/] than convert the app into a Unity plugin
+//     - [/] use our balldetection to continiously extract ball position of swinging ball.
+//           See if the continiouty of the data is OK
+//          - [/] ...with new frameGrabber
+//          - [/] ...with old OpenCV based plugin (maybe. If we feel like we want to check and compare)
+//     - [/] crucial piece of information: From what we can tell, the problem appears in Unity
+//           (even when only using one camera at 60 FPS) but NOT when we use e-CAMview. This suggests that
+//           there IS a correct way to interface with the camera without the problem occuring.
+//     - [/] other information: Interestingly, if we try to get exposure, gain, contrast through our OpenCV plugin,
+//           we only get the camera default values (instead the ones we set and which are clearly applied)
+//           Not sure if this has something to do with the occasional 70ms load peaks we are seeing.
+//     - [X] write email explaining situation with camera and 70ms peak problem
 
+// - [ ] gather swinging ball pixel position data (ball position per frame)
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] update end-effector model so that it contains camera holder
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
@@ -162,25 +189,9 @@
 // - [ ] read BallDataFromPixelBorders and see if we still agree with the approach.
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
-// - [ ] occasional-70ms-image-aqcuisition-waiting-time-problem
-//     - [X] We could see if using the extension API and setting the FPS control to 100FPS changes anything
-//          -> nope.
-//     - [ ] Do the ping pong ball swing back and forth in front of camera for 3 mins. See if any of the 70ms peaks occur...
-//          - [ ] ...when using the e-CAMview app
-//          - [ ] ...our OpenCV plugin && Unity app
-//     - [ ] Cobble together a crude DirectShow C++ app and see if we get the peaks there
-//     - [ ] we could stop using OpenCV and instead write a native DirectShow plugin and see if that helps
-//     - [ ] crucial piece of information: From what we can tell, the problem appears in Unity
-//           (even when only using one camera at 60 FPS) but NOT when we use e-CAMview. This suggests that
-//           there IS a correct way to interface with the camera without the problem occuring.
-//     - [ ] other information: Interestingly, if we try to get exposure, gain, contrast through our OpenCV plugin,
-//           we only get the camera default values (instead the ones we set and which are clearly applied)
-//           Not sure if this has something to do with the occasional 70ms load peaks we are seeing.
-
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need
 //       to make sure we can reliably get a synced up machine state from the virtual machine
 //       in order to be able to calculate the absolute position of the ping pong ball.
-// - [X] work on double-camera-image-processing (work on nice buffering) 
 
 // - [ ] need to decide how we want to implement ball tracking:
 //     - [ ] A: use two cameras connected to PC via USB, do image processing in unity on the PC
