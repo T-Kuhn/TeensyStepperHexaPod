@@ -107,7 +107,7 @@ void QueryAndLogVideoFormat(ISampleGrabber* pSampleGrabber);
 class FrameTimingCallback : public ISampleGrabberCB
 {
 public:
-    FrameTimingCallback() : m_cRef(1), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({ 0, 0 }), m_statsPositionSet(false), m_streamStartTime(0)
+    FrameTimingCallback() : m_cRef(1), m_slowFrameCount(0), m_totalFrameCount(0), m_lastFrameTime(0), m_lastStatsTime(0), m_frequency(0), m_statsReady(false), m_statsStartPosition({ 0, 0 }), m_statsPositionSet(false), m_lastStatsLines(0), m_streamStartTime(0)
     {
         InitializeCriticalSection(&m_cs);
         LARGE_INTEGER freq;
@@ -249,49 +249,6 @@ public:
         // For time-based updates, allow printing even with empty intervals (to update Time log)
         if (intervals.empty() && !forceUpdate) return;
 
-        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        CONSOLE_SCREEN_BUFFER_INFO csbi;
-        if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
-        {
-            if (!m_statsPositionSet) { std::wcout << L"\n"; m_statsPositionSet = true; }
-            std::wcout << L"=== Frame Timing Statistics ===" << std::endl;
-            std::wcout.flush();
-            return;
-        }
-
-        // How many lines we're going to write this time (needed to compute start row when overwriting)
-        int linesToWrite = 5; // header, time, average, percentage, and one of "No slow" / "Last N..." header
-        if (!slowIntervals.empty())
-            linesToWrite += static_cast<int>((slowIntervals.size() + 9) / 10); // data lines
-
-        SHORT startY;
-        if (!m_statsPositionSet)
-        {
-            // First time: start on a new line (keep stream in sync), then write at that position
-            std::wcout << L"\n";
-            std::wcout.flush();
-            if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
-                return;
-            startY = csbi.dwCursorPosition.Y;
-            m_statsPositionSet = true;
-        }
-        else
-        {
-            // Overwrite: cursor is at the end of the previous stats block; go back that many lines
-            startY = csbi.dwCursorPosition.Y - linesToWrite;
-            if (startY < 0) startY = 0;
-
-            const int STATS_MAX_LINES = 25;
-            SHORT bufWidth = csbi.dwSize.X;
-            DWORD written = 0;
-            for (int i = 0; i < STATS_MAX_LINES; ++i)
-            {
-                COORD pos = { 0, static_cast<SHORT>(startY + i) };
-                FillConsoleOutputCharacterW(hConsole, L' ', bufWidth, pos, &written);
-            }
-        }
-        SetConsoleCursorPosition(hConsole, { 0, startY });
-
         // Calculate elapsed time since stream started
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
@@ -299,18 +256,11 @@ public:
         if (m_streamStartTime > 0)
             elapsedSeconds = ((double)(currentTime.QuadPart - m_streamStartTime)) / m_frequency;
 
-        // Build and write each line with WriteConsoleW so output goes at the physical cursor position
-        auto WriteLine = [hConsole](const std::wstring& s)
-        {
-            std::wstring line = s + L"\r\n";
-            DWORD written = 0;
-            WriteConsoleW(hConsole, line.c_str(), (DWORD)line.size(), &written, nullptr);
-        };
-
         std::wostringstream oss;
+        std::vector<std::wstring> lines;
         oss << std::fixed << std::setprecision(2) << elapsedSeconds;
-        WriteLine(L"=== Frame Timing Statistics ===");
-        WriteLine(L"Time: " + oss.str() + L" s");
+        lines.push_back(L"=== Frame Timing Statistics ===");
+        lines.push_back(L"Time: " + oss.str() + L" s");
 
         if (!intervals.empty())
         {
@@ -318,29 +268,89 @@ public:
             for (double interval : intervals) sum += interval;
             double avgInterval = sum / intervals.size();
             oss.str(L""); oss << std::setprecision(3) << avgInterval;
-            WriteLine(L"Average interval: " + oss.str() + L" ms");
+            lines.push_back(L"Average interval: " + oss.str() + L" ms");
         }
         else
-            WriteLine(L"Average interval: N/A (no frames in this period)");
+            lines.push_back(L"Average interval: N/A (no frames in this period)");
 
         oss.str(L""); oss << std::setprecision(2)
             << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0);
-        WriteLine(L"Percentage of slow frames: " + oss.str() + L"%");
+        lines.push_back(L"Percentage of slow frames: " + oss.str() + L"%");
 
         if (!slowIntervals.empty())
         {
-            WriteLine(L"Last " + std::to_wstring(slowIntervals.size()) + L" slow frame intervals:");
+            lines.push_back(L"Last " + std::to_wstring(slowIntervals.size()) + L" slow frame intervals:");
             std::wstring line;
             for (size_t i = 0; i < slowIntervals.size(); ++i)
             {
-                if (i > 0 && i % 10 == 0) { WriteLine(line); line.clear(); }
+                if (i > 0 && i % 10 == 0) { lines.push_back(line); line.clear(); }
                 oss.str(L""); oss << std::setprecision(2) << std::setw(7) << slowIntervals[i] << L"ms ";
                 line += oss.str();
             }
-            if (!line.empty()) WriteLine(line);
+            if (!line.empty()) lines.push_back(line);
         }
         else
-            WriteLine(L"No slow frames recorded yet.");
+            lines.push_back(L"No slow frames recorded yet.");
+
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
+        const bool hasConsole = (GetConsoleScreenBufferInfo(hConsole, &csbi) != 0);
+
+        if (!hasConsole)
+        {
+            // Redirected output: avoid stacking by printing full block only once, then a single overwriting line
+            if (!m_statsPositionSet)
+            {
+                std::wcout << L"\n";
+                for (const auto& ln : lines)
+                    std::wcout << ln << L"\r\n";
+                m_statsPositionSet = true;
+            }
+            else
+            {
+                // Single line that overwrites with \r (no newline) to avoid stacking
+                oss.str(L""); oss << std::fixed << std::setprecision(2) << elapsedSeconds;
+                std::wstring summary = L"Time: " + oss.str() + L" s | ";
+                if (!intervals.empty())
+                {
+                    double sum = 0;
+                    for (double interval : intervals) sum += interval;
+                    oss.str(L""); oss << std::setprecision(3) << (sum / intervals.size());
+                    summary += L"Avg: " + oss.str() + L" ms | ";
+                }
+                oss.str(L""); oss << std::setprecision(2) << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0);
+                summary += L"Slow: " + oss.str() + L"%   \r";
+                std::wcout << summary;
+            }
+            std::wcout.flush();
+            return;
+        }
+
+        // Real console: enable ANSI so we can move cursor up and overwrite in place
+        DWORD mode = 0;
+        if (GetConsoleMode(hConsole, &mode))
+        {
+            mode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+            SetConsoleMode(hConsole, mode);
+        }
+
+        if (!m_statsPositionSet)
+        {
+            std::wcout << L"\n";
+            for (const auto& ln : lines)
+                std::wcout << ln << L"\r\n";
+            m_lastStatsLines = static_cast<int>(lines.size());
+            m_statsPositionSet = true;
+        }
+        else
+        {
+            // Move cursor up by last block height, then overwrite each line (clear line + content)
+            std::wcout << L"\033[" << m_lastStatsLines << L"A";
+            for (const auto& ln : lines)
+                std::wcout << L"\033[2K" << ln << L"\r\n";
+            m_lastStatsLines = static_cast<int>(lines.size());
+        }
+        std::wcout.flush();
     }
 
     bool AreStatsReady() const
@@ -385,6 +395,7 @@ private:
     bool m_statsReady; // Flag to indicate stats are ready to print (set by callback, checked by main thread)
     COORD m_statsStartPosition; // Cursor position where stats section starts
     bool m_statsPositionSet; // Whether the stats position has been set
+    int m_lastStatsLines; // Number of lines written last time (for ANSI move-up overwrite)
     LONGLONG m_streamStartTime; // Time when the camera stream started
 };
 
