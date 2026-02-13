@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Unity.MachineSimulator.ImageProcessing;
@@ -48,7 +50,7 @@ namespace MachineSimulator.UVCCamera
 
         [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
 
-        public void Reset()
+        public void ResetCameraProperties()
         {
             _cameraProperties = new CameraProperties();
         }
@@ -102,12 +104,7 @@ namespace MachineSimulator.UVCCamera
 
         private void InitializeCamera()
         {
-            if (_cameraProperties.Width == 0) _cameraProperties.Width = 1280;
-            if (_cameraProperties.Height == 0) _cameraProperties.Height = 720;
-            if (_cameraProperties.FPS == 0) _cameraProperties.FPS = 120;
-            if (_cameraProperties.Exposure == 0) _cameraProperties.Exposure = -7;
-            if (_cameraProperties.Gain == 0) _cameraProperties.Gain = 2;
-            if (_cameraProperties.Contrast == 0) _cameraProperties.Contrast = 15;
+            ResetCameraProperties();
 
             _camera = getCamera(_id);
 
@@ -177,7 +174,10 @@ namespace MachineSimulator.UVCCamera
         }
 
 
-        private BallDetection _ballDetection = new BallDetection();
+        private readonly BallDetection _ballDetection = new BallDetection();
+
+        private bool _isLogging;
+        private readonly List<string> _ballPositionLogs = new List<string>();
 
         private void Update()
         {
@@ -186,17 +186,39 @@ namespace MachineSimulator.UVCCamera
                 InitializeCamera();
             }
 
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Debug.Log("Start");
+                _isLogging = true;
+                _ballPositionLogs.Clear();
+            }
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Debug.Log("End");
+                _isLogging = false;
+                File.WriteAllLines("ballpositionlogs.txt", _ballPositionLogs);
+                _ballPositionLogs.Clear();
+            }
+
             if (_hasNewFrame)
             {
                 lock (_lock)
                 {
-                    _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
+                    var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 220);
+
+                    if (_isLogging && res.Count > 0)
+                    {
+                        var time = (long)(Time.realtimeSinceStartup * 1000);
+                        var ball = res[0];
+                        _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
+                    }
 
                     Texture.SetPixelData(_pixelsFront, 0);
+                    Texture.Apply();
+
                     _hasNewFrame = false;
                 }
-
-                Texture.Apply();
             }
         }
 
@@ -233,8 +255,8 @@ namespace MachineSimulator.UVCCamera
     [Serializable]
     public class CameraProperties
     {
-        public double Width = 1280;
-        public double Height = 720;
+        public double Width = 640;
+        public double Height = 480;
         public double FPS = 120;
         public double Exposure = -7;
         public double Gain = 2;
