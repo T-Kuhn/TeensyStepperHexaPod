@@ -1178,7 +1178,7 @@ int main()
         return 1;
     }
 
-    // Enumerate available formats and let the user choose
+    // Enumerate available formats
     std::vector<CameraFormat> formats;
     hr = EnumerateCameraFormats(g_pCaptureFilter, formats);
     if (FAILED(hr) || formats.empty())
@@ -1189,18 +1189,32 @@ int main()
         return 1;
     }
 
-    std::wcout << L"\nAvailable camera formats:\n" << std::endl;
-    for (size_t j = 0; j < formats.size(); j++)
+    // Step 1: Build unique resolutions (width x height) and let user choose one
+    struct Resolution { int width; int height; };
+    std::vector<Resolution> resolutions;
+    for (const CameraFormat& cf : formats)
     {
-        const CameraFormat& cf = formats[j];
-        std::wcout << L"  " << j << L": " << cf.width << L" x " << cf.height << L" @ " << cf.fps << L" FPS" << std::endl;
+        bool found = false;
+        for (const Resolution& r : resolutions)
+            if (r.width == cf.width && r.height == cf.height) { found = true; break; }
+        if (!found)
+            resolutions.push_back({ cf.width, cf.height });
     }
+    std::sort(resolutions.begin(), resolutions.end(),
+        [](const Resolution& a, const Resolution& b) {
+            if (a.width != b.width) return a.width < b.width;
+            return a.height < b.height;
+        });
 
-    int choice = -1;
-    std::wcout << L"\nEnter format index (0 to " << (formats.size() - 1) << L"): ";
-    std::cin >> choice;
+    std::wcout << L"\nAvailable resolutions:\n" << std::endl;
+    for (size_t j = 0; j < resolutions.size(); j++)
+        std::wcout << L"  " << j << L": " << resolutions[j].width << L" x " << resolutions[j].height << std::endl;
 
-    if (std::cin.fail() || choice < 0 || choice >= (int)formats.size())
+    int resChoice = -1;
+    std::wcout << L"\nEnter resolution index (0 to " << (resolutions.size() - 1) << L"): ";
+    std::cin >> resChoice;
+
+    if (std::cin.fail() || resChoice < 0 || resChoice >= (int)resolutions.size())
     {
         std::wcout << L"Invalid choice. Exiting." << std::endl;
         CleanupInterfaces();
@@ -1208,10 +1222,47 @@ int main()
         return 1;
     }
 
-    g_cameraWidth = formats[choice].width;
-    g_cameraHeight = formats[choice].height;
-    g_cameraFps = formats[choice].fps;
-    std::wcout << L"Using format " << choice << L": " << g_cameraWidth << L" x " << g_cameraHeight << L" @ " << g_cameraFps << L" FPS\n" << std::endl;
+    g_cameraWidth = resolutions[resChoice].width;
+    g_cameraHeight = resolutions[resChoice].height;
+
+    // Step 2: Collect FPS values available for the chosen resolution
+    std::vector<int> fpsOptions;
+    for (const CameraFormat& cf : formats)
+    {
+        if (cf.width == g_cameraWidth && cf.height == g_cameraHeight && cf.fps > 0)
+        {
+            if (std::find(fpsOptions.begin(), fpsOptions.end(), cf.fps) == fpsOptions.end())
+                fpsOptions.push_back(cf.fps);
+        }
+    }
+    std::sort(fpsOptions.begin(), fpsOptions.end());
+
+    if (fpsOptions.empty())
+    {
+        std::wcout << L"No FPS options found for " << g_cameraWidth << L" x " << g_cameraHeight << L". Exiting." << std::endl;
+        CleanupInterfaces();
+        CoUninitialize();
+        return 1;
+    }
+
+    std::wcout << L"\nAvailable FPS for " << g_cameraWidth << L" x " << g_cameraHeight << L":\n" << std::endl;
+    for (size_t j = 0; j < fpsOptions.size(); j++)
+        std::wcout << L"  " << j << L": " << fpsOptions[j] << L" FPS" << std::endl;
+
+    int fpsChoice = -1;
+    std::wcout << L"\nEnter FPS index (0 to " << (fpsOptions.size() - 1) << L"): ";
+    std::cin >> fpsChoice;
+
+    if (std::cin.fail() || fpsChoice < 0 || fpsChoice >= (int)fpsOptions.size())
+    {
+        std::wcout << L"Invalid choice. Exiting." << std::endl;
+        CleanupInterfaces();
+        CoUninitialize();
+        return 1;
+    }
+
+    g_cameraFps = fpsOptions[fpsChoice];
+    std::wcout << L"\nUsing: " << g_cameraWidth << L" x " << g_cameraHeight << L" @ " << g_cameraFps << L" FPS\n" << std::endl;
 
     // Set camera resolution and FPS
     hr = SetCameraResolutionAndFPS(g_pCaptureFilter, g_cameraWidth, g_cameraHeight, g_cameraFps);
