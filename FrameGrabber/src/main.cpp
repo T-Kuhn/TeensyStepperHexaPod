@@ -577,8 +577,38 @@ HRESULT EnumerateCameraFormats(IBaseFilter* pCaptureFilter, std::vector<CameraFo
             REFERENCE_TIME rtAvg = pVih->AvgTimePerFrame;
             int f = (rtAvg > 0) ? (int)(10000000.0 / rtAvg) : 0;
 
+            // Add the discrete format reported by the driver (e.g. 1280x720 @ 120 FPS)
             CameraFormat cf = { i, w, h, f };
             outFormats.push_back(cf);
+
+            // Many UVC drivers expose a frame-rate *range* in VIDEO_STREAM_CONFIG_CAPS
+            // but only one discrete format in the media type. Add FPS from the range
+            // so that e.g. 60 FPS appears when the camera supports 60-120 FPS.
+            if (iSize >= (int)sizeof(VIDEO_STREAM_CONFIG_CAPS))
+            {
+                VIDEO_STREAM_CONFIG_CAPS* pVSCC = (VIDEO_STREAM_CONFIG_CAPS*)pSCC;
+                REFERENCE_TIME minInterval = pVSCC->MinFrameInterval;
+                REFERENCE_TIME maxInterval = pVSCC->MaxFrameInterval;
+                if (minInterval > 0 && maxInterval > 0)
+                {
+                    int maxFPS = (int)(10000000.0 / minInterval);  // min interval = fastest rate
+                    int minFPS = (int)(10000000.0 / maxInterval);  // max interval = slowest rate
+                    if (minFPS > 0 && maxFPS > 0 && minFPS <= 300 && maxFPS <= 300)
+                    {
+                        if (minFPS != f && std::find_if(outFormats.begin(), outFormats.end(),
+                                [w, h, minFPS](const CameraFormat& x) {
+                                    return x.width == w && x.height == h && x.fps == minFPS;
+                                }) == outFormats.end())
+                            outFormats.push_back({ i, w, h, minFPS });
+                        if (maxFPS != f && maxFPS != minFPS && std::find_if(outFormats.begin(), outFormats.end(),
+                                [w, h, maxFPS](const CameraFormat& x) {
+                                    return x.width == w && x.height == h && x.fps == maxFPS;
+                                }) == outFormats.end())
+                            outFormats.push_back({ i, w, h, maxFPS });
+                    }
+                }
+            }
+
             DeleteMediaType(pmt);
             pmt = nullptr;
         }
