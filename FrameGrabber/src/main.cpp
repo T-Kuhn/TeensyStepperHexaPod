@@ -9,6 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <cwctype>
+#include <sstream>
 
 // Sample Grabber interfaces (qedit.h is not available in standard Windows SDK)
 // Forward declarations
@@ -54,10 +55,20 @@ static const GUID IID_ISampleGrabber =
 #pragma comment(lib, "oleaut32.lib")
 #pragma comment(lib, "quartz.lib")
 
-// Camera resolution and FPS constants
-const int CAMERA_WIDTH = 1280;
-const int CAMERA_HEIGHT = 720;
-const int CAMERA_FPS = 120;
+// Camera resolution and FPS (set from command line or default)
+int g_cameraWidth = 1280;
+int g_cameraHeight = 720;
+int g_cameraFps = 120;
+
+// One available format from the camera
+struct CameraFormat
+{
+    int index;
+    int width;
+    int height;
+    int fps;
+};
+
 
 // Helper function to delete media type (if not available from headers)
 #ifndef DeleteMediaType
@@ -84,6 +95,7 @@ void DeleteMediaType(AM_MEDIA_TYPE* pmt)
 // Forward declarations
 HRESULT EnumerateDevices(REFGUID category, IEnumMoniker** ppEnum);
 HRESULT CreateCaptureGraph(IGraphBuilder** ppGraph, IBaseFilter** ppCaptureFilter, IBaseFilter** ppRendererFilter);
+HRESULT EnumerateCameraFormats(IBaseFilter* pCaptureFilter, std::vector<CameraFormat>& outFormats);
 HRESULT SetCameraResolutionAndFPS(IBaseFilter* pCaptureFilter, int width, int height, int fps);
 HRESULT SetCameraExposure(IBaseFilter* pCaptureFilter, long exposureValue);
 HRESULT DisableAllAutomaticControls(IBaseFilter* pCaptureFilter);
@@ -237,116 +249,98 @@ public:
         // For time-based updates, allow printing even with empty intervals (to update Time log)
         if (intervals.empty() && !forceUpdate) return;
 
-        // Get console handle and current cursor position
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         CONSOLE_SCREEN_BUFFER_INFO csbi;
-        COORD currentPos;
-
-        if (GetConsoleScreenBufferInfo(hConsole, &csbi))
+        if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
         {
-            currentPos = csbi.dwCursorPosition;
+            if (!m_statsPositionSet) { std::wcout << L"\n"; m_statsPositionSet = true; }
+            std::wcout << L"=== Frame Timing Statistics ===" << std::endl;
+            std::wcout.flush();
+            return;
+        }
 
-            // If this is the first time printing stats, save the position
-            // Otherwise, move cursor back to the saved position
-            if (!m_statsPositionSet)
-            {
-                std::wcout << L"\n"; // Start on a new line for first print
-                // Save position after the newline (one line down)
-                if (GetConsoleScreenBufferInfo(hConsole, &csbi))
-                {
-                    m_statsStartPosition = csbi.dwCursorPosition;
-                    m_statsPositionSet = true;
-                }
-            }
-            else
-            {
-                // Move cursor back to the start of stats section
-                SetConsoleCursorPosition(hConsole, m_statsStartPosition);
+        // How many lines we're going to write this time (needed to compute start row when overwriting)
+        int linesToWrite = 5; // header, time, average, percentage, and one of "No slow" / "Last N..." header
+        if (!slowIntervals.empty())
+            linesToWrite += static_cast<int>((slowIntervals.size() + 9) / 10); // data lines
 
-                // Calculate how many lines we need to clear (estimate based on slow intervals)
-                // We'll clear enough lines to cover the previous output
-                int linesToClear = 4; // Header + time + average + percentage
-                if (!slowIntervals.empty())
-                {
-                    linesToClear += 1 + static_cast<int>((slowIntervals.size() + 9) / 10); // Header + data lines
-                }
-                else
-                {
-                    linesToClear += 1; // "No slow frames" line
-                }
-
-                // Clear the lines by printing spaces
-                for (int i = 0; i < linesToClear; ++i)
-                {
-                    std::wcout << std::wstring(csbi.dwSize.X, L' ') << std::endl;
-                }
-
-                // Move cursor back to start position
-                SetConsoleCursorPosition(hConsole, m_statsStartPosition);
-            }
+        SHORT startY;
+        if (!m_statsPositionSet)
+        {
+            // First time: start on a new line (keep stream in sync), then write at that position
+            std::wcout << L"\n";
+            std::wcout.flush();
+            if (!GetConsoleScreenBufferInfo(hConsole, &csbi))
+                return;
+            startY = csbi.dwCursorPosition.Y;
+            m_statsPositionSet = true;
         }
         else
         {
-            // Fallback: if we can't get console info, just print normally
-            if (!m_statsPositionSet)
+            // Overwrite: cursor is at the end of the previous stats block; go back that many lines
+            startY = csbi.dwCursorPosition.Y - linesToWrite;
+            if (startY < 0) startY = 0;
+
+            const int STATS_MAX_LINES = 25;
+            SHORT bufWidth = csbi.dwSize.X;
+            DWORD written = 0;
+            for (int i = 0; i < STATS_MAX_LINES; ++i)
             {
-                std::wcout << L"\n";
-                m_statsPositionSet = true;
+                COORD pos = { 0, static_cast<SHORT>(startY + i) };
+                FillConsoleOutputCharacterW(hConsole, L' ', bufWidth, pos, &written);
             }
         }
+        SetConsoleCursorPosition(hConsole, { 0, startY });
 
         // Calculate elapsed time since stream started
         LARGE_INTEGER currentTime;
         QueryPerformanceCounter(&currentTime);
         double elapsedSeconds = 0.0;
         if (m_streamStartTime > 0)
-        {
             elapsedSeconds = ((double)(currentTime.QuadPart - m_streamStartTime)) / m_frequency;
-        }
 
-        std::wcout << L"=== Frame Timing Statistics ===" << std::endl;
-        std::wcout << L"Time: " << std::fixed << std::setprecision(2) << elapsedSeconds << L" s" << std::endl;
+        // Build and write each line with WriteConsoleW so output goes at the physical cursor position
+        auto WriteLine = [hConsole](const std::wstring& s)
+        {
+            std::wstring line = s + L"\r\n";
+            DWORD written = 0;
+            WriteConsoleW(hConsole, line.c_str(), (DWORD)line.size(), &written, nullptr);
+        };
 
-        // Calculate average interval for current period (only if we have intervals)
-        double avgInterval = 0.0;
+        std::wostringstream oss;
+        oss << std::fixed << std::setprecision(2) << elapsedSeconds;
+        WriteLine(L"=== Frame Timing Statistics ===");
+        WriteLine(L"Time: " + oss.str() + L" s");
+
         if (!intervals.empty())
         {
             double sum = 0;
-            for (double interval : intervals)
-            {
-                sum += interval;
-            }
-            avgInterval = sum / intervals.size();
-            std::wcout << L"Average interval: " << std::fixed << std::setprecision(3) << avgInterval << L" ms" << std::endl;
+            for (double interval : intervals) sum += interval;
+            double avgInterval = sum / intervals.size();
+            oss.str(L""); oss << std::setprecision(3) << avgInterval;
+            WriteLine(L"Average interval: " + oss.str() + L" ms");
         }
         else
-        {
-            std::wcout << L"Average interval: N/A (no frames in this period)" << std::endl;
-        }
+            WriteLine(L"Average interval: N/A (no frames in this period)");
 
-        std::wcout << L"Percentage of slow frames: " << std::fixed << std::setprecision(2)
-            << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0) << L"%" << std::endl;
+        oss.str(L""); oss << std::setprecision(2)
+            << (totalFrameCount > 0 ? (100.0 * slowFrameCount / totalFrameCount) : 0.0);
+        WriteLine(L"Percentage of slow frames: " + oss.str() + L"%");
 
         if (!slowIntervals.empty())
         {
-            std::wcout << L"Last " << slowIntervals.size() << L" slow frame intervals:" << std::endl;
-
-            // Print intervals in a compact format (10 per line)
+            WriteLine(L"Last " + std::to_wstring(slowIntervals.size()) + L" slow frame intervals:");
+            std::wstring line;
             for (size_t i = 0; i < slowIntervals.size(); ++i)
             {
-                if (i > 0 && i % 10 == 0)
-                {
-                    std::wcout << std::endl;
-                }
-                std::wcout << std::fixed << std::setprecision(2) << std::setw(7) << slowIntervals[i] << L"ms ";
+                if (i > 0 && i % 10 == 0) { WriteLine(line); line.clear(); }
+                oss.str(L""); oss << std::setprecision(2) << std::setw(7) << slowIntervals[i] << L"ms ";
+                line += oss.str();
             }
-            std::wcout << std::endl;
+            if (!line.empty()) WriteLine(line);
         }
         else
-        {
-            std::wcout << L"No slow frames recorded yet." << std::endl;
-        }
-        std::wcout.flush();
+            WriteLine(L"No slow frames recorded yet.");
     }
 
     bool AreStatsReady() const
@@ -539,6 +533,60 @@ HRESULT CreateCaptureGraph(IGraphBuilder** ppGraph, IBaseFilter** ppCaptureFilte
     }
 
     return hr;
+}
+
+HRESULT EnumerateCameraFormats(IBaseFilter* pCaptureFilter, std::vector<CameraFormat>& outFormats)
+{
+    outFormats.clear();
+    if (!pCaptureFilter)
+        return E_POINTER;
+
+    IAMStreamConfig* pStreamConfig = nullptr;
+    HRESULT hr = g_pCaptureGraphBuilder->FindInterface(
+        &PIN_CATEGORY_CAPTURE,
+        &MEDIATYPE_Video,
+        pCaptureFilter,
+        IID_IAMStreamConfig,
+        (void**)&pStreamConfig);
+
+    if (FAILED(hr))
+    {
+        std::wcout << L"Failed to get IAMStreamConfig interface for enumeration" << std::endl;
+        return hr;
+    }
+
+    int iCount = 0, iSize = 0;
+    hr = pStreamConfig->GetNumberOfCapabilities(&iCount, &iSize);
+    if (FAILED(hr))
+    {
+        pStreamConfig->Release();
+        return hr;
+    }
+
+    BYTE* pSCC = new BYTE[iSize];
+    AM_MEDIA_TYPE* pmt = nullptr;
+
+    for (int i = 0; i < iCount; i++)
+    {
+        hr = pStreamConfig->GetStreamCaps(i, &pmt, pSCC);
+        if (SUCCEEDED(hr) && pmt->formattype == FORMAT_VideoInfo)
+        {
+            VIDEOINFOHEADER* pVih = (VIDEOINFOHEADER*)pmt->pbFormat;
+            int w = pVih->bmiHeader.biWidth;
+            int h = abs(pVih->bmiHeader.biHeight);
+            REFERENCE_TIME rtAvg = pVih->AvgTimePerFrame;
+            int f = (rtAvg > 0) ? (int)(10000000.0 / rtAvg) : 0;
+
+            CameraFormat cf = { i, w, h, f };
+            outFormats.push_back(cf);
+            DeleteMediaType(pmt);
+            pmt = nullptr;
+        }
+    }
+
+    delete[] pSCC;
+    pStreamConfig->Release();
+    return S_OK;
 }
 
 HRESULT SetCameraResolutionAndFPS(IBaseFilter* pCaptureFilter, int width, int height, int fps)
@@ -1130,8 +1178,43 @@ int main()
         return 1;
     }
 
+    // Enumerate available formats and let the user choose
+    std::vector<CameraFormat> formats;
+    hr = EnumerateCameraFormats(g_pCaptureFilter, formats);
+    if (FAILED(hr) || formats.empty())
+    {
+        std::wcout << L"Failed to enumerate camera formats or no formats available." << std::endl;
+        CleanupInterfaces();
+        CoUninitialize();
+        return 1;
+    }
+
+    std::wcout << L"\nAvailable camera formats:\n" << std::endl;
+    for (size_t j = 0; j < formats.size(); j++)
+    {
+        const CameraFormat& cf = formats[j];
+        std::wcout << L"  " << j << L": " << cf.width << L" x " << cf.height << L" @ " << cf.fps << L" FPS" << std::endl;
+    }
+
+    int choice = -1;
+    std::wcout << L"\nEnter format index (0 to " << (formats.size() - 1) << L"): ";
+    std::cin >> choice;
+
+    if (std::cin.fail() || choice < 0 || choice >= (int)formats.size())
+    {
+        std::wcout << L"Invalid choice. Exiting." << std::endl;
+        CleanupInterfaces();
+        CoUninitialize();
+        return 1;
+    }
+
+    g_cameraWidth = formats[choice].width;
+    g_cameraHeight = formats[choice].height;
+    g_cameraFps = formats[choice].fps;
+    std::wcout << L"Using format " << choice << L": " << g_cameraWidth << L" x " << g_cameraHeight << L" @ " << g_cameraFps << L" FPS\n" << std::endl;
+
     // Set camera resolution and FPS
-    hr = SetCameraResolutionAndFPS(g_pCaptureFilter, CAMERA_WIDTH, CAMERA_HEIGHT, CAMERA_FPS);
+    hr = SetCameraResolutionAndFPS(g_pCaptureFilter, g_cameraWidth, g_cameraHeight, g_cameraFps);
     if (FAILED(hr))
     {
         std::wcout << L"Warning: Failed to set camera resolution/FPS. Continuing with default settings..." << std::endl;
@@ -1349,8 +1432,8 @@ int main()
         g_pVideoWindow->put_WindowStyle(WS_OVERLAPPEDWINDOW);
 
         // Set window position and size
-        int width = CAMERA_WIDTH;
-        int height = CAMERA_HEIGHT;
+        int width = g_cameraWidth;
+        int height = g_cameraHeight;
 
         // Center the window on screen
         int screenWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -1360,7 +1443,7 @@ int main()
 
         g_pVideoWindow->SetWindowPosition(x, y, width, height);
         // Build caption string with constants
-        std::wstring captionStr = L"UVC Camera - " + std::to_wstring(CAMERA_WIDTH) + L"x" + std::to_wstring(CAMERA_HEIGHT) + L" @ " + std::to_wstring(CAMERA_FPS) + L" FPS";
+        std::wstring captionStr = L"UVC Camera - " + std::to_wstring(g_cameraWidth) + L"x" + std::to_wstring(g_cameraHeight) + L" @ " + std::to_wstring(g_cameraFps) + L" FPS";
         BSTR caption = SysAllocString(captionStr.c_str());
         g_pVideoWindow->put_Caption(caption);
         SysFreeString(caption);
@@ -1427,7 +1510,7 @@ int main()
     if (g_pVideoWindow)
     {
         // Find the video window by its caption
-        std::wstring captionStr = L"UVC Camera - " + std::to_wstring(CAMERA_WIDTH) + L"x" + std::to_wstring(CAMERA_HEIGHT) + L" @ " + std::to_wstring(CAMERA_FPS) + L" FPS";
+        std::wstring captionStr = L"UVC Camera - " + std::to_wstring(g_cameraWidth) + L"x" + std::to_wstring(g_cameraHeight) + L" @ " + std::to_wstring(g_cameraFps) + L" FPS";
         hwnd = FindWindowW(nullptr, captionStr.c_str());
     }
 
