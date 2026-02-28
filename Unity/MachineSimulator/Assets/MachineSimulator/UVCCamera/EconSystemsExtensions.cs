@@ -77,6 +77,12 @@ namespace MachineSimulator.UVCCamera
                                 {
                                     Debug.Log($"Successfully set SpecialEffects for device {i + 1}");
                                 }
+
+                                // NOTE: Set FPS to 120
+                                if (DShowNativeMethods.SetFrameRateValue24CUG(120))
+                                {
+                                    Debug.Log($"Successfully set FPS to 120 for device {i + 1}");
+                                }
                             }
                             finally
                             {
@@ -115,6 +121,7 @@ namespace MachineSimulator.UVCCamera
                             Marshal.FreeCoTaskMem((IntPtr)charPath[i]);
                         }
                     }
+
                     Marshal.FreeCoTaskMem((IntPtr)charPath);
                 }
             }

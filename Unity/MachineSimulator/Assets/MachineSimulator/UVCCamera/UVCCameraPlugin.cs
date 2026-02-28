@@ -1,34 +1,37 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Unity.MachineSimulator.ImageProcessing;
-using vcp = MachineSimulator.UVCCamera.OpenCVConstants.VideoCaptureProperties;
 using UnityEngine;
 
 namespace MachineSimulator.UVCCamera
 {
     public class UVCCameraPlugin : MonoBehaviour
     {
+        // Open camera by device index, configure resolution/FPS, and disable all
+        // automatic camera controls internally. Returns a handle or IntPtr.Zero on failure.
         [DllImport("UVCCameraPlugin")]
-        private static extern IntPtr getCamera(int id);
-
-        [DllImport("UVCCameraPlugin")]
-        private static extern double getCameraProperty(IntPtr camera, int propertyId);
-
-        [DllImport("UVCCameraPlugin")]
-        private static extern int setCameraProperty(IntPtr camera, int propertyId, double value);
+        private static extern IntPtr openCamera(int deviceIndex, int width, int height, int fps);
 
         [DllImport("UVCCameraPlugin")]
         private static extern void releaseCamera(IntPtr camera);
-
 
         [DllImport("UVCCameraPlugin")]
         private static extern int getCameraTexture(IntPtr camera, IntPtr data, int width, int height);
 
         [DllImport("UVCCameraPlugin")]
         private static extern int getCameraDimensions(IntPtr camera, out int width, out int height);
+
+        [DllImport("UVCCameraPlugin")]
+        private static extern int setCameraExposure(IntPtr camera, int value);
+
+        [DllImport("UVCCameraPlugin")]
+        private static extern int setCameraGain(IntPtr camera, int value);
+
+        [DllImport("UVCCameraPlugin")]
+        private static extern int setCameraContrast(IntPtr camera, int value);
 
         [SerializeField] private int _id;
 
@@ -60,62 +63,53 @@ namespace MachineSimulator.UVCCamera
 
         public bool CameraIsInitialized { get; private set; }
 
-        private double GetCameraProperty(vcp property)
-        {
-            return getCameraProperty(_camera, (int)property);
-        }
-
-        private void SetCameraProperty(vcp property, double value)
-        {
-            var result = setCameraProperty(_camera, (int)property, value);
-            if (result == 0)
-            {
-                Debug.LogWarning($"Failed to set camera property {property} to {value}");
-            }
-        }
-
-        public void GetCameraProperties()
-        {
-            _cameraProperties.Width = GetCameraProperty(vcp.CAP_PROP_FRAME_WIDTH);
-            _cameraProperties.Height = GetCameraProperty(vcp.CAP_PROP_FRAME_HEIGHT);
-            _cameraProperties.FPS = GetCameraProperty(vcp.CAP_PROP_FPS);
-            _cameraProperties.Exposure = GetCameraProperty(vcp.CAP_PROP_EXPOSURE);
-            _cameraProperties.Gain = GetCameraProperty(vcp.CAP_PROP_GAIN);
-            _cameraProperties.Contrast = GetCameraProperty(vcp.CAP_PROP_CONTRAST);
-        }
-
-        public void InitializeCameraProperties()
-        {
-            // NOTE: Below Properties can only be set if the camera isn't streaming yet
-            SetCameraProperty(vcp.CAP_PROP_FRAME_WIDTH, _cameraProperties.Width);
-            SetCameraProperty(vcp.CAP_PROP_FRAME_HEIGHT, _cameraProperties.Height);
-            SetCameraProperty(vcp.CAP_PROP_FPS, _cameraProperties.FPS);
-
-            // NOTE: We're not sure whether below is getting through to the camera
-            SetCameraProperty(vcp.CAP_PROP_AUTO_EXPOSURE, 0.0);
-        }
-
+        // Apply exposure, gain, and contrast to the running camera.
         public void SetCameraProperties()
         {
-            SetCameraProperty(vcp.CAP_PROP_EXPOSURE, _cameraProperties.Exposure);
-            SetCameraProperty(vcp.CAP_PROP_GAIN, _cameraProperties.Gain);
-            SetCameraProperty(vcp.CAP_PROP_CONTRAST, _cameraProperties.Contrast);
+            if (_camera == IntPtr.Zero) return;
+
+            int result;
+            result = setCameraExposure(_camera, (int)_cameraProperties.Exposure);
+            if (result == 0) Debug.LogWarning($"Failed to set camera exposure to {_cameraProperties.Exposure}");
+
+            result = setCameraGain(_camera, (int)_cameraProperties.Gain);
+            if (result == 0) Debug.LogWarning($"Failed to set camera gain to {_cameraProperties.Gain}");
+
+            result = setCameraContrast(_camera, (int)_cameraProperties.Contrast);
+            if (result == 0) Debug.LogWarning($"Failed to set camera contrast to {_cameraProperties.Contrast}");
         }
 
         private void InitializeCamera()
         {
             ResetCameraProperties();
 
-            _camera = getCamera(_id);
+            // Open camera and configure resolution/FPS in one call.
+            // All auto-controls are disabled internally by the plugin.
+            _camera = openCamera(
+                _id,
+                (int)_cameraProperties.Width,
+                (int)_cameraProperties.Height,
+                (int)_cameraProperties.FPS
+            );
 
-            InitializeCameraProperties();
+            if (_camera == IntPtr.Zero)
+            {
+                Debug.LogError($"Failed to open camera with device index {_id}");
+                return;
+            }
+
+            // Apply manual exposure / gain / contrast.
             SetCameraProperties();
 
-            Texture = new Texture2D((int)_cameraProperties.Width, (int)_cameraProperties.Height,
-                TextureFormat.RGB24, false);
+            // Read back actual negotiated dimensions (may differ from requested).
+            int actualWidth  = (int)_cameraProperties.Width;
+            int actualHeight = (int)_cameraProperties.Height;
+            getCameraDimensions(_camera, out actualWidth, out actualHeight);
 
-            // BGR
-            var byteCount = (int)_cameraProperties.Width * (int)_cameraProperties.Height * 3;
+            Texture = new Texture2D(actualWidth, actualHeight, TextureFormat.RGB24, false);
+
+            // BGR -- 3 bytes per pixel
+            var byteCount = actualWidth * actualHeight * 3;
             _pixelsFront = new byte[byteCount];
             _pixelsFrontHandle = GCHandle.Alloc(_pixelsFront, GCHandleType.Pinned);
             _pixelsFrontPtr = _pixelsFrontHandle.AddrOfPinnedObject();
@@ -123,8 +117,6 @@ namespace MachineSimulator.UVCCamera
             _pixelsBack = new byte[byteCount];
             _pixelsBackHandle = GCHandle.Alloc(_pixelsBack, GCHandleType.Pinned);
             _pixelsBackPtr = _pixelsBackHandle.AddrOfPinnedObject();
-
-            GetCameraProperties();
 
             _isRunning = true;
             _cameraThread = new Thread(CameraLoop);
@@ -172,7 +164,6 @@ namespace MachineSimulator.UVCCamera
                 }
             }
         }
-
 
         private readonly BallDetection _ballDetection = new BallDetection();
 
@@ -228,8 +219,6 @@ namespace MachineSimulator.UVCCamera
 
             if (_cameraThread != null && _cameraThread.IsAlive)
             {
-                // Wait for the thread to finish. 
-                // We give it some time, but not forever to avoid freezing Unity.
                 if (!_cameraThread.Join(1000))
                 {
                     Debug.LogWarning("Camera thread did not terminate in time. Memory might leak or crash on exit.");
