@@ -618,6 +618,31 @@ HRESULT EnumerateCameraFormats(IBaseFilter* pCaptureFilter, std::vector<CameraFo
                             outFormats.push_back({ i, w, h, maxFPS });
                     }
                 }
+                // Many drivers also expose a resolution *range* (MinOutputSize–MaxOutputSize).
+                // Add common resolutions within that range so e.g. 640x480 appears when supported.
+                int minW = (int)pVSCC->MinOutputSize.cx, maxW = (int)pVSCC->MaxOutputSize.cx;
+                int minH = (int)pVSCC->MinOutputSize.cy, maxH = (int)pVSCC->MaxOutputSize.cy;
+                int gx = (int)pVSCC->OutputGranularityX, gy = (int)pVSCC->OutputGranularityY;
+                if (gx <= 0) gx = 1;
+                if (gy <= 0) gy = 1;
+                if (minW > 0 && maxW >= minW && minH > 0 && maxH >= minH)
+                {
+                    static const int commonWidths[]  = { 320, 640, 800, 1024, 1280, 1920 };
+                    static const int commonHeights[] = { 240, 480, 600, 768, 720, 1080 };
+                    static const size_t nCommon = sizeof(commonWidths) / sizeof(commonWidths[0]);
+                    for (size_t c = 0; c < nCommon; c++)
+                    {
+                        int cw = commonWidths[c], ch = commonHeights[c];
+                        if (cw < minW || cw > maxW || ch < minH || ch > maxH) continue;
+                        if ((cw - minW) % gx != 0 || (ch - minH) % gy != 0) continue;
+                        bool already = std::find_if(outFormats.begin(), outFormats.end(),
+                            [cw, ch, f](const CameraFormat& x) {
+                                return x.width == cw && x.height == ch && x.fps == f;
+                            }) != outFormats.end();
+                        if (!already)
+                            outFormats.push_back({ i, cw, ch, f });
+                    }
+                }
             }
 
             DeleteMediaType(pmt);
