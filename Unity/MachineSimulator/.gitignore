@@ -51,6 +51,8 @@ ExportedObj/
 *.lib.meta
 *.exp.meta
 *.obj.meta
+!Assets/**/*.dll
+!Assets/**/*.dll.meta
 *.mdb
 *.opendb
 *.VC.db
