@@ -205,7 +205,7 @@ namespace MachineSimulator.UVCCamera
             {
                 lock (_lock)
                 {
-                    var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 220);
+                    var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
 
                     if (_isLogging && res.Count > 0)
                     {
@@ -255,8 +255,8 @@ namespace MachineSimulator.UVCCamera
     [Serializable]
     public class CameraProperties
     {
-        public double Width = 640;
-        public double Height = 480;
+        public double Width = Constants.CameraResolutionWidth;
+        public double Height = Constants.CameraResolutionHeight;
         public double FPS = 120;
         public double Exposure = -7;
         public double Gain = 2;
