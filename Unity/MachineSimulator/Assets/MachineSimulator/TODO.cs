@@ -178,10 +178,12 @@
 //           we only get the camera default values (instead the ones we set and which are clearly applied)
 //           Not sure if this has something to do with the occasional 70ms load peaks we are seeing.
 //     - [X] write email explaining situation with camera and 70ms peak problem
+// - [X] gather swinging ball pixel position data (ball position per frame)
+//     - [X] both with synced apprach...
+//     - [X] and thread-based image acquisition approach
 
-// - [ ] gather swinging ball pixel position data (ball position per frame)
-//     - [ ] both with synced apprach...
-//     - [ ] and thread-based image acquisition approach
+
+// - [ ] FrameGrabber data seems way nicer. So let's use FrameGrabber instead of OpenCV to get frames from the camera.
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] update end-effector model so that it contains camera holder
