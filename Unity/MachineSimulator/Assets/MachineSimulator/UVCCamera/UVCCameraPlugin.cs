@@ -188,7 +188,7 @@ namespace MachineSimulator.UVCCamera
             {
                 Debug.Log("End");
                 _isLogging = false;
-                File.WriteAllLines("ballpositionlogs.txt", _ballPositionLogs);
+                File.WriteAllLines($"ballpositionlogs_{_id}.txt", _ballPositionLogs);
                 _ballPositionLogs.Clear();
             }
 
