@@ -182,9 +182,8 @@
 //     - [X] both with synced apprach...
 //     - [X] and thread-based image acquisition approach
 // - [X] FrameGrabber data seems way nicer. So let's use FrameGrabber instead of OpenCV to get frames from the camera.
-
-// - [ ] Now that we have nice continuous data (excluding the 70ms-gaps-problem), we can go ahead and do some more testing:
-//     - [ ] test with two cameras
+// - [X] Now that we have nice continuous data (excluding the 70ms-gaps-problem), we can go ahead and do some more testing:
+//     - [X] test with two cameras
 //     - [ ] log ball positoin data simoultaneously with two cameras
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
