@@ -184,7 +184,10 @@
 // - [X] FrameGrabber data seems way nicer. So let's use FrameGrabber instead of OpenCV to get frames from the camera.
 // - [X] Now that we have nice continuous data (excluding the 70ms-gaps-problem), we can go ahead and do some more testing:
 //     - [X] test with two cameras
-//     - [ ] log ball positoin data simoultaneously with two cameras
+//     - [X] log ball positoin data simoultaneously with two cameras
+
+// - [ ] Add the camera mount to the end-effector hexaplate model
+// - [ ] shoot rays from the camera mounts in accordance with ball pixel position data
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] update end-effector model so that it contains camera holder
