@@ -185,8 +185,8 @@
 // - [X] Now that we have nice continuous data (excluding the 70ms-gaps-problem), we can go ahead and do some more testing:
 //     - [X] test with two cameras
 //     - [X] log ball positoin data simoultaneously with two cameras
+// - [X] Add the camera mount to the end-effector hexaplate model
 
-// - [ ] Add the camera mount to the end-effector hexaplate model
 // - [ ] shoot rays from the camera mounts in accordance with ball pixel position data
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
