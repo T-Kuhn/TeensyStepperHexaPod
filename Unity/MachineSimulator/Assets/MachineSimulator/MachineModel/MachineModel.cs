@@ -1,3 +1,4 @@
+using MachineSimulator.Controlling;
 using UniRx;
 using UnityEngine;
 using Logger = MachineSimulator.Logging.Logger;
@@ -18,6 +19,7 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private float _downwardOffsetForTargetPairs;
         [SerializeField] private Logger _logger;
         [SerializeField] private LLMachineStateProvider _stateProvider;
+        [SerializeField] private Controller _controller;
 
         // Order of arms in array: FrontLeft first, then counter-clockwise around the center
         private SingleArmMover[] _arms = null;
@@ -31,7 +33,7 @@ namespace MachineSimulator.MachineModel
         private void Start()
         {
             _hexaPlate = Instantiate(_hexaPlatePrefab);
-            _hexaPlate.InjectRefs(_logger);
+            _hexaPlate.InjectRefs(_logger, _controller);
             _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
             _hexaPlate.TeleportToDefaultHeight();
         }

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MachineSimulator.Controlling;
 using Unity.MachineSimulator.ImageProcessing;
 using UnityEngine;
 
 namespace MachineSimulator.UVCCamera
 {
-    public class UVCCameraPlugin : MonoBehaviour
+    public class UVCCameraPlugin : MonoBehaviour, IBallPositionProvider
     {
         // Open camera by device index, configure resolution/FPS, and disable all
         // automatic camera controls internally. Returns a handle or IntPtr.Zero on failure.
@@ -52,6 +53,8 @@ namespace MachineSimulator.UVCCamera
         private bool _hasNewFrame;
 
         [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
+        
+        public Vector2 NewestBallPosition { get; private set; }
 
         public void ResetCameraProperties()
         {
@@ -198,10 +201,11 @@ namespace MachineSimulator.UVCCamera
                 {
                     var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
 
+                    var ball = res[0];
+                    NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
                     if (_isLogging && res.Count > 0)
                     {
                         var time = (long)(Time.realtimeSinceStartup * 1000);
-                        var ball = res[0];
                         _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
                     }
 

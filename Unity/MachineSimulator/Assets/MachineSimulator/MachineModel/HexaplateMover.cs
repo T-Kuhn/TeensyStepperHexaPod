@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using MachineSimulator.Controlling;
 using MachineSimulator.Machine;
 using UniRx;
 using UnityEngine;
@@ -23,11 +24,15 @@ namespace MachineSimulator.MachineModel
 
         private bool _isInPlaybackMode;
         private Logger _logger;
+        private Controller _controller;
 
         public bool UseManualTime;
 
-        [Range(0f, 10f)] public float ManualTime;
+        [SerializeField] private GameObject _cameraPositionDummyOne;
+        [SerializeField] private GameObject _cameraPositionDummyTwo;
 
+        [Range(0f, 10f)] public float ManualTime;
+        
         public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear)
         {
             PlaybackSequenceAsync(instructions, isLinear).Forget();
@@ -159,9 +164,29 @@ namespace MachineSimulator.MachineModel
             UpdatePositionAndRotationTo(newPosition, rotation);
         }
 
-        public void InjectRefs(Logger logger)
+        public void InjectRefs(Logger logger, Controller controller)
         {
             _logger = logger;
+            _controller = controller;
+        }
+
+        private void OnDrawGizmos()
+        {
+            DrawGizmoLineFor(_cameraPositionDummyOne);
+            DrawGizmoLineFor(_cameraPositionDummyTwo);
+        }
+
+        private void DrawGizmoLineFor(GameObject dummy)
+        {
+            if (dummy == null)
+            {
+                return;
+            }
+
+            Gizmos.color = Color.green;
+            var transform1 = dummy.transform;
+            var position = transform1.position;
+            Gizmos.DrawLine(position, position + transform1.forward * 0.1f);
         }
     }
 }
