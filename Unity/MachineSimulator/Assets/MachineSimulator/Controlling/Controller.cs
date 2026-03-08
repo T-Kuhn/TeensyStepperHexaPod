@@ -6,9 +6,9 @@ namespace MachineSimulator.Controlling
     {
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
-        
+
         [SerializeField] private MonoBehaviour _camTwo;
-        
+
         private Transform _cameraOneTransform;
         private Transform _cameraTwoTransform;
 
@@ -21,6 +21,7 @@ namespace MachineSimulator.Controlling
                 Debug.LogError($"{_cameOne.name} does not implement IBallPositionProvider!");
                 _cameOne = null;
             }
+
             if (_camTwo != null && !(_camTwo is IBallPositionProvider))
             {
                 Debug.LogError($"{_camTwo.name} does not implement IBallPositionProvider!");
@@ -39,6 +40,25 @@ namespace MachineSimulator.Controlling
         private void LateUpdate()
         {
             Debug.Log("BallPosition of one: " + BallPositionProviderOne.NewestBallPosition);
+        }
+
+        private void OnDrawGizmos()
+        {
+            DrawGizmoLineFor(_cameraOneTransform);
+            DrawGizmoLineFor(_cameraTwoTransform);
+        }
+
+        private void DrawGizmoLineFor(Transform camTransform)
+        {
+            if (camTransform == null)
+            {
+                return;
+            }
+
+            Gizmos.color = Color.green;
+            var transform1 = camTransform.transform;
+            var position = transform1.position;
+            Gizmos.DrawLine(position, position + transform1.forward * 0.1f);
         }
     }
 }

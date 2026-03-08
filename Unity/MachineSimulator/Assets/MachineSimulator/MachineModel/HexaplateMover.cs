@@ -34,7 +34,7 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private GameObject _cameraPositionDummyTwo;
 
         [Range(0f, 10f)] public float ManualTime;
-        
+
         public void StartPlaybackMode(List<HLInstruction> instructions, bool isLinear)
         {
             PlaybackSequenceAsync(instructions, isLinear).Forget();
@@ -169,25 +169,6 @@ namespace MachineSimulator.MachineModel
         public void InjectRefs(Logger logger)
         {
             _logger = logger;
-        }
-
-        private void OnDrawGizmos()
-        {
-            DrawGizmoLineFor(_cameraPositionDummyOne);
-            DrawGizmoLineFor(_cameraPositionDummyTwo);
-        }
-
-        private void DrawGizmoLineFor(GameObject dummy)
-        {
-            if (dummy == null)
-            {
-                return;
-            }
-
-            Gizmos.color = Color.green;
-            var transform1 = dummy.transform;
-            var position = transform1.position;
-            Gizmos.DrawLine(position, position + transform1.forward * 0.1f);
         }
     }
 }
