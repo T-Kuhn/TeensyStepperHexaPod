@@ -56,9 +56,8 @@ namespace MachineSimulator.Controlling
             }
 
             Gizmos.color = Color.green;
-            var transform1 = camTransform.transform;
-            var position = transform1.position;
-            Gizmos.DrawLine(position, position + transform1.forward * 0.1f);
+            var position = camTransform.position;
+            Gizmos.DrawLine(position, position + camTransform.forward * 0.1f);
         }
     }
 }
