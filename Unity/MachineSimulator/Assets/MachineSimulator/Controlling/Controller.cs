@@ -1,3 +1,4 @@
+using MachineSimulator.ImageProcessing;
 using UnityEngine;
 
 namespace MachineSimulator.Controlling
@@ -39,7 +40,8 @@ namespace MachineSimulator.Controlling
         //       Using LateUpdate to make sure we always get the newest position data.
         private void LateUpdate()
         {
-            Debug.Log("BallPosition of one: " + BallPositionProviderOne.NewestBallPosition);
+            var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
+            Debug.Log("Vertical: " + vertical);
         }
 
         private void OnDrawGizmos()
