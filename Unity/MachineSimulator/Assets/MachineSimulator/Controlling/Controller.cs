@@ -8,6 +8,10 @@ namespace MachineSimulator.Controlling
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
         
         [SerializeField] private MonoBehaviour _camTwo;
+        
+        private Transform _cameraOneTransform;
+        private Transform _cameraTwoTransform;
+
         private IBallPositionProvider BallPositionProviderTwo => _camTwo as IBallPositionProvider;
 
         private void OnValidate()
@@ -24,9 +28,15 @@ namespace MachineSimulator.Controlling
             }
         }
 
+        public void InjectRefs(Transform cameraOneTransform, Transform cameraTwoTransform)
+        {
+            _cameraOneTransform = cameraOneTransform;
+            _cameraTwoTransform = cameraTwoTransform;
+        }
+
         // NOTE: LateUpdate because we get newest ball position in Update.
         //       Using LateUpdate to make sure we always get the newest position data.
-        void LateUpdate()
+        private void LateUpdate()
         {
             Debug.Log("BallPosition of one: " + BallPositionProviderOne.NewestBallPosition);
         }

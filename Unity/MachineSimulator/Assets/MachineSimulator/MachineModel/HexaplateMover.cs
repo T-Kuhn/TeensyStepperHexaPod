@@ -24,9 +24,11 @@ namespace MachineSimulator.MachineModel
 
         private bool _isInPlaybackMode;
         private Logger _logger;
-        private Controller _controller;
 
         public bool UseManualTime;
+
+        public Transform CameraOneTransform => _cameraPositionDummyOne.transform;
+        public Transform CameraTwoTransform => _cameraPositionDummyTwo.transform;
 
         [SerializeField] private GameObject _cameraPositionDummyOne;
         [SerializeField] private GameObject _cameraPositionDummyTwo;
@@ -164,10 +166,9 @@ namespace MachineSimulator.MachineModel
             UpdatePositionAndRotationTo(newPosition, rotation);
         }
 
-        public void InjectRefs(Logger logger, Controller controller)
+        public void InjectRefs(Logger logger)
         {
             _logger = logger;
-            _controller = controller;
         }
 
         private void OnDrawGizmos()

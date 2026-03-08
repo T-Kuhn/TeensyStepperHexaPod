@@ -33,9 +33,11 @@ namespace MachineSimulator.MachineModel
         private void Start()
         {
             _hexaPlate = Instantiate(_hexaPlatePrefab);
-            _hexaPlate.InjectRefs(_logger, _controller);
+            _hexaPlate.InjectRefs(_logger);
             _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
             _hexaPlate.TeleportToDefaultHeight();
+            
+            _controller.InjectRefs(_hexaPlate.CameraOneTransform, _hexaPlate.CameraTwoTransform );
         }
 
         private void Update()
