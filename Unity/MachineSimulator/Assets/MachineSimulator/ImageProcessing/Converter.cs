@@ -14,7 +14,8 @@ namespace MachineSimulator.ImageProcessing
             var horizontalAngle = (positionInImage.y / halfHeight) * (c.CameraHorizontalFov / 2f);
             var verticalAngle = (positionInImage.x / halfWidth) * (c.CameraVerticalFov / 2f);
 
-            return (horizontalAngle, verticalAngle);
+            // NOTE: Need to flip horizontal angle because image data arrives flipped
+            return (-horizontalAngle, verticalAngle);
         }
     }
 }

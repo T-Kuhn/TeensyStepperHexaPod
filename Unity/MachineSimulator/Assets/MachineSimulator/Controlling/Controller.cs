@@ -13,6 +13,9 @@ namespace MachineSimulator.Controlling
         private Transform _cameraOneTransform;
         private Transform _cameraTwoTransform;
 
+        private Vector3 _camOneDetectedBallDir;
+        private Vector3 _camTwoDetectedBallDir;
+
         private IBallPositionProvider BallPositionProviderTwo => _camTwo as IBallPositionProvider;
 
         private void OnValidate()
@@ -40,26 +43,46 @@ namespace MachineSimulator.Controlling
         //       Using LateUpdate to make sure we always get the newest position data.
         private void LateUpdate()
         {
-            var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
-            Debug.Log("Vertical: " + vertical);
+            if (BallPositionProviderOne != null && _cameraOneTransform != null)
+            {
+                var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
+                Quaternion rotation = Quaternion.Euler(vertical, horizontal, 0f);
+                _camOneDetectedBallDir = rotation * _cameraOneTransform.forward;
+            }
+
+            if (BallPositionProviderTwo != null && _cameraTwoTransform != null)
+            {
+                var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderTwo.NewestBallPosition);
+                Quaternion rotation = Quaternion.Euler(vertical, horizontal, 0f);
+                _camTwoDetectedBallDir = rotation * _cameraTwoTransform.forward;
+            }
         }
 
         private void OnDrawGizmos()
         {
-            DrawGizmoLineFor(_cameraOneTransform);
-            DrawGizmoLineFor(_cameraTwoTransform);
+            if (_cameraOneTransform != null)
+            {
+                DrawGizmoLineFor(_cameraOneTransform, Color.green, _cameraOneTransform.forward);
+                DrawGizmoLineFor(_cameraOneTransform, Color.yellow, _camOneDetectedBallDir);
+            }
+
+            if (_cameraTwoTransform != null)
+            {
+                DrawGizmoLineFor(_cameraTwoTransform, Color.green, _cameraTwoTransform.forward);
+                DrawGizmoLineFor(_cameraTwoTransform, Color.yellow, _camTwoDetectedBallDir);
+            }
         }
 
-        private void DrawGizmoLineFor(Transform camTransform)
+        private void DrawGizmoLineFor(Transform camTransform, Color color, Vector3 direction)
         {
             if (camTransform == null)
             {
                 return;
             }
 
-            Gizmos.color = Color.green;
+            Gizmos.color = color;
             var position = camTransform.position;
-            Gizmos.DrawLine(position, position + camTransform.forward * 0.1f);
+            Gizmos.DrawLine(position, position + direction * 0.1f);
         }
     }
 }

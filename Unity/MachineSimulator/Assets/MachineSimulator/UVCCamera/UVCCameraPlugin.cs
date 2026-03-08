@@ -53,7 +53,7 @@ namespace MachineSimulator.UVCCamera
         private bool _hasNewFrame;
 
         [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
-        
+
         public Vector2 NewestBallPosition { get; private set; }
 
         public void ResetCameraProperties()
@@ -105,7 +105,7 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperties();
 
             // Read back actual negotiated dimensions (may differ from requested).
-            int actualWidth  = (int)_cameraProperties.Width;
+            int actualWidth = (int)_cameraProperties.Width;
             int actualHeight = (int)_cameraProperties.Height;
             getCameraDimensions(_camera, out actualWidth, out actualHeight);
 
@@ -201,12 +201,16 @@ namespace MachineSimulator.UVCCamera
                 {
                     var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
 
-                    var ball = res[0];
-                    NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
-                    if (_isLogging && res.Count > 0)
+                    if (res.Count > 0)
                     {
-                        var time = (long)(Time.realtimeSinceStartup * 1000);
-                        _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
+                        var ball = res[0];
+                        NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
+
+                        if (_isLogging)
+                        {
+                            var time = (long)(Time.realtimeSinceStartup * 1000);
+                            _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
+                        }
                     }
 
                     Texture.SetPixelData(_pixelsFront, 0);
