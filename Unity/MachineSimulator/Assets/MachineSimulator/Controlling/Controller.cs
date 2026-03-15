@@ -50,7 +50,7 @@ namespace MachineSimulator.Controlling
             if (BallPositionProviderOne != null && _cameraOneTransform != null)
             {
                 var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
-                var rotation = Quaternion.Euler(vertical, horizontal, 0f);
+                var rotation = Quaternion.AngleAxis(vertical, _cameraOneTransform.right) * Quaternion.AngleAxis(horizontal, _cameraOneTransform.up);
                 _camOneDetectedBallDir = rotation * _cameraOneTransform.forward;
 
                 AlignPlane(_planeOneOrigin, _cameraOneTransform, _camOneDetectedBallDir);
@@ -59,7 +59,7 @@ namespace MachineSimulator.Controlling
             if (BallPositionProviderTwo != null && _cameraTwoTransform != null)
             {
                 var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderTwo.NewestBallPosition);
-                var rotation = Quaternion.Euler(vertical, horizontal, 0f);
+                var rotation = Quaternion.AngleAxis(vertical, _cameraTwoTransform.right) * Quaternion.AngleAxis(horizontal, _cameraTwoTransform.up);
                 _camTwoDetectedBallDir = rotation * _cameraTwoTransform.forward;
 
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
