@@ -186,16 +186,21 @@
 //     - [X] test with two cameras
 //     - [X] log ball positoin data simoultaneously with two cameras
 // - [X] Add the camera mount to the end-effector hexaplate model
+// - [x] shoot rays from the camera mounts in accordance with ball pixel position data
+// - [X] update end-effector model so that it contains camera holder
+// - [X] read BallDataFromPixelBorders and see if we still agree with the approach.
 
-// - [ ] shoot rays from the camera mounts in accordance with ball pixel position data
+// - [ ] Calculate ball position from rays
+//     - [ ] plane-intersect-approach to get 3D ball position from two camera ball position data
+//     - [ ] absolute position in world space
+// - [ ] draw gizmo sphere showing where the camera thinks the ball is
+
+// - [ ] we'll need to make sure that we can playback motion commands on virtual machine
+//       in sync to real machine to get accurate world space ball position.
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
-// - [ ] update end-effector model so that it contains camera holder
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
-// - [ ] draw gizmo lines showing where the camera things the ball is
-// - [ ] quad and plane-intersect-approach to get 3D ball position from two camera ball position data
 // - [ ] update README pic
-// - [ ] read BallDataFromPixelBorders and see if we still agree with the approach.
 // - [ ] check why async playback on virtual machine is not smooth at all (especially on high speeds)
 
 // - [ ] We decide to mount them at the end-effector (relative tracking), then we need

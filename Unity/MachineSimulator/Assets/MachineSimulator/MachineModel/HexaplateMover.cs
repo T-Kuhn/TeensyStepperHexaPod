@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using MachineSimulator.Controlling;
 using MachineSimulator.Machine;
 using UniRx;
 using UnityEngine;
@@ -25,6 +26,12 @@ namespace MachineSimulator.MachineModel
         private Logger _logger;
 
         public bool UseManualTime;
+
+        public Transform CameraOneTransform => _cameraPositionDummyOne.transform;
+        public Transform CameraTwoTransform => _cameraPositionDummyTwo.transform;
+
+        [SerializeField] private GameObject _cameraPositionDummyOne;
+        [SerializeField] private GameObject _cameraPositionDummyTwo;
 
         [Range(0f, 10f)] public float ManualTime;
 
