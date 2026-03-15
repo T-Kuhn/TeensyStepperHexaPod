@@ -46,14 +46,14 @@ namespace MachineSimulator.Controlling
             if (BallPositionProviderOne != null && _cameraOneTransform != null)
             {
                 var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
-                Quaternion rotation = Quaternion.Euler(vertical, horizontal, 0f);
+                var rotation = Quaternion.Euler(vertical, horizontal, 0f);
                 _camOneDetectedBallDir = rotation * _cameraOneTransform.forward;
             }
 
             if (BallPositionProviderTwo != null && _cameraTwoTransform != null)
             {
                 var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderTwo.NewestBallPosition);
-                Quaternion rotation = Quaternion.Euler(vertical, horizontal, 0f);
+                var rotation = Quaternion.Euler(vertical, horizontal, 0f);
                 _camTwoDetectedBallDir = rotation * _cameraTwoTransform.forward;
             }
         }
