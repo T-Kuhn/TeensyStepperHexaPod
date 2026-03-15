@@ -19,8 +19,8 @@ namespace MachineSimulator.Controlling
 
         [SerializeField] private Transform _planeOneOrigin;
         [SerializeField] private Transform _planeTwoOrigin;
-
-        private Vector3? _ballPosition;
+        
+        [SerializeField] private Transform _ballVisualization;
 
         private void OnValidate()
         {
@@ -65,7 +65,11 @@ namespace MachineSimulator.Controlling
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
             
-            _ballPosition = CalculateIntersectionPoint();
+            var ballPosition = CalculateIntersectionPoint();
+            if (ballPosition.HasValue)
+            {
+                _ballVisualization.position = ballPosition.Value;
+            }
         }
 
         private Vector3? CalculateIntersectionPoint()
@@ -128,12 +132,6 @@ namespace MachineSimulator.Controlling
                 DrawGizmoLineFor(_cameraTwoTransform, Color.green, _cameraTwoTransform.forward, 0.1f);
                 DrawGizmoLineFor(_cameraTwoTransform, Color.yellow, _camTwoDetectedBallDir, 0.1f);
                 DrawGizmoLineFor(_cameraTwoTransform, Color.blue, _cameraTwoTransform.up, 0.05f);
-            }
-
-            if (_ballPosition.HasValue)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(_ballPosition.Value, 0.01f);
             }
         }
 
