@@ -62,18 +62,20 @@ namespace MachineSimulator.Controlling
         {
             if (_cameraOneTransform != null)
             {
-                DrawGizmoLineFor(_cameraOneTransform, Color.green, _cameraOneTransform.forward);
-                DrawGizmoLineFor(_cameraOneTransform, Color.yellow, _camOneDetectedBallDir);
+                DrawGizmoLineFor(_cameraOneTransform, Color.green, _cameraOneTransform.forward, 0.1f);
+                DrawGizmoLineFor(_cameraOneTransform, Color.yellow, _camOneDetectedBallDir, 0.1f);
+                DrawGizmoLineFor(_cameraOneTransform, Color.blue, _cameraOneTransform.up, 0.05f);
             }
 
             if (_cameraTwoTransform != null)
             {
-                DrawGizmoLineFor(_cameraTwoTransform, Color.green, _cameraTwoTransform.forward);
-                DrawGizmoLineFor(_cameraTwoTransform, Color.yellow, _camTwoDetectedBallDir);
+                DrawGizmoLineFor(_cameraTwoTransform, Color.green, _cameraTwoTransform.forward, 0.1f);
+                DrawGizmoLineFor(_cameraTwoTransform, Color.yellow, _camTwoDetectedBallDir, 0.1f);
+                DrawGizmoLineFor(_cameraTwoTransform, Color.blue, _cameraTwoTransform.up, 0.05f);
             }
         }
 
-        private void DrawGizmoLineFor(Transform camTransform, Color color, Vector3 direction)
+        private void DrawGizmoLineFor(Transform camTransform, Color color, Vector3 direction, float length)
         {
             if (camTransform == null)
             {
@@ -82,7 +84,7 @@ namespace MachineSimulator.Controlling
 
             Gizmos.color = color;
             var position = camTransform.position;
-            Gizmos.DrawLine(position, position + direction * 0.1f);
+            Gizmos.DrawLine(position, position + direction * length);
         }
     }
 }

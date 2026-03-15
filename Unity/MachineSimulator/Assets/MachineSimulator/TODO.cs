@@ -190,6 +190,8 @@
 // - [X] update end-effector model so that it contains camera holder
 // - [X] read BallDataFromPixelBorders and see if we still agree with the approach.
 
+// so we have the world space ball direction. now we need a plane along that direction.
+
 // - [ ] Calculate ball position from rays
 //     - [ ] plane-intersect-approach to get 3D ball position from two camera ball position data
 //     - [ ] absolute position in world space
