@@ -194,10 +194,20 @@
 //     - [X] absolute position in world space
 // - [X] draw ball visualization showing where the camera thinks the ball is
 
-// - [ ] get rid of current vertical ball-flickering by adding y-offset angle(or y-offset pixel distance)?
+// - [ ] do a simple "go-up-if-ball-gets-below-certain-height" test
+// - [ ] we should be able to whack ball up
+// - [ ] start next measurement phase after machine is in start position again
+// - [ ] we should get continuous bouncing until the ball fails to hit the paddle
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
+// - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
+
+// Name: Hexa-Bouncer
+
+// - [ ] we could try to get rid of ball-flickering with averages (if both data streams are relatively fresh)
+
+
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?
