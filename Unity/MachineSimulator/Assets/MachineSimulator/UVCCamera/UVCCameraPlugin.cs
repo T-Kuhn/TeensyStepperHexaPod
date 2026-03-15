@@ -55,6 +55,7 @@ namespace MachineSimulator.UVCCamera
         [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
 
         public Vector2 NewestBallPosition { get; private set; }
+        public float TimeStamp { get; private set; }
 
         public void ResetCameraProperties()
         {
@@ -205,6 +206,7 @@ namespace MachineSimulator.UVCCamera
                     {
                         var ball = res[0];
                         NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
+                        TimeStamp = Time.realtimeSinceStartup;
 
                         if (_isLogging)
                         {
