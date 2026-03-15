@@ -20,6 +20,8 @@ namespace MachineSimulator.Controlling
         [SerializeField] private Transform _planeOneOrigin;
         [SerializeField] private Transform _planeTwoOrigin;
 
+        private Vector3? _ballPosition;
+
         private void OnValidate()
         {
             if (_cameOne != null && !(_cameOne is IBallPositionProvider))
@@ -62,6 +64,41 @@ namespace MachineSimulator.Controlling
 
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
+            
+            _ballPosition = CalculateIntersectionPoint();
+        }
+
+        private Vector3? CalculateIntersectionPoint()
+        {
+            if (BallPositionProviderOne == null || BallPositionProviderTwo == null ||
+                _cameraOneTransform == null || _cameraTwoTransform == null ||
+                _planeOneOrigin == null || _planeTwoOrigin == null)
+            {
+                return null;
+            }
+
+            // Step1: Figure out which ballposition is the oldest
+            var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp;
+
+            // Step2: Use AlignedPlane corresponding to oldest ballposition data as target plane
+            // Also determine the correct layer to raycast against
+            var targetLayerMask = camOneIsOldest 
+                ? LayerMask.GetMask("PlaneOne") 
+                : LayerMask.GetMask("PlaneTwo");
+
+            // Step3: Shoot ray in direction of other ballposition data's detected ball direction (origin is corresponding _cameraTransform)
+            var rayOrigin = camOneIsOldest ? _cameraTwoTransform : _cameraOneTransform;
+            var rayDirection = camOneIsOldest ? _camTwoDetectedBallDir : _camOneDetectedBallDir;
+
+            var ray = new Ray(rayOrigin.position, rayDirection);
+
+            // Step4: Return the intersection point using Physics.Raycast with the correct layer
+            if (Physics.Raycast(ray, out var hit, Mathf.Infinity, targetLayerMask))
+            {
+                return hit.point;
+            }
+
+            return null;
         }
 
         private void AlignPlane(Transform planeOrigin, Transform cameraTransform, Vector3 detectedBallDir)
@@ -91,6 +128,12 @@ namespace MachineSimulator.Controlling
                 DrawGizmoLineFor(_cameraTwoTransform, Color.green, _cameraTwoTransform.forward, 0.1f);
                 DrawGizmoLineFor(_cameraTwoTransform, Color.yellow, _camTwoDetectedBallDir, 0.1f);
                 DrawGizmoLineFor(_cameraTwoTransform, Color.blue, _cameraTwoTransform.up, 0.05f);
+            }
+
+            if (_ballPosition.HasValue)
+            {
+                Gizmos.color = Color.red;
+                Gizmos.DrawSphere(_ballPosition.Value, 0.01f);
             }
         }
 
