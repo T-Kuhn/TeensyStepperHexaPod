@@ -49,19 +49,13 @@ namespace MachineSimulator.Controlling
         {
             if (BallPositionProviderOne != null && _cameraOneTransform != null)
             {
-                var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
-                var rotation = Quaternion.AngleAxis(vertical, _cameraOneTransform.right) * Quaternion.AngleAxis(horizontal, _cameraOneTransform.up);
-                _camOneDetectedBallDir = rotation * _cameraOneTransform.forward;
-
+                _camOneDetectedBallDir = CalculateDetectedBallDirection(_cameraOneTransform, BallPositionProviderOne.NewestBallPosition);
                 AlignPlane(_planeOneOrigin, _cameraOneTransform, _camOneDetectedBallDir);
             }
 
             if (BallPositionProviderTwo != null && _cameraTwoTransform != null)
             {
-                var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderTwo.NewestBallPosition);
-                var rotation = Quaternion.AngleAxis(vertical, _cameraTwoTransform.right) * Quaternion.AngleAxis(horizontal, _cameraTwoTransform.up);
-                _camTwoDetectedBallDir = rotation * _cameraTwoTransform.forward;
-
+                _camTwoDetectedBallDir = CalculateDetectedBallDirection(_cameraTwoTransform, BallPositionProviderTwo.NewestBallPosition);
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
             
@@ -70,6 +64,13 @@ namespace MachineSimulator.Controlling
             {
                 _ballVisualization.position = ballPosition.Value;
             }
+        }
+
+        private Vector3 CalculateDetectedBallDirection(Transform cameraTransform, Vector2 ballPosition)
+        {
+            var (horizontal, vertical) = Converter.ConvertToAngle(ballPosition);
+            var rotation = cameraTransform.rotation * Quaternion.Euler(vertical, horizontal, 0f);
+            return rotation * Vector3.forward;
         }
 
         private Vector3? CalculateIntersectionPoint()
