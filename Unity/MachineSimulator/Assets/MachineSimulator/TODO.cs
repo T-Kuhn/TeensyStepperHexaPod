@@ -189,13 +189,12 @@
 // - [x] shoot rays from the camera mounts in accordance with ball pixel position data
 // - [X] update end-effector model so that it contains camera holder
 // - [X] read BallDataFromPixelBorders and see if we still agree with the approach.
+// - [X] Calculate ball position from rays
+//     - [X] plane-intersect-approach to get 3D ball position from two camera ball position data
+//     - [X] absolute position in world space
+// - [X] draw ball visualization showing where the camera thinks the ball is
 
-// so we have the world space ball direction. now we need a plane along that direction.
-
-// - [ ] Calculate ball position from rays
-//     - [ ] plane-intersect-approach to get 3D ball position from two camera ball position data
-//     - [ ] absolute position in world space
-// - [ ] draw gizmo sphere showing where the camera thinks the ball is
+// - [ ] get rid of current vertical ball-flickering by adding y-offset angle(or y-offset pixel distance)?
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
