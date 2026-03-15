@@ -9,6 +9,7 @@ namespace MachineSimulator.Controlling
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
 
         [SerializeField] private MonoBehaviour _camTwo;
+        private IBallPositionProvider BallPositionProviderTwo => _camTwo as IBallPositionProvider;
 
         private Transform _cameraOneTransform;
         private Transform _cameraTwoTransform;
@@ -16,7 +17,8 @@ namespace MachineSimulator.Controlling
         private Vector3 _camOneDetectedBallDir;
         private Vector3 _camTwoDetectedBallDir;
 
-        private IBallPositionProvider BallPositionProviderTwo => _camTwo as IBallPositionProvider;
+        [SerializeField] private Transform _planeOneOrigin;
+        [SerializeField] private Transform _planeTwoOrigin;
 
         private void OnValidate()
         {
@@ -48,6 +50,8 @@ namespace MachineSimulator.Controlling
                 var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderOne.NewestBallPosition);
                 var rotation = Quaternion.Euler(vertical, horizontal, 0f);
                 _camOneDetectedBallDir = rotation * _cameraOneTransform.forward;
+
+                AlignPlane(_planeOneOrigin, _cameraOneTransform, _camOneDetectedBallDir);
             }
 
             if (BallPositionProviderTwo != null && _cameraTwoTransform != null)
@@ -55,7 +59,22 @@ namespace MachineSimulator.Controlling
                 var (horizontal, vertical) = Converter.ConvertToAngle(BallPositionProviderTwo.NewestBallPosition);
                 var rotation = Quaternion.Euler(vertical, horizontal, 0f);
                 _camTwoDetectedBallDir = rotation * _cameraTwoTransform.forward;
+
+                AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
+        }
+
+        private void AlignPlane(Transform planeOrigin, Transform cameraTransform, Vector3 detectedBallDir)
+        {
+            // Step1: Place plane origin at camera origin
+            planeOrigin.position = cameraTransform.position;
+
+            // Step2: Rotate plane so that plane.forward is aligned with detectedBallDir
+            var rot = Quaternion.LookRotation(detectedBallDir);
+
+            // NOTE: We only really care about the Y-axis rotation.
+            var restrictedRot = Quaternion.Euler(0f, rot.eulerAngles.y, 0f);
+            planeOrigin.rotation = restrictedRot;
         }
 
         private void OnDrawGizmos()
