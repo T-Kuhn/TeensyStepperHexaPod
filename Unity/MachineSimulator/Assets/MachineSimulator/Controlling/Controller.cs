@@ -1,10 +1,16 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using MachineSimulator.ImageProcessing;
+using MachineSimulator.Sequencing;
 using UnityEngine;
 
 namespace MachineSimulator.Controlling
 {
     public sealed class Controller : MonoBehaviour
     {
+        [SerializeField] private SequenceCreator _sequenceCreator;
+        [SerializeField] private MachineModel.MachineModel _machineModel;
+
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
 
@@ -19,8 +25,33 @@ namespace MachineSimulator.Controlling
 
         [SerializeField] private Transform _planeOneOrigin;
         [SerializeField] private Transform _planeTwoOrigin;
-        
+
         [SerializeField] private Transform _ballVisualization;
+
+        private Vector3? _ballPosition;
+
+        private void Start()
+        {
+            RunMachineLoopAsync().Forget();
+        }
+
+        private async UniTask RunMachineLoopAsync()
+        {
+            while (true)
+            {
+                if (_ballPosition.HasValue && _ballPosition.Value.y < 0.3f)
+                {
+                    Debug.Log("HIT!!! ball position: " + _ballPosition);
+                    //await UniTask.DelayFrame(100);
+
+                    var commandTime = 1.5f; // 0.75f;
+                    SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, true);
+                }
+
+                // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.
+                await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, CancellationToken.None);
+            }
+        }
 
         private void OnValidate()
         {
@@ -58,11 +89,11 @@ namespace MachineSimulator.Controlling
                 _camTwoDetectedBallDir = CalculateDetectedBallDirection(_cameraTwoTransform, BallPositionProviderTwo.NewestBallPosition);
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
-            
-            var ballPosition = CalculateIntersectionPoint();
-            if (ballPosition.HasValue)
+
+            _ballPosition = CalculateIntersectionPoint();
+            if (_ballPosition.HasValue)
             {
-                _ballVisualization.position = ballPosition.Value;
+                _ballVisualization.position = _ballPosition.Value;
             }
         }
 
@@ -87,8 +118,8 @@ namespace MachineSimulator.Controlling
 
             // Step2: Use AlignedPlane corresponding to oldest ballposition data as target plane
             // Also determine the correct layer to raycast against
-            var targetLayerMask = camOneIsOldest 
-                ? LayerMask.GetMask("PlaneOne") 
+            var targetLayerMask = camOneIsOldest
+                ? LayerMask.GetMask("PlaneOne")
                 : LayerMask.GetMask("PlaneTwo");
 
             // Step3: Shoot ray in direction of other ballposition data's detected ball direction (origin is corresponding _cameraTransform)

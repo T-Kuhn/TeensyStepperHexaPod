@@ -195,6 +195,7 @@
 // - [X] draw ball visualization showing where the camera thinks the ball is
 
 // - [ ] do a simple "go-up-if-ball-gets-below-certain-height" test
+//    - [ ] move up as soon as ball gets below 0.3 height
 // - [ ] we should be able to whack ball up
 // - [ ] start next measurement phase after machine is in start position again
 // - [ ] we should get continuous bouncing until the ball fails to hit the paddle
