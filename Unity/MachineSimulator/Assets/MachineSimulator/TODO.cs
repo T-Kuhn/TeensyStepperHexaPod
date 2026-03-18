@@ -193,16 +193,21 @@
 //     - [X] plane-intersect-approach to get 3D ball position from two camera ball position data
 //     - [X] absolute position in world space
 // - [X] draw ball visualization showing where the camera thinks the ball is
+// - [X] do a simple "go-up-if-ball-gets-below-certain-height" test
+//    - [X] move up as soon as ball gets below 0.3 height
+// - [X] we should be able to whack ball up
+// - [/] start next measurement phase after machine is in start position again
+//    - we measure all the time independent of the MachineLoop. This is better.
+// - [X] we should get continuous bouncing until the ball fails to hit the paddle
+//    - confirmed
 
-// - [ ] do a simple "go-up-if-ball-gets-below-certain-height" test
-//    - [ ] move up as soon as ball gets below 0.3 height
-// - [ ] we should be able to whack ball up
-// - [ ] start next measurement phase after machine is in start position again
-// - [ ] we should get continuous bouncing until the ball fails to hit the paddle
+// - [ ] gather ball positoin data while machine is bouncing ball
+// - [ ] get a simple PID controller going to keep the ball on the paddle
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
 // - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
+
 
 // Name: Hexa-Bouncer
 
