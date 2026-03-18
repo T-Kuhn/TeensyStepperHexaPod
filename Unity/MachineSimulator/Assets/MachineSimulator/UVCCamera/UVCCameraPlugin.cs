@@ -56,6 +56,7 @@ namespace MachineSimulator.UVCCamera
 
         public Vector2 NewestBallPosition { get; private set; }
         public float TimeStamp { get; private set; }
+        public bool IsBallDetected { get; private set; }
 
         public void ResetCameraProperties()
         {
@@ -207,12 +208,17 @@ namespace MachineSimulator.UVCCamera
                         var ball = res[0];
                         NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
                         TimeStamp = Time.realtimeSinceStartup;
+                        IsBallDetected = true;
 
                         if (_isLogging)
                         {
                             var time = (long)(Time.realtimeSinceStartup * 1000);
                             _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
                         }
+                    }
+                    else
+                    {
+                        IsBallDetected = false;
                     }
 
                     Texture.SetPixelData(_pixelsFront, 0);

@@ -1,6 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MachineSimulator.ImageProcessing;
+using MachineSimulator.Machine;
 using MachineSimulator.Sequencing;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace MachineSimulator.Controlling
     {
         [SerializeField] private SequenceCreator _sequenceCreator;
         [SerializeField] private MachineModel.MachineModel _machineModel;
+        [SerializeField] private RealMachine _realMachine;
 
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
@@ -39,13 +41,13 @@ namespace MachineSimulator.Controlling
         {
             while (true)
             {
-                if (_ballPosition.HasValue && _ballPosition.Value.y < 0.3f)
+                if (_ballPosition.HasValue
+                    && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
+                    && _realMachine.IsReady
+                    && _ballPosition.Value.y < 0.3f)
                 {
-                    Debug.Log("HIT!!! ball position: " + _ballPosition);
-                    //await UniTask.DelayFrame(100);
-
-                    var commandTime = 1.5f; // 0.75f;
-                    SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, true);
+                    var commandTime = 0.75f;
+                    await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, true);
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.
@@ -91,7 +93,7 @@ namespace MachineSimulator.Controlling
             }
 
             _ballPosition = CalculateIntersectionPoint();
-            if (_ballPosition.HasValue)
+            if (_ballPosition.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
             {
                 _ballVisualization.position = _ballPosition.Value;
             }

@@ -6,5 +6,6 @@ namespace MachineSimulator.Controlling
     {
         Vector2 NewestBallPosition { get; }
         float TimeStamp { get; }
+        bool IsBallDetected { get; }
     }
 }

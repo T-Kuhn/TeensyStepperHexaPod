@@ -80,6 +80,8 @@ namespace MachineSimulator.UI
             Register(_view.OnM6MinusClicked, new LLMachineState(0f, 0f, 0f, 0f, 0f, -amount).ToList(0.1f, true));
 
             Register(_view.OnApplyOffsetClicked, Constants.OffsetFromTableState.ToList(1f, true));
+
+            _view.OnApplyOffsetClicked.Subscribe(_ => { _realMachine.IsReady = true; }).AddTo(this);
         }
 
         private void Register(IObservable<Unit> observable, Func<List<LLInstruction>> getInstructions)
