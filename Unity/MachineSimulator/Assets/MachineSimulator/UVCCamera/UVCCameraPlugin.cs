@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MachineSimulator.Controlling;
@@ -107,8 +108,8 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperties();
 
             // Read back actual negotiated dimensions (may differ from requested).
-            int actualWidth = (int)_cameraProperties.Width;
-            int actualHeight = (int)_cameraProperties.Height;
+            var actualWidth = (int)_cameraProperties.Width;
+            var actualHeight = (int)_cameraProperties.Height;
             getCameraDimensions(_camera, out actualWidth, out actualHeight);
 
             Texture = new Texture2D(actualWidth, actualHeight, TextureFormat.RGB24, false);
@@ -185,7 +186,10 @@ namespace MachineSimulator.UVCCamera
                 {
                     var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
 
-                    if (res.Count > 0)
+                    // NOTE: Ball radius is measured in pixels.
+                    var filteredResults = res.Where(data => data.Radius is > 30 and < 100).ToList();
+
+                    if (filteredResults.Count > 0)
                     {
                         var ball = res[0];
                         NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
