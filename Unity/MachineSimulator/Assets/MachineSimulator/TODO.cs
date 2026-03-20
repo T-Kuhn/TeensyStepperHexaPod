@@ -201,7 +201,7 @@
 // - [X] we should get continuous bouncing until the ball fails to hit the paddle
 //    - confirmed
 
-// - [ ] gather ball positoin data while machine is bouncing ball
+// - [ ] gather ball position data while machine is bouncing ball
 // - [ ] get a simple PID controller going to keep the ball on the paddle
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using MachineSimulator.ImageProcessing;
@@ -76,10 +78,28 @@ namespace MachineSimulator.Controlling
             _cameraTwoTransform = cameraTwoTransform;
         }
 
+        private bool _isLogging;
+        private readonly List<string> _ballPositionLogs = new List<string>();
+
         // NOTE: LateUpdate because we get newest ball position in Update.
         //       Using LateUpdate to make sure we always get the newest position data.
         private void LateUpdate()
         {
+            if (Input.GetKeyDown(KeyCode.S))
+            {
+                Debug.Log("Start");
+                _isLogging = true;
+                _ballPositionLogs.Clear();
+            }
+
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                Debug.Log("End");
+                _isLogging = false;
+                File.WriteAllLines($"ballpositionlogs.txt", _ballPositionLogs);
+                _ballPositionLogs.Clear();
+            }
+
             if (BallPositionProviderOne != null && _cameraOneTransform != null)
             {
                 _camOneDetectedBallDir = CalculateDetectedBallDirection(_cameraOneTransform, BallPositionProviderOne.NewestBallPosition);
@@ -96,6 +116,12 @@ namespace MachineSimulator.Controlling
             if (_ballPosition.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
             {
                 _ballVisualization.position = _ballPosition.Value;
+
+                if (_isLogging)
+                {
+                    var time = (long)(Time.realtimeSinceStartup * 1000);
+                    _ballPositionLogs.Add($"{time};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z}");
+                }
             }
         }
 
