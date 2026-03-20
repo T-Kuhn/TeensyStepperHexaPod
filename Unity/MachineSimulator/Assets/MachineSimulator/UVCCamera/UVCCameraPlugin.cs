@@ -172,29 +172,11 @@ namespace MachineSimulator.UVCCamera
 
         private readonly BallDetection _ballDetection = new BallDetection();
 
-        private bool _isLogging;
-        private readonly List<string> _ballPositionLogs = new List<string>();
-
         private void Update()
         {
             if (!CameraIsInitialized)
             {
                 InitializeCamera();
-            }
-
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                Debug.Log("Start");
-                _isLogging = true;
-                _ballPositionLogs.Clear();
-            }
-
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                Debug.Log("End");
-                _isLogging = false;
-                File.WriteAllLines($"ballpositionlogs_{_id}.txt", _ballPositionLogs);
-                _ballPositionLogs.Clear();
             }
 
             if (_hasNewFrame)
@@ -209,12 +191,6 @@ namespace MachineSimulator.UVCCamera
                         NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
                         TimeStamp = Time.realtimeSinceStartup;
                         IsBallDetected = true;
-
-                        if (_isLogging)
-                        {
-                            var time = (long)(Time.realtimeSinceStartup * 1000);
-                            _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
-                        }
                     }
                     else
                     {
