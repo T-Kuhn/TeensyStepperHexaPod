@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MachineSimulator.Controlling;
@@ -55,6 +56,8 @@ namespace MachineSimulator.UVCCamera
         [SerializeField] private CameraProperties _cameraProperties = new CameraProperties();
 
         public Vector2 NewestBallPosition { get; private set; }
+        public float TimeStamp { get; private set; }
+        public bool IsBallDetected { get; private set; }
 
         public void ResetCameraProperties()
         {
@@ -105,8 +108,8 @@ namespace MachineSimulator.UVCCamera
             SetCameraProperties();
 
             // Read back actual negotiated dimensions (may differ from requested).
-            int actualWidth = (int)_cameraProperties.Width;
-            int actualHeight = (int)_cameraProperties.Height;
+            var actualWidth = (int)_cameraProperties.Width;
+            var actualHeight = (int)_cameraProperties.Height;
             getCameraDimensions(_camera, out actualWidth, out actualHeight);
 
             Texture = new Texture2D(actualWidth, actualHeight, TextureFormat.RGB24, false);
@@ -170,29 +173,11 @@ namespace MachineSimulator.UVCCamera
 
         private readonly BallDetection _ballDetection = new BallDetection();
 
-        private bool _isLogging;
-        private readonly List<string> _ballPositionLogs = new List<string>();
-
         private void Update()
         {
             if (!CameraIsInitialized)
             {
                 InitializeCamera();
-            }
-
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                Debug.Log("Start");
-                _isLogging = true;
-                _ballPositionLogs.Clear();
-            }
-
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                Debug.Log("End");
-                _isLogging = false;
-                File.WriteAllLines($"ballpositionlogs_{_id}.txt", _ballPositionLogs);
-                _ballPositionLogs.Clear();
             }
 
             if (_hasNewFrame)
@@ -201,16 +186,19 @@ namespace MachineSimulator.UVCCamera
                 {
                     var res = _ballDetection.BallDataFromPixelBoarders(_pixelsFront, 500);
 
-                    if (res.Count > 0)
+                    // NOTE: Ball radius is measured in pixels.
+                    var filteredResults = res.Where(data => data.Radius is > 30 and < 100).ToList();
+
+                    if (filteredResults.Count > 0)
                     {
                         var ball = res[0];
                         NewestBallPosition = new Vector2(ball.PositionX, ball.PositionY);
-
-                        if (_isLogging)
-                        {
-                            var time = (long)(Time.realtimeSinceStartup * 1000);
-                            _ballPositionLogs.Add($"{time};{ball.PositionX};{ball.PositionY}");
-                        }
+                        TimeStamp = Time.realtimeSinceStartup;
+                        IsBallDetected = true;
+                    }
+                    else
+                    {
+                        IsBallDetected = false;
                     }
 
                     Texture.SetPixelData(_pixelsFront, 0);

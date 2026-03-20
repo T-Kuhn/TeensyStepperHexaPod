@@ -189,14 +189,32 @@
 // - [x] shoot rays from the camera mounts in accordance with ball pixel position data
 // - [X] update end-effector model so that it contains camera holder
 // - [X] read BallDataFromPixelBorders and see if we still agree with the approach.
+// - [X] Calculate ball position from rays
+//     - [X] plane-intersect-approach to get 3D ball position from two camera ball position data
+//     - [X] absolute position in world space
+// - [X] draw ball visualization showing where the camera thinks the ball is
+// - [X] do a simple "go-up-if-ball-gets-below-certain-height" test
+//    - [X] move up as soon as ball gets below 0.3 height
+// - [X] we should be able to whack ball up
+// - [/] start next measurement phase after machine is in start position again
+//    - we measure all the time independent of the MachineLoop. This is better.
+// - [X] we should get continuous bouncing until the ball fails to hit the paddle
+//    - confirmed
 
-// - [ ] Calculate ball position from rays
-//     - [ ] plane-intersect-approach to get 3D ball position from two camera ball position data
-//     - [ ] absolute position in world space
-// - [ ] draw gizmo sphere showing where the camera thinks the ball is
+// - [X] gather ball position data while machine is bouncing ball
+
+// - [ ] get a simple PID/PD controller going to keep the ball on the paddle
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
+// - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
+
+
+// Name: Hexa-Bouncer
+
+// - [ ] we could try to get rid of ball-flickering with averages (if both data streams are relatively fresh)
+
+
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
 // - [ ] experiment: ball at different heights, how many pixels per 2cm?

@@ -3,34 +3,36 @@ using System.Text;
 using MachineSimulator.SerialCommunication;
 using UnityEngine;
 
-namespace MachineSimulator.Machine{
-
-public class RealMachine : InstructableMachine
+namespace MachineSimulator.Machine
 {
-    [SerializeField] private SerialInterface _serial = null;
-        
-    protected override void SendInstructions(List<LLInstruction> diffInstructions)
+    public class RealMachine : InstructableMachine
     {
-        var builder = new StringBuilder();
-        var i = 1;
+        [SerializeField] private SerialInterface _serial = null;
 
-        foreach (var diffInstruction in diffInstructions)
+        public bool IsReady { get; set; }
+
+        protected override void SendInstructions(List<LLInstruction> diffInstructions)
         {
-            if (i >= 2) builder.Append(":");
+            var builder = new StringBuilder();
+            var i = 1;
 
-            builder.Append((11f * i++).ToString("0.00000"));
-            builder.Append(":");
-            builder.Append(diffInstruction.Serialize());
+            foreach (var diffInstruction in diffInstructions)
+            {
+                if (i >= 2) builder.Append(":");
+
+                builder.Append((11f * i++).ToString("0.00000"));
+                builder.Append(":");
+                builder.Append(diffInstruction.Serialize());
+            }
+
+            builder.Append('\n');
+
+            _serial.Send(builder.ToString());
         }
 
-        builder.Append('\n');
-
-        _serial.Send(builder.ToString());
+        public override void GoToOrigin()
+        {
+            // SendInstructions(new List<LLInstruction>() {new LLInstruction(Constants.ZeroMachineState, 1f)});
+        }
     }
-
-    public override void GoToOrigin()
-    {
-        // SendInstructions(new List<LLInstruction>() {new LLInstruction(Constants.ZeroMachineState, 1f)});
-    }
-}
 }
