@@ -50,7 +50,8 @@ namespace MachineSimulator.Sequencing
             bool executeOnRealMachine = false)
         {
             // await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            // await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            await GoUpAndDownAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
         private static bool IsDefaultPose(MachineModel.MachineModel machineModel, Vector3 position, Quaternion rotation)
@@ -400,13 +401,13 @@ namespace MachineSimulator.Sequencing
         // NOTE: We verified that bouncing works with the below code
         public static async UniTask GoUpAndDownAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
         {
-            commandTime *= 0.2f;
+            commandTime *= 0.13f; // tested as far down as 0.125.
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
             sequenceCreator.ClearAll();
             var upRotation = Quaternion.Euler(0f, 0f, 0f);
-            var upPosition = new Vector3(0f, 0.2f, 0f);
+            var upPosition = new Vector3(0f, 0.18f, 0f);
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 

@@ -48,6 +48,7 @@ namespace MachineSimulator.Controlling
                     && _realMachine.IsReady
                     && _ballPosition.Value.y < 0.3f)
                 {
+                    // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
                     var commandTime = 0.75f;
                     await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, true);
                 }
