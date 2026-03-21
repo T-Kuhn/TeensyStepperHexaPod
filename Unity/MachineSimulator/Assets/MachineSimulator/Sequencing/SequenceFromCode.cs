@@ -399,14 +399,21 @@ namespace MachineSimulator.Sequencing
 
         // NOTE: command time and height cranked up near to limit (after pressing SpeedX3 button) to optimize for bounce ball height
         // NOTE: We verified that bouncing works with the below code
-        public static async UniTask GoUpAndDownAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)
+        public static async UniTask GoUpAndDownAsync(
+            MachineModel.MachineModel machineModel,
+            SequenceCreator sequenceCreator,
+            float commandTime,
+            CancellationToken ct,
+            bool executeOnRealMachine,
+            float zTiltAngle = 0f,
+            float xTiltAngle = 0f)
         {
             commandTime *= 0.13f; // tested as far down as 0.125.
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
             sequenceCreator.ClearAll();
-            var upRotation = Quaternion.Euler(0f, 0f, 0f);
+            var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
             var upPosition = new Vector3(0f, 0.18f, 0f);
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));

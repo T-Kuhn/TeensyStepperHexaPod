@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -39,18 +40,28 @@ namespace MachineSimulator.Controlling
             RunMachineLoopAsync().Forget();
         }
 
+        private readonly PID _zAxisPid = new PID();
+        private readonly PID _xAxisPid = new PID();
+
         private async UniTask RunMachineLoopAsync()
         {
+            const bool useRealMachine = true;
+
             while (true)
             {
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
-                    && _realMachine.IsReady
+                    && (!useRealMachine || _realMachine.IsReady)
                     && _ballPosition.Value.y < 0.3f)
                 {
+                    // NOTE: ball movement along x axis is driving PID for correction around Z axis
+                    //       ball movement along z axis is driving PID for correction around X axis
+                    var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
+                    var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
+
                     // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
                     var commandTime = 0.75f;
-                    await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, true);
+                    await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection);
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.

@@ -209,6 +209,10 @@
 //       in sync to real machine to get accurate world space ball position.
 // - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
 
+// - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball direction
+//       (are we still moving up or already moving down?)
+//       Adding this will allow us to time the bounces better.
+
 
 // Name: Hexa-Bouncer
 
