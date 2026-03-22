@@ -408,7 +408,7 @@ namespace MachineSimulator.Sequencing
             float zTiltAngle = 0f,
             float xTiltAngle = 0f)
         {
-            commandTime *= 0.13f; // tested as far down as 0.125.
+            commandTime *= 0.15f; // tested as far down as 0.125.
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
