@@ -52,7 +52,7 @@ namespace MachineSimulator.Controlling
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
                     && (!useRealMachine || _realMachine.IsReady)
-                    && _ballPosition.Value.y < 0.3f)
+                    && _ballPosition.Value.y < 0.33f)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
