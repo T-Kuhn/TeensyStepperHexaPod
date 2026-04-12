@@ -200,14 +200,20 @@
 //    - we measure all the time independent of the MachineLoop. This is better.
 // - [X] we should get continuous bouncing until the ball fails to hit the paddle
 //    - confirmed
-
 // - [X] gather ball position data while machine is bouncing ball
+// - [X] get a simple PID/PD controller going to keep the ball on the paddle
 
-// - [ ] get a simple PID/PD controller going to keep the ball on the paddle
+// ↓ Do this!
+// - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
+
+// - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
+//       (are we still moving up or already moving down?)
+//       Adding this will allow us to time the bounces better -> use slower/more elegant moves.
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
-// - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
+
+
 
 
 // Name: Hexa-Bouncer
