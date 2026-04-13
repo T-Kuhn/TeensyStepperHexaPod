@@ -161,19 +161,18 @@ namespace MachineSimulator.Controlling
             // Step1: Figure out which ballposition is the oldest
             var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp + biasOffset;
 
-            // Step2: Use AlignedPlane corresponding to oldest ballposition data as target plane
-            // Also determine the correct layer to raycast against
-            var targetLayerMask = camOneIsOldest
-                ? LayerMask.GetMask("PlaneOne")
-                : LayerMask.GetMask("PlaneTwo");
+            // Step2: Shoot rays from both cameras onto both corresponding planes
+            var intersectionOnPlaneOne = ShootRayAtPlane(_cameraTwoTransform, _camTwoDetectedBallDir, LayerMask.GetMask("PlaneOne"));
+            var intersectionOnPlaneTwo = ShootRayAtPlane(_cameraOneTransform, _camOneDetectedBallDir, LayerMask.GetMask("PlaneTwo"));
 
-            // Step3: Shoot ray in direction of other ballposition data's detected ball direction (origin is corresponding _cameraTransform)
-            var rayOrigin = camOneIsOldest ? _cameraTwoTransform : _cameraOneTransform;
-            var rayDirection = camOneIsOldest ? _camTwoDetectedBallDir : _camOneDetectedBallDir;
+            // Step3: Return the intersection point depending on which camera's data is the oldest
+            return camOneIsOldest ? intersectionOnPlaneOne : intersectionOnPlaneTwo;
+        }
 
+        private Vector3? ShootRayAtPlane(Transform rayOrigin, Vector3 rayDirection, int targetLayerMask)
+        {
             var ray = new Ray(rayOrigin.position, rayDirection);
 
-            // Step4: Return the intersection point using Physics.Raycast with the correct layer
             if (Physics.Raycast(ray, out var hit, Mathf.Infinity, targetLayerMask))
             {
                 return hit.point;
