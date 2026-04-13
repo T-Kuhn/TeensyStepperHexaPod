@@ -75,11 +75,6 @@ namespace MachineSimulator.MachineModel
             _isInPlaybackMode = true;
             // _logger.StartLogging();
 
-            // NOTE: Need to wait two frames because if we start at the same frame the Playback
-            //       was requested we will get a high deltaTime due to the stringedMoveCommand-generation.
-            //       With the current way we are handling things, even 1 deltaTime over the commandTime will
-            //       cause the animation to not show correctly since we immediately early break thorugh all instructions.
-            await UniTask.Yield(PlayerLoopTiming.Update);
             await UniTask.Yield(PlayerLoopTiming.Update);
 
             foreach (var instruction in instructions)
@@ -92,6 +87,12 @@ namespace MachineSimulator.MachineModel
 
                 var moveTime = instruction.MoveTime;
                 var elapsedTime = 0f;
+                
+                // MEMO: - 12ms per instruction
+                //       - on 4x setting: 3ms per instruction
+                
+                // 100FPS -> 10ms per frame
+                // 200FPS -> 5ms per frame
 
                 while (true)
                 {
