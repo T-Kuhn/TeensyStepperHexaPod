@@ -75,12 +75,9 @@ namespace MachineSimulator.MachineModel
             _isInPlaybackMode = true;
             // _logger.StartLogging();
 
-            // NOTE: Need to wait two frames because if we start at the same frame the Playback
-            //       was requested we will get a high deltaTime due to the stringedMoveCommand-generation.
-            //       With the current way we are handling things, even 1 deltaTime over the commandTime will
-            //       cause the animation to not show correctly since we immediately early break thorugh all instructions.
             await UniTask.Yield(PlayerLoopTiming.Update);
-            await UniTask.Yield(PlayerLoopTiming.Update);
+
+            var carryoverTime = 0f;
 
             foreach (var instruction in instructions)
             {
@@ -91,19 +88,17 @@ namespace MachineSimulator.MachineModel
                 var targetRotation = instruction.TargetMachineState.PlateRotationQuaternion;
 
                 var moveTime = instruction.MoveTime;
-                var elapsedTime = 0f;
+                var elapsedTime = carryoverTime;
+                carryoverTime = 0f;
 
-                while (true)
+                // Process as much of this instruction as possible within a single frame
+                while (elapsedTime < moveTime)
                 {
-                    elapsedTime += Time.deltaTime;
+                    var frameTime = Time.deltaTime;
+                    elapsedTime += frameTime;
 
-                    // NOTE: t always goes from 0 to 1
-                    var t = elapsedTime / moveTime;
-
-                    if (t >= 1f)
-                    {
-                        break;
-                    }
+                    // Clamp t to 1.0 to ensure we don't overshoot
+                    var t = Mathf.Min(elapsedTime / moveTime, 1f);
 
                     // NOTE: theta always goes from 0 to PI
                     var theta = t * Mathf.PI;
@@ -120,8 +115,14 @@ namespace MachineSimulator.MachineModel
                     var rotation = Quaternion.Lerp(currentRotation, targetRotation, s);
 
                     UpdatePositionAndRotationTo(position, rotation);
-
                     await UniTask.Yield(PlayerLoopTiming.Update);
+
+                    // If we've completed this instruction, carry over the excess time
+                    if (elapsedTime >= moveTime)
+                    {
+                        carryoverTime = elapsedTime - moveTime;
+                        break;
+                    }
                 }
             }
 
