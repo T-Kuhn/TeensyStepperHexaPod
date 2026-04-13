@@ -18,7 +18,7 @@ namespace MachineSimulator.Controlling
         //     - Left  -> X-
         // rotating around Z axis in minus direction will make ball go to the Right
         // rotatint around X axis in minus direction will make ball go to the Front
-        public PID(float kP = 0.5f, float kI = 0f, float kD = 0.75f)
+        public PID(float kP = 0.75f, float kI = 0f, float kD = 0.75f)
         {
             _kP = kP;
             _kI = kI;
