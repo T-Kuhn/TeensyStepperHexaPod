@@ -19,6 +19,6 @@ namespace MachineSimulator
         public static readonly float CameraVerticalFov = 92f;
 
         public static Byte Threshold = 100;
-        public static int PixelSpacing = 50;
+        public static int PixelSpacing = 25;
     }
 }

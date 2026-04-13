@@ -203,13 +203,15 @@
 // - [X] gather ball position data while machine is bouncing ball
 // - [X] get a simple PID/PD controller going to keep the ball on the paddle
 // - [X] with high speed moves, we aren't getting smooth virtual machine playback (fix).
+// - [X] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
 
 // ↓ Do this!
-// - [ ] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
-
 // - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
 //       (are we still moving up or already moving down?)
 //       Adding this will allow us to time the bounces better -> use slower/more elegant moves.
+//     - [ ] We have no excuse to NOT accurately calculate predicted ball hits paddle time. It's too easy. No excuse.
+//       It has to be done.
+//     - [ ] we can even add this prediction to our log and check if it's accurate or not after recording some data.
 
 // - [ ] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
