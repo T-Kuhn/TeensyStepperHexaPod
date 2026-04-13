@@ -64,7 +64,6 @@ namespace MachineSimulator.Sequencing
             if (sendToRealMachine)
             {
                 _realMachine.Instruct(stringedLowLevelInstuctions);
-                return;
             }
 
             _machineModel.HexaPlateMover.StartPlaybackMode(sringedHighLevelInstructions, true);
