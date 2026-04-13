@@ -202,9 +202,9 @@
 //    - confirmed
 // - [X] gather ball position data while machine is bouncing ball
 // - [X] get a simple PID/PD controller going to keep the ball on the paddle
+// - [X] with high speed moves, we aren't getting smooth virtual machine playback (fix).
 
 // ↓ Do this!
-// - [ ] with high speed moves, we aren't getting smooth virtual machine playback (fix).
 // - [ ] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
 
 // - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
