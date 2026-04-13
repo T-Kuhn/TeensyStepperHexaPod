@@ -205,6 +205,7 @@
 // - [X] with high speed moves, we aren't getting smooth virtual machine playback (fix).
 // - [X] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
 
+// - [ ] we need to ensure that our ball data is as continuous as possible.
 // ↓ Do this!
 // - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
 //       (are we still moving up or already moving down?)

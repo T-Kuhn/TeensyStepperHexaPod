@@ -153,8 +153,13 @@ namespace MachineSimulator.Controlling
                 return null;
             }
 
+            // NOTE: We add a time offset to make sure that there's a bias towards camOne data being the oldest data
+            //       We do this because without this bias - and because the two cameras aren't exactly aligned - we get
+            //       position data that is a bit jittery.
+            var biasOffset = 0.01f;
+
             // Step1: Figure out which ballposition is the oldest
-            var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp;
+            var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp + biasOffset;
 
             // Step2: Use AlignedPlane corresponding to oldest ballposition data as target plane
             // Also determine the correct layer to raycast against
