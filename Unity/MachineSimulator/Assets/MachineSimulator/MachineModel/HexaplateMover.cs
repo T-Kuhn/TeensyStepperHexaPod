@@ -77,6 +77,8 @@ namespace MachineSimulator.MachineModel
 
             await UniTask.Yield(PlayerLoopTiming.Update);
 
+            var carryoverTime = 0f;
+
             foreach (var instruction in instructions)
             {
                 var currentPosition = transform.position;
@@ -86,25 +88,17 @@ namespace MachineSimulator.MachineModel
                 var targetRotation = instruction.TargetMachineState.PlateRotationQuaternion;
 
                 var moveTime = instruction.MoveTime;
-                var elapsedTime = 0f;
-                
-                // MEMO: - 12ms per instruction
-                //       - on 4x setting: 3ms per instruction
-                
-                // 100FPS -> 10ms per frame
-                // 200FPS -> 5ms per frame
+                var elapsedTime = carryoverTime;
+                carryoverTime = 0f;
 
-                while (true)
+                // Process as much of this instruction as possible within a single frame
+                while (elapsedTime < moveTime)
                 {
-                    elapsedTime += Time.deltaTime;
+                    var frameTime = Time.deltaTime;
+                    elapsedTime += frameTime;
 
-                    // NOTE: t always goes from 0 to 1
-                    var t = elapsedTime / moveTime;
-
-                    if (t >= 1f)
-                    {
-                        break;
-                    }
+                    // Clamp t to 1.0 to ensure we don't overshoot
+                    var t = Mathf.Min(elapsedTime / moveTime, 1f);
 
                     // NOTE: theta always goes from 0 to PI
                     var theta = t * Mathf.PI;
@@ -121,8 +115,14 @@ namespace MachineSimulator.MachineModel
                     var rotation = Quaternion.Lerp(currentRotation, targetRotation, s);
 
                     UpdatePositionAndRotationTo(position, rotation);
-
                     await UniTask.Yield(PlayerLoopTiming.Update);
+
+                    // If we've completed this instruction, carry over the excess time
+                    if (elapsedTime >= moveTime)
+                    {
+                        carryoverTime = elapsedTime - moveTime;
+                        break;
+                    }
                 }
             }
 
