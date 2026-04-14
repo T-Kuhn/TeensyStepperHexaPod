@@ -126,11 +126,12 @@ namespace MachineSimulator.Controlling
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
 
-            _ballPosition = CalculateBallPositionFromIntersection();
-            if (_ballPosition.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
+            var (ballposition, timestamp) = CalculateBallPositionFromIntersection();
+            _ballPosition = ballposition;
+            if (_ballPosition.HasValue && timestamp.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
             {
                 _ballVisualization.position = _ballPosition.Value;
-                _ballVelocityRegression.AddSample(Time.realtimeSinceStartup, _ballPosition.Value);
+                _ballVelocityRegression.AddSample(timestamp.Value, _ballPosition.Value);
                 var velocity = _ballVelocityRegression.CalculateVelocity();
 
                 if (_isLogging)
@@ -148,13 +149,13 @@ namespace MachineSimulator.Controlling
             return rotation * Vector3.forward;
         }
 
-        private Vector3? CalculateBallPositionFromIntersection()
+        private (Vector3? BallPosition, float? TimeStamp) CalculateBallPositionFromIntersection()
         {
             if (BallPositionProviderOne == null || BallPositionProviderTwo == null ||
                 _cameraOneTransform == null || _cameraTwoTransform == null ||
                 _planeOneOrigin == null || _planeTwoOrigin == null)
             {
-                return null;
+                return (null, null);
             }
 
             // Step1: Shoot rays from both cameras onto both corresponding planes
@@ -164,7 +165,8 @@ namespace MachineSimulator.Controlling
             // Step2: If the data of both cameras is new (within 10ms), we return the average of the two intersection points
             if (Mathf.Abs(BallPositionProviderOne.TimeStamp - BallPositionProviderTwo.TimeStamp) < 0.01f)
             {
-                return (intersectionOnPlaneOne + intersectionOnPlaneTwo) / 2f;
+                var averageTimeStamp = (BallPositionProviderOne.TimeStamp + BallPositionProviderTwo.TimeStamp) / 2f;
+                return ((intersectionOnPlaneOne + intersectionOnPlaneTwo) / 2f, averageTimeStamp);
             }
 
             // NOTE: We add a time offset to make sure that there's a bias towards camOne data being the oldest data
@@ -176,7 +178,7 @@ namespace MachineSimulator.Controlling
             var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp + biasOffset;
 
             // Step4: Return the intersection point depending on which camera's data is the oldest
-            return camOneIsOldest ? intersectionOnPlaneOne : intersectionOnPlaneTwo;
+            return camOneIsOldest ? (intersectionOnPlaneOne, BallPositionProviderTwo.TimeStamp) : (intersectionOnPlaneTwo, BallPositionProviderOne.TimeStamp);
         }
 
         private Vector3? ShootRayAtPlane(Transform rayOrigin, Vector3 rayDirection, int targetLayerMask)

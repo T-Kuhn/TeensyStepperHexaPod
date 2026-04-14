@@ -205,6 +205,8 @@
 // - [X] with high speed moves, we aren't getting smooth virtual machine playback (fix).
 // - [X] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
 // - [X] we need to ensure that our ball data is as continuous as possible.
+// - [x] we'll need to make sure that we can playback motion commands on virtual machine
+//       in sync to real machine to get accurate world space ball position.
 
 // ↓ Do this!
 // - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
@@ -214,8 +216,8 @@
 //       It has to be done.
 //     - [ ] we can even add this prediction to our log and check if it's accurate or not after recording some data.
 
-// - [ ] we'll need to make sure that we can playback motion commands on virtual machine
-//       in sync to real machine to get accurate world space ball position.
+// - [ ] Implement integral component of PID controller.
+//       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
 
 
 
