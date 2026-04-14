@@ -35,6 +35,8 @@ namespace MachineSimulator.Controlling
 
         private Vector3? _ballPosition;
 
+        private readonly BallVelocityRegression _ballVelocityRegression = new BallVelocityRegression();
+
         private void Start()
         {
             RunMachineLoopAsync().Forget();
@@ -128,11 +130,13 @@ namespace MachineSimulator.Controlling
             if (_ballPosition.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
             {
                 _ballVisualization.position = _ballPosition.Value;
+                _ballVelocityRegression.AddSample(Time.realtimeSinceStartup, _ballPosition.Value);
+                var velocity = _ballVelocityRegression.CalculateVelocity();
 
                 if (_isLogging)
                 {
                     var time = (long)(Time.realtimeSinceStartup * 1000);
-                    _ballPositionLogs.Add($"{time};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z}");
+                    _ballPositionLogs.Add($"{time};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{velocity.x};{velocity.y};{velocity.z}");
                 }
             }
         }
