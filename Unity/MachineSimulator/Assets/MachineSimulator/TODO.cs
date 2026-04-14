@@ -207,8 +207,13 @@
 // - [X] we need to ensure that our ball data is as continuous as possible.
 // - [x] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
+// - [X] calculate ball velocity with linear regression / gradient descent
 
 // ↓ Do this!
+// - [ ] our velocity is sampleCount/2 * timestep late (10/2 * 80ms = 40ms). So we need to add ball velocity that
+//       will happen in the next 40ms and add that to our "current" ball velocity to get real time ball velocity.
+// - [ ] log this new real time ball velocity to see whether or not it checks out.
+
 // - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
 //       (are we still moving up or already moving down?)
 //       Adding this will allow us to time the bounces better -> use slower/more elegant moves.

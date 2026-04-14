@@ -34,6 +34,7 @@ namespace MachineSimulator.Controlling
         [SerializeField] private Transform _ballVisualization;
 
         private Vector3? _ballPosition;
+        private float _lastTimestamp;
 
         private readonly BallVelocityRegression _ballVelocityRegression = new BallVelocityRegression();
 
@@ -128,7 +129,11 @@ namespace MachineSimulator.Controlling
 
             var (ballposition, timestamp) = CalculateBallPositionFromIntersection();
             _ballPosition = ballposition;
-            if (_ballPosition.HasValue && timestamp.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
+            if (
+                _ballPosition.HasValue
+                && timestamp.HasValue
+                && (Mathf.Abs(timestamp.Value - _lastTimestamp) > 0.0001f)
+                && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
             {
                 _ballVisualization.position = _ballPosition.Value;
                 _ballVelocityRegression.AddSample(timestamp.Value, _ballPosition.Value);
@@ -136,9 +141,10 @@ namespace MachineSimulator.Controlling
 
                 if (_isLogging)
                 {
-                    var time = (long)(Time.realtimeSinceStartup * 1000);
-                    _ballPositionLogs.Add($"{time};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{velocity.x};{velocity.y};{velocity.z}");
+                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{velocity.x};{velocity.y};{velocity.z}");
                 }
+
+                _lastTimestamp = timestamp.Value;
             }
         }
 

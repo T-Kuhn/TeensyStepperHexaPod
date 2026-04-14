@@ -8,7 +8,7 @@ namespace MachineSimulator.Controlling
         private readonly int _sampleCount;
         private readonly Queue<(float time, Vector3 position)> _samples = new Queue<(float, Vector3)>();
 
-        public BallVelocityRegression(int sampleCount = 5)
+        public BallVelocityRegression(int sampleCount = 10)
         {
             _sampleCount = sampleCount;
         }
