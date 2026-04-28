@@ -210,7 +210,7 @@
 // - [X] calculate ball velocity with linear regression / gradient descent
 
 // ↓ Do this!
-// - [ ] our velocity is sampleCount/2 * timestep late (10/2 * 80ms = 40ms). So we need to add ball velocity that
+// - [ ] our velocity is sampleCount/2 * timestep late (10/2 * 8ms = 40ms). So we need to add ball velocity that
 //       will happen in the next 40ms and add that to our "current" ball velocity to get real time ball velocity.
 // - [ ] log this new real time ball velocity to see whether or not it checks out.
 
