@@ -59,6 +59,7 @@ namespace MachineSimulator.Controlling
                     && _timeUntilNextImpact.HasValue
                     // NOTE: In an ideal world, we'd want to start moving up 75ms before ball hits because our up motion takes 150ms in total
                     //       but because it takes a bit of time for our commands to get to the microcontroller, 120ms is better.
+                    //       so it's basically commandTime/2 (75ms) + 45ms = 120ms
                     && _timeUntilNextImpact.Value < 0.12f)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
