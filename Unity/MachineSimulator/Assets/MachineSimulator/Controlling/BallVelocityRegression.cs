@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace MachineSimulator.Controlling
@@ -20,6 +21,30 @@ namespace MachineSimulator.Controlling
             {
                 _samples.Dequeue();
             }
+        }
+
+        // NOTE: only y-velocity is adjusted to be closer to real time. The others (velocity along x and z) are not adjusted.
+        public Vector3 CalculateRealTimeVelocity()
+        {
+            if (_samples.Count == 0) return Vector3.zero;
+
+            var velocity = CalculateVelocity();
+
+            // NOTE: Our velocity is sampleCount/2 * timestep late (10/2 * 8ms = 40ms). So we need to add ball velocity that
+            //       will happen in the next 40ms and add that to our "current" ball velocity to get real time ball velocity.
+            var oldestSampleTime = _samples.Peek().time;
+            var newestSampleTime = _samples.Last().time;
+            var totalSampleTime = newestSampleTime - oldestSampleTime;
+
+            // NOTE: This midTime should be around 40ms.
+            var midTime = totalSampleTime / 2f;
+            // NOTE: velocity at time t is v_t = a * t (we don't care about initial velocity here in this specific case)
+            //       a = - 9.81m/s^2
+            var velocityChangeDueToGravity = (-9.81f) * midTime;
+
+            velocity += velocityChangeDueToGravity * Vector3.up;
+
+            return velocity;
         }
 
         public Vector3 CalculateVelocity()

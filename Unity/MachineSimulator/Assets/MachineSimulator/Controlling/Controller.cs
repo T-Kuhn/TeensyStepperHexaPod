@@ -34,6 +34,7 @@ namespace MachineSimulator.Controlling
         [SerializeField] private Transform _ballVisualization;
 
         private Vector3? _ballPosition;
+        private float? _timeUntilNextImpact;
         private float _lastTimestamp;
 
         private readonly BallVelocityRegression _ballVelocityRegression = new BallVelocityRegression();
@@ -55,7 +56,10 @@ namespace MachineSimulator.Controlling
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
                     && (!useRealMachine || _realMachine.IsReady)
-                    && _ballPosition.Value.y < 0.33f)
+                    && _timeUntilNextImpact.HasValue
+                    // NOTE: In an ideal world, we'd want to start moving up 75ms before ball hits because our up motion takes 150ms in total
+                    //       but because it takes a bit of time for our commands to get to the microcontroller, 120ms is better.
+                    && _timeUntilNextImpact.Value < 0.12f)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
@@ -137,11 +141,13 @@ namespace MachineSimulator.Controlling
             {
                 _ballVisualization.position = _ballPosition.Value;
                 _ballVelocityRegression.AddSample(timestamp.Value, _ballPosition.Value);
-                var velocity = _ballVelocityRegression.CalculateVelocity();
+                var realTimeVelocity = _ballVelocityRegression.CalculateRealTimeVelocity();
+                var plateDefaultHeight = _machineModel.HexaPlateMover.DefaultHeight;
+                _timeUntilNextImpact = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, realTimeVelocity.y, plateDefaultHeight);
 
-                if (_isLogging)
+                if (_isLogging && _timeUntilNextImpact.HasValue)
                 {
-                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{velocity.x};{velocity.y};{velocity.z}");
+                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{_timeUntilNextImpact.Value}");
                 }
 
                 _lastTimestamp = timestamp.Value;
