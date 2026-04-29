@@ -59,8 +59,8 @@ namespace MachineSimulator.Controlling
                     && _timeUntilNextImpact.HasValue
                     // NOTE: In an ideal world, we'd want to start moving up 75ms before ball hits because our up motion takes 150ms in total
                     //       but because it takes a bit of time for our commands to get to the microcontroller, 120ms is better.
-                    //       so it's basically commandTime/2 (75ms) + 45ms = 120ms
-                    && _timeUntilNextImpact.Value < 0.12f)
+                    //       so it's basically commandTime/2 (115ms) + 45ms = 160ms
+                    && _timeUntilNextImpact.Value < 0.16f)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
@@ -70,6 +70,8 @@ namespace MachineSimulator.Controlling
                     // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
                     var commandTime = 0.75f;
                     await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection);
+                    // NOTE: Use below and comment out above to test other functionality (no more automatic bouncing)
+                    // await UniTask.Delay(TimeSpan.FromMilliseconds(200));
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.

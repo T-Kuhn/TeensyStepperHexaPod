@@ -208,18 +208,24 @@
 // - [x] we'll need to make sure that we can playback motion commands on virtual machine
 //       in sync to real machine to get accurate world space ball position.
 // - [X] calculate ball velocity with linear regression / gradient descent
-
-// ↓ Do this!
-// - [ ] our velocity is sampleCount/2 * timestep late (10/2 * 8ms = 40ms). So we need to add ball velocity that
+// - [X] our velocity is sampleCount/2 * timestep late (10/2 * 8ms = 40ms). So we need to add ball velocity that
 //       will happen in the next 40ms and add that to our "current" ball velocity to get real time ball velocity.
-// - [ ] log this new real time ball velocity to see whether or not it checks out.
-
-// - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
+// - [X] log this new real time ball velocity to see whether or not it checks out.
+// - [X] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
 //       (are we still moving up or already moving down?)
 //       Adding this will allow us to time the bounces better -> use slower/more elegant moves.
-//     - [ ] We have no excuse to NOT accurately calculate predicted ball hits paddle time. It's too easy. No excuse.
+//     - [X] We have no excuse to NOT accurately calculate predicted ball hits paddle time. It's too easy. No excuse.
 //       It has to be done.
-//     - [ ] we can even add this prediction to our log and check if it's accurate or not after recording some data.
+//     - [X] we can even add this prediction to our log and check if it's accurate or not after recording some data.
+
+// ↓ Do this!
+// - [ ] We need some interesting ways to juggle the ball.
+//     - [ ] 150ms move command with 0.2 height
+//     - [ ] then smoothly change to 225ms move time with 0.23 height
+//     - [ ] juggle ball while moving paddle left/right little by little (after each bounce move a bit to left/right when going back down)
+//     - [ ] maybe try to move paddle to center of current ball position when going back down
+//     - [ ] maybe do a slight screw motion while going up just for funsies?
+
 
 // - [ ] Implement integral component of PID controller.
 //       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
