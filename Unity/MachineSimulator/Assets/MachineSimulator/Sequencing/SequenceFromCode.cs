@@ -51,7 +51,7 @@ namespace MachineSimulator.Sequencing
         {
             await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
             // await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            // await GoUpAndDownAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            //await GoUpAndDownAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine, 0f, 5f, machineModel.HexaPlateMover.DefaultHeight);
         }
 
         private static bool IsDefaultPose(MachineModel.MachineModel machineModel, Vector3 position, Quaternion rotation)

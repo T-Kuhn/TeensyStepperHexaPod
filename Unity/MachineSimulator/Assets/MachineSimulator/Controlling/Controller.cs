@@ -51,6 +51,7 @@ namespace MachineSimulator.Controlling
         private async UniTask RunMachineLoopAsync()
         {
             const bool useRealMachine = true;
+            var isFastBounce = false;
 
             while (true)
             {
@@ -96,9 +97,26 @@ namespace MachineSimulator.Controlling
 
                             break;
                         }
+                        case BallHandlingMode.Alternating:
+                        {
+                            // command time: 225ms
+                            commandTime *= isFastBounce ? 0.2f : 0.3f;
+                            // NOTE: Whenever we skip a upwards movement we pass in default hight because we still want to get a tilt correction.
+                            var upPositionHeight = isFastBounce ? 0.2f : 0.23f;
+                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+
+                            isFastBounce = !isFastBounce;
+
+                            break;
+                        }
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                }
+
+                if (_modeSwitcher.CurrentMode != BallHandlingMode.Alternating)
+                {
+                    isFastBounce = false;
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.

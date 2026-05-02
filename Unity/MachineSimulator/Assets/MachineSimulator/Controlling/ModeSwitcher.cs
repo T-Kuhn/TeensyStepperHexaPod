@@ -36,5 +36,6 @@ namespace MachineSimulator.Controlling
         None,
         SlowBouncing,
         FastBouncing,
+        Alternating,
     }
 }
