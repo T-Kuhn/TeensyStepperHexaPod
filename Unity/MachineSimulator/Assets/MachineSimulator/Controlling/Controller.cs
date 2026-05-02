@@ -74,7 +74,7 @@ namespace MachineSimulator.Controlling
                     {
                         case BallHandlingMode.None:
                         {
-                            await UniTask.Delay(TimeSpan.FromMilliseconds(200));
+                            await UniTask.Delay(TimeSpan.FromMilliseconds(150));
 
                             break;
                         }
