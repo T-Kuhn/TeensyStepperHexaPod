@@ -98,7 +98,7 @@ namespace MachineSimulator.UI
         
         public void SetTextOnCamTwoCounterLabelTo(string text) => _camTwoCounterLabel.text = text;
         
-        public void SetCurrentModeLabelTo(string text) => _currentModeLabel.text = text;
+        public void SetTextOnCurrentModeLabelTo(string text) => _currentModeLabel.text = text;
 
         private void Awake()
         {
