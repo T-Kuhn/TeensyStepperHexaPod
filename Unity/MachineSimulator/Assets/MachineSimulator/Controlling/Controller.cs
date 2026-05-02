@@ -15,6 +15,7 @@ namespace MachineSimulator.Controlling
         [SerializeField] private SequenceCreator _sequenceCreator;
         [SerializeField] private MachineModel.MachineModel _machineModel;
         [SerializeField] private RealMachine _realMachine;
+        [SerializeField] private ModeSwitcher _modeSwitcher;
 
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
@@ -34,6 +35,10 @@ namespace MachineSimulator.Controlling
         [SerializeField] private Transform _ballVisualization;
 
         private Vector3? _ballPosition;
+        private float? _timeUntilNextImpact;
+        private float _lastTimestamp;
+
+        private readonly BallVelocityRegression _ballVelocityRegression = new BallVelocityRegression();
 
         private void Start()
         {
@@ -52,7 +57,11 @@ namespace MachineSimulator.Controlling
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
                     && (!useRealMachine || _realMachine.IsReady)
-                    && _ballPosition.Value.y < 0.33f)
+                    && _timeUntilNextImpact.HasValue
+                    // NOTE: In an ideal world, we'd want to start moving up 75ms before ball hits because our up motion takes 150ms in total
+                    //       but because it takes a bit of time for our commands to get to the microcontroller, 120ms is better.
+                    //       so it's basically commandTime/2 (115ms) + 45ms = 160ms
+                    && _timeUntilNextImpact.Value < 0.16f)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
@@ -61,7 +70,35 @@ namespace MachineSimulator.Controlling
 
                     // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
                     var commandTime = 0.75f;
-                    await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection);
+                    switch (_modeSwitcher.CurrentMode)
+                    {
+                        case BallHandlingMode.None:
+                        {
+                            await UniTask.Delay(TimeSpan.FromMilliseconds(200));
+
+                            break;
+                        }
+                        case BallHandlingMode.SlowBouncing:
+                        {
+                            // command time: 225ms
+                            commandTime *= 0.3f;
+                            var upPositionHeight = 0.23f;
+                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+
+                            break;
+                        }
+                        case BallHandlingMode.FastBouncing:
+                        {
+                            // commandtime: About 150ms
+                            commandTime *= 0.2f; // tested as far down as 0.125.
+                            var upPositionHeight = 0.2f;
+                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+
+                            break;
+                        }
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.
@@ -124,16 +161,26 @@ namespace MachineSimulator.Controlling
                 AlignPlane(_planeTwoOrigin, _cameraTwoTransform, _camTwoDetectedBallDir);
             }
 
-            _ballPosition = CalculateIntersectionPoint();
-            if (_ballPosition.HasValue && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
+            var (ballposition, timestamp) = CalculateBallPositionFromIntersection();
+            _ballPosition = ballposition;
+            if (
+                _ballPosition.HasValue
+                && timestamp.HasValue
+                && (Mathf.Abs(timestamp.Value - _lastTimestamp) > 0.0001f)
+                && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true }))
             {
                 _ballVisualization.position = _ballPosition.Value;
+                _ballVelocityRegression.AddSample(timestamp.Value, _ballPosition.Value);
+                var realTimeVelocity = _ballVelocityRegression.CalculateRealTimeVelocity();
+                var plateDefaultHeight = _machineModel.HexaPlateMover.DefaultHeight;
+                _timeUntilNextImpact = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, realTimeVelocity.y, plateDefaultHeight);
 
-                if (_isLogging)
+                if (_isLogging && _timeUntilNextImpact.HasValue)
                 {
-                    var time = (long)(Time.realtimeSinceStartup * 1000);
-                    _ballPositionLogs.Add($"{time};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z}");
+                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{_timeUntilNextImpact.Value}");
                 }
+
+                _lastTimestamp = timestamp.Value;
             }
         }
 
@@ -144,31 +191,42 @@ namespace MachineSimulator.Controlling
             return rotation * Vector3.forward;
         }
 
-        private Vector3? CalculateIntersectionPoint()
+        private (Vector3? BallPosition, float? TimeStamp) CalculateBallPositionFromIntersection()
         {
             if (BallPositionProviderOne == null || BallPositionProviderTwo == null ||
                 _cameraOneTransform == null || _cameraTwoTransform == null ||
                 _planeOneOrigin == null || _planeTwoOrigin == null)
             {
-                return null;
+                return (null, null);
             }
 
-            // Step1: Figure out which ballposition is the oldest
-            var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp;
+            // Step1: Shoot rays from both cameras onto both corresponding planes
+            var intersectionOnPlaneOne = ShootRayAtPlane(_cameraTwoTransform, _camTwoDetectedBallDir, LayerMask.GetMask("PlaneOne"));
+            var intersectionOnPlaneTwo = ShootRayAtPlane(_cameraOneTransform, _camOneDetectedBallDir, LayerMask.GetMask("PlaneTwo"));
 
-            // Step2: Use AlignedPlane corresponding to oldest ballposition data as target plane
-            // Also determine the correct layer to raycast against
-            var targetLayerMask = camOneIsOldest
-                ? LayerMask.GetMask("PlaneOne")
-                : LayerMask.GetMask("PlaneTwo");
+            // Step2: If the data of both cameras is new (within 10ms), we return the average of the two intersection points
+            if (Mathf.Abs(BallPositionProviderOne.TimeStamp - BallPositionProviderTwo.TimeStamp) < 0.01f)
+            {
+                var averageTimeStamp = (BallPositionProviderOne.TimeStamp + BallPositionProviderTwo.TimeStamp) / 2f;
+                return ((intersectionOnPlaneOne + intersectionOnPlaneTwo) / 2f, averageTimeStamp);
+            }
 
-            // Step3: Shoot ray in direction of other ballposition data's detected ball direction (origin is corresponding _cameraTransform)
-            var rayOrigin = camOneIsOldest ? _cameraTwoTransform : _cameraOneTransform;
-            var rayDirection = camOneIsOldest ? _camTwoDetectedBallDir : _camOneDetectedBallDir;
+            // NOTE: We add a time offset to make sure that there's a bias towards camOne data being the oldest data
+            //       We do this because without this bias - and because the two cameras aren't exactly aligned - we get
+            //       position data that is a bit jittery.
+            var biasOffset = 0.01f;
 
+            // Step3: Figure out which ballposition is the oldest
+            var camOneIsOldest = BallPositionProviderOne.TimeStamp <= BallPositionProviderTwo.TimeStamp + biasOffset;
+
+            // Step4: Return the intersection point depending on which camera's data is the oldest
+            return camOneIsOldest ? (intersectionOnPlaneOne, BallPositionProviderTwo.TimeStamp) : (intersectionOnPlaneTwo, BallPositionProviderOne.TimeStamp);
+        }
+
+        private Vector3? ShootRayAtPlane(Transform rayOrigin, Vector3 rayDirection, int targetLayerMask)
+        {
             var ray = new Ray(rayOrigin.position, rayDirection);
 
-            // Step4: Return the intersection point using Physics.Raycast with the correct layer
             if (Physics.Raycast(ray, out var hit, Mathf.Infinity, targetLayerMask))
             {
                 return hit.point;

@@ -49,9 +49,9 @@ namespace MachineSimulator.Sequencing
             CancellationToken ct,
             bool executeOnRealMachine = false)
         {
-            // await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            await ShowOffMultipleMovesInOrder(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
             // await GoUpAndDownForeverAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
-            await GoUpAndDownAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
+            // await GoUpAndDownAsync(machineModel, sequenceCreator, commandTime, ct, executeOnRealMachine);
         }
 
         private static bool IsDefaultPose(MachineModel.MachineModel machineModel, Vector3 position, Quaternion rotation)
@@ -405,20 +405,16 @@ namespace MachineSimulator.Sequencing
             float commandTime,
             CancellationToken ct,
             bool executeOnRealMachine,
-            float zTiltAngle = 0f,
-            float xTiltAngle = 0f)
+            float zTiltAngle,
+            float xTiltAngle,
+            float upPositionHeight)
         {
-            commandTime *= 0.2f; // tested as far down as 0.125.
-            // NOTE: 0.75 * 0.2 = 0.15
-            // About 150ms
-            // so 150ms up + 150ms down = 300ms
-            // current bounce cycle is around 393ms (half of that is 196ms)
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
             sequenceCreator.ClearAll();
             var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
-            var upPosition = new Vector3(0f, 0.20f, 0f);
+            var upPosition = new Vector3(0f, upPositionHeight, 0f);
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 

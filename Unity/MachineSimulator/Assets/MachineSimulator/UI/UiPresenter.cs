@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using MachineSimulator.Controlling;
 using MachineSimulator.Machine;
 using MachineSimulator.UVCCamera;
 using UniRx;
@@ -13,6 +14,7 @@ namespace MachineSimulator.UI
         [SerializeField] private RealMachine _realMachine;
         [SerializeField] private UVCCameraPlugin _uvcOne;
         [SerializeField] private UVCCameraPlugin _uvcTwo;
+        [SerializeField] private ModeSwitcher _modeSwitcher;
 
         private float _currentCommandTime = 3f;
         private readonly float _defaultCommandTime = 3f;
@@ -108,6 +110,7 @@ namespace MachineSimulator.UI
             var timeTwo = _uvcTwo.LastImageRetrievalTime;
             _view.SetTextOnCamTwoCounterLabelTo($"camTwo: {countTwo}, {timeTwo}ms");
 
+            _view.SetTextOnCurrentModeLabelTo($"Mode: {_modeSwitcher.CurrentMode}");
         }
     }
 }

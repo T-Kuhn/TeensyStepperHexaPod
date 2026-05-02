@@ -203,16 +203,34 @@
 // - [X] gather ball position data while machine is bouncing ball
 // - [X] get a simple PID/PD controller going to keep the ball on the paddle
 // - [X] with high speed moves, we aren't getting smooth virtual machine playback (fix).
-
-// ↓ Do this!
-// - [ ] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
-
-// - [ ] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
+// - [X] gather new ball data with the new ball bouncing code (should bounce higher now, maybe?)
+// - [X] we need to ensure that our ball data is as continuous as possible.
+// - [x] we'll need to make sure that we can playback motion commands on virtual machine
+//       in sync to real machine to get accurate world space ball position.
+// - [X] calculate ball velocity with linear regression / gradient descent
+// - [X] our velocity is sampleCount/2 * timestep late (10/2 * 8ms = 40ms). So we need to add ball velocity that
+//       will happen in the next 40ms and add that to our "current" ball velocity to get real time ball velocity.
+// - [X] log this new real time ball velocity to see whether or not it checks out.
+// - [X] we should not only look at ball height for up-down-motion-trigger, but also current ball velocity
 //       (are we still moving up or already moving down?)
 //       Adding this will allow us to time the bounces better -> use slower/more elegant moves.
+//     - [X] We have no excuse to NOT accurately calculate predicted ball hits paddle time. It's too easy. No excuse.
+//       It has to be done.
+//     - [X] we can even add this prediction to our log and check if it's accurate or not after recording some data.
 
-// - [ ] we'll need to make sure that we can playback motion commands on virtual machine
-//       in sync to real machine to get accurate world space ball position.
+// ↓ Do this!
+// - [ ] We need some interesting ways to juggle the ball.
+//     - [ ] 150ms move command with 0.2 height
+//     - [ ] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
+//     - [ ] every second bounce it a hit style
+//     - [ ] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
+//     - [ ] juggle ball while moving paddle left/right little by little (after each bounce move a bit to left/right when going back down)
+//     - [ ] maybe try to move paddle to center of current ball position when going back down
+//     - [ ] maybe do a slight screw motion while going up just for funsies?
+
+
+// - [ ] Implement integral component of PID controller.
+//       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
 
 
 
