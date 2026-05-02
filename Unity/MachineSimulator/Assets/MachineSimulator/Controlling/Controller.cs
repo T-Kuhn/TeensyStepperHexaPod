@@ -15,6 +15,7 @@ namespace MachineSimulator.Controlling
         [SerializeField] private SequenceCreator _sequenceCreator;
         [SerializeField] private MachineModel.MachineModel _machineModel;
         [SerializeField] private RealMachine _realMachine;
+        [SerializeField] private ModeSwitcher _modeSwitcher;
 
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
@@ -69,9 +70,35 @@ namespace MachineSimulator.Controlling
 
                     // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
                     var commandTime = 0.75f;
-                    await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection);
-                    // NOTE: Use below and comment out above to test other functionality (no more automatic bouncing)
-                    // await UniTask.Delay(TimeSpan.FromMilliseconds(200));
+                    switch (_modeSwitcher.CurrentMode)
+                    {
+                        case BallHandlingMode.None:
+                        {
+                            await UniTask.Delay(TimeSpan.FromMilliseconds(200));
+
+                            break;
+                        }
+                        case BallHandlingMode.SlowBouncing:
+                        {
+                            // command time: 225ms
+                            commandTime *= 0.3f;
+                            var upPositionHeight = 0.23f;
+                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+
+                            break;
+                        }
+                        case BallHandlingMode.FastBouncing:
+                        {
+                            // commandtime: About 150ms
+                            commandTime *= 0.2f; // tested as far down as 0.125.
+                            var upPositionHeight = 0.2f;
+                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+
+                            break;
+                        }
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.

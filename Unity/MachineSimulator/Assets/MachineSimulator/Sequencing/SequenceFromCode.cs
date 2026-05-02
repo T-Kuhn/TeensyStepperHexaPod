@@ -405,19 +405,16 @@ namespace MachineSimulator.Sequencing
             float commandTime,
             CancellationToken ct,
             bool executeOnRealMachine,
-            float zTiltAngle = 0f,
-            float xTiltAngle = 0f)
+            float zTiltAngle,
+            float xTiltAngle,
+            float upPositionHeight)
         {
-            commandTime *= 0.3f; // tested as far down as 0.125.
-            // new command time: 225ms
-            // half: 112.5ms
-
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
             sequenceCreator.ClearAll();
             var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
-            var upPosition = new Vector3(0f, 0.23f, 0f);
+            var upPosition = new Vector3(0f, upPositionHeight, 0f);
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
