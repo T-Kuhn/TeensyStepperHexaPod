@@ -53,7 +53,7 @@ namespace MachineSimulator.Controlling
 
         // NOTE: AUDIT THESE PAIRS — a too-fast CommandTime for the given UpPositionHeight is dangerous for the machine.
         private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.23f);
-        private static readonly BounceProfile HighBounce = new BounceProfile(0.25f, 0.25f);
+        private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.25f);
         private static readonly BounceProfile FastBounce = new BounceProfile(0.15f, 0.2f);
         private static readonly BounceProfile TinyBounce = new BounceProfile(0.125f, 0.17f);
 
