@@ -40,6 +40,23 @@ namespace MachineSimulator.Controlling
 
         private readonly BallVelocityRegression _ballVelocityRegression = new BallVelocityRegression();
 
+        private readonly struct BounceProfile
+        {
+            public readonly float CommandTime;
+            public readonly float UpPositionHeight;
+
+            public BounceProfile(float commandTime, float upPositionHeight)
+            {
+                CommandTime = commandTime;
+                UpPositionHeight = upPositionHeight;
+            }
+        }
+
+        // AUDIT THESE PAIRS — a too-fast CommandTime for the given UpPositionHeight is dangerous for the machine.
+        private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.23f);
+        private static readonly BounceProfile FastBounce = new BounceProfile(0.15f,  0.2f);
+        private static readonly BounceProfile TinyBounce = new BounceProfile(0.225f, 0.18f);
+
         private void Start()
         {
             RunMachineLoopAsync().Forget();
@@ -48,33 +65,42 @@ namespace MachineSimulator.Controlling
         private readonly PID _zAxisPid = new PID();
         private readonly PID _xAxisPid = new PID();
 
-        private float GetComandTime(BallHandlingMode currentMode, bool isFastBounce, int tinyBounceStepState)
+        private BounceProfile? GetNextBounceProfile(BallHandlingMode currentMode, bool isFastBounce, int tinyBounceStepState)
         {
             switch (currentMode)
             {
-                case BallHandlingMode.None:
-                    return 0.225f;
-                case BallHandlingMode.SlowBouncing:
-                    return 0.225f;
-                case BallHandlingMode.FastBouncing:
-                    return 0.15f;
-                case BallHandlingMode.Alternating:
-                    return isFastBounce ? 0.15f : 0.225f;
+                case BallHandlingMode.None:          return null;
+                case BallHandlingMode.SlowBouncing:  return SlowBounce;
+                case BallHandlingMode.FastBouncing:  return FastBounce;
+                case BallHandlingMode.Alternating:   return isFastBounce ? FastBounce : SlowBounce;
                 case BallHandlingMode.RanTinyBounce:
-                    if (tinyBounceStepState == 1) return 0.225f;
-                    if (tinyBounceStepState == 2) return 0.15f;
-                    return 0.225f;
-                default:
-                    return 0.225f;
+                    if (tinyBounceStepState == 1) return TinyBounce;
+                    if (tinyBounceStepState == 2) return FastBounce;
+                    return SlowBounce;
+                default: return SlowBounce;
             }
         }
 
-        private float GetTimeThreshold(float commandTime)
+        private float GetTimeThreshold(BounceProfile profile)
         {
             // NOTE: In an ideal world, we'd want to start moving up commandTime/2f before ball hits because our up motion takes commandTime in total
             //       but because it takes a bit of time for our commands to get to the microcontroller, adding 45ms leads to better results.
             //       So it's basically commandTime/2 + 45ms
-            return commandTime / 2f + 0.045f;
+            return profile.CommandTime / 2f + 0.045f;
+        }
+
+        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection)
+        {
+            return SequenceFromCode.GoUpAndDownAsync(
+                _machineModel,
+                _sequenceCreator,
+                profile.CommandTime,
+                CancellationToken.None,
+                useRealMachine,
+                zCorrection,
+                xCorrection,
+                profile.UpPositionHeight
+            );
         }
 
         private async UniTask RunMachineLoopAsync()
@@ -85,8 +111,13 @@ namespace MachineSimulator.Controlling
 
             while (true)
             {
-                var commandTime = GetComandTime(_modeSwitcher.CurrentMode, isFastBounce, tinyBounceStepState);
-                var timeThreshold = GetTimeThreshold(commandTime);
+                var profile = GetNextBounceProfile(_modeSwitcher.CurrentMode, isFastBounce, tinyBounceStepState);
+
+                // For None (profile == null) we still want the same gating behavior the old code had,
+                // which used commandTime = 0.225f. Falling back to SlowBounce preserves that bit-for-bit.
+                var timeThreshold = profile.HasValue
+                    ? GetTimeThreshold(profile.Value)
+                    : GetTimeThreshold(SlowBounce);
 
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
@@ -103,118 +134,42 @@ namespace MachineSimulator.Controlling
                     switch (_modeSwitcher.CurrentMode)
                     {
                         case BallHandlingMode.None:
-                        {
                             await UniTask.Delay(TimeSpan.FromMilliseconds(150));
-
                             break;
-                        }
+
                         case BallHandlingMode.SlowBouncing:
-                        {
-                            await SequenceFromCode.GoUpAndDownAsync(
-                                _machineModel,
-                                _sequenceCreator,
-                                commandTime,
-                                CancellationToken.None,
-                                useRealMachine,
-                                zCorrection,
-                                xCorrection,
-                                0.23f
-                            );
-
+                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection);
                             break;
-                        }
+
                         case BallHandlingMode.FastBouncing:
-                        {
-                            await SequenceFromCode.GoUpAndDownAsync(
-                                _machineModel,
-                                _sequenceCreator,
-                                commandTime,
-                                CancellationToken.None,
-                                useRealMachine,
-                                zCorrection,
-                                xCorrection,
-                                0.2f
-                            );
-
+                            await ExecuteBounceAsync(FastBounce, useRealMachine, zCorrection, xCorrection);
                             break;
-                        }
+
                         case BallHandlingMode.Alternating:
-                        {
-                            await SequenceFromCode.GoUpAndDownAsync(
-                                _machineModel,
-                                _sequenceCreator,
-                                commandTime,
-                                CancellationToken.None,
-                                useRealMachine,
-                                zCorrection,
-                                xCorrection,
-                                isFastBounce ? 0.2f : 0.23f
-                            );
-
+                            await ExecuteBounceAsync(isFastBounce ? FastBounce : SlowBounce, useRealMachine, zCorrection, xCorrection);
                             isFastBounce = !isFastBounce;
-
                             break;
-                        }
+
                         case BallHandlingMode.RanTinyBounce:
-                        {
-                            // Do the small bounce and break
                             if (tinyBounceStepState == 1)
                             {
-                                // TinyBounce
-                                await SequenceFromCode.GoUpAndDownAsync(
-                                    _machineModel,
-                                    _sequenceCreator,
-                                    commandTime,
-                                    CancellationToken.None,
-                                    useRealMachine,
-                                    zCorrection,
-                                    xCorrection,
-                                    0.18f
-                                );
-
+                                await ExecuteBounceAsync(TinyBounce, useRealMachine, zCorrection, xCorrection);
                                 tinyBounceStepState = 2;
-
                                 break;
                             }
-
                             if (tinyBounceStepState == 2)
                             {
-                                // FastBounce
-                                await SequenceFromCode.GoUpAndDownAsync(
-                                    _machineModel,
-                                    _sequenceCreator,
-                                    commandTime,
-                                    CancellationToken.None,
-                                    useRealMachine,
-                                    zCorrection,
-                                    xCorrection,
-                                    0.2f
-                                );
-
+                                await ExecuteBounceAsync(FastBounce, useRealMachine, zCorrection, xCorrection);
                                 tinyBounceStepState = 0;
-
                                 break;
                             }
-
-                            // SlowBounce (Default)
-                            await SequenceFromCode.GoUpAndDownAsync(
-                                _machineModel,
-                                _sequenceCreator,
-                                commandTime,
-                                CancellationToken.None,
-                                useRealMachine,
-                                zCorrection,
-                                xCorrection,
-                                0.23f
-                            );
-
+                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection);
                             if (UnityEngine.Random.Range(0f, 1f) > 0.9f)
                             {
                                 tinyBounceStepState = 1;
                             }
-
                             break;
-                        }
+
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
