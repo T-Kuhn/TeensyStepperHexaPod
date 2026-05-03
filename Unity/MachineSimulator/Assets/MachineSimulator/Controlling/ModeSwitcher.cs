@@ -37,5 +37,6 @@ namespace MachineSimulator.Controlling
         SlowBouncing,
         FastBouncing,
         Alternating,
+        RanTinyBounce,
     }
 }

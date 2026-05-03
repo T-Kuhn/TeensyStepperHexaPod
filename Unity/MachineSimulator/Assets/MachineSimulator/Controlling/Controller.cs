@@ -48,29 +48,58 @@ namespace MachineSimulator.Controlling
         private readonly PID _zAxisPid = new PID();
         private readonly PID _xAxisPid = new PID();
 
+        private float GetComandTime(BallHandlingMode currentMode, bool isFastBounce, int tinyBounceStepState)
+        {
+            switch (currentMode)
+            {
+                case BallHandlingMode.None:
+                    return 0.225f;
+                case BallHandlingMode.SlowBouncing:
+                    return 0.225f;
+                case BallHandlingMode.FastBouncing:
+                    return 0.15f;
+                case BallHandlingMode.Alternating:
+                    return isFastBounce ? 0.15f : 0.225f;
+                case BallHandlingMode.RanTinyBounce:
+                    if (tinyBounceStepState == 1) return 0.225f;
+                    if (tinyBounceStepState == 2) return 0.15f;
+                    return 0.225f;
+                default:
+                    return 0.225f;
+            }
+        }
+
+        private float GetTimeThreshold(float commandTime)
+        {
+            // NOTE: In an ideal world, we'd want to start moving up commandTime/2f before ball hits because our up motion takes commandTime in total
+            //       but because it takes a bit of time for our commands to get to the microcontroller, adding 45ms leads to better results.
+            //       So it's basically commandTime/2 + 45ms
+            return commandTime / 2f + 0.045f;
+        }
+
         private async UniTask RunMachineLoopAsync()
         {
             const bool useRealMachine = true;
             var isFastBounce = false;
+            var tinyBounceStepState = 0;
 
             while (true)
             {
+                var commandTime = GetComandTime(_modeSwitcher.CurrentMode, isFastBounce, tinyBounceStepState);
+                var timeThreshold = GetTimeThreshold(commandTime);
+
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
                     && (!useRealMachine || _realMachine.IsReady)
                     && _timeUntilNextImpact.HasValue
-                    // NOTE: In an ideal world, we'd want to start moving up 75ms before ball hits because our up motion takes 150ms in total
-                    //       but because it takes a bit of time for our commands to get to the microcontroller, 120ms is better.
-                    //       so it's basically commandTime/2 (115ms) + 45ms = 160ms
-                    && _timeUntilNextImpact.Value < 0.16f)
+                    && _timeUntilNextImpact.Value < timeThreshold)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
                     var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
                     var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
 
-                    // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
-                    var commandTime = 0.75f;
+
                     switch (_modeSwitcher.CurrentMode)
                     {
                         case BallHandlingMode.None:
@@ -81,31 +110,108 @@ namespace MachineSimulator.Controlling
                         }
                         case BallHandlingMode.SlowBouncing:
                         {
-                            // command time: 225ms
-                            commandTime *= 0.3f;
-                            var upPositionHeight = 0.23f;
-                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+                            await SequenceFromCode.GoUpAndDownAsync(
+                                _machineModel,
+                                _sequenceCreator,
+                                commandTime,
+                                CancellationToken.None,
+                                useRealMachine,
+                                zCorrection,
+                                xCorrection,
+                                0.23f
+                            );
 
                             break;
                         }
                         case BallHandlingMode.FastBouncing:
                         {
-                            // commandtime: About 150ms
-                            commandTime *= 0.2f; // tested as far down as 0.125.
-                            var upPositionHeight = 0.2f;
-                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+                            await SequenceFromCode.GoUpAndDownAsync(
+                                _machineModel,
+                                _sequenceCreator,
+                                commandTime,
+                                CancellationToken.None,
+                                useRealMachine,
+                                zCorrection,
+                                xCorrection,
+                                0.2f
+                            );
 
                             break;
                         }
                         case BallHandlingMode.Alternating:
                         {
-                            // command time: 225ms
-                            commandTime *= isFastBounce ? 0.2f : 0.3f;
-                            // NOTE: Whenever we skip a upwards movement we pass in default hight because we still want to get a tilt correction.
-                            var upPositionHeight = isFastBounce ? 0.2f : 0.23f;
-                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+                            await SequenceFromCode.GoUpAndDownAsync(
+                                _machineModel,
+                                _sequenceCreator,
+                                commandTime,
+                                CancellationToken.None,
+                                useRealMachine,
+                                zCorrection,
+                                xCorrection,
+                                isFastBounce ? 0.2f : 0.23f
+                            );
 
                             isFastBounce = !isFastBounce;
+
+                            break;
+                        }
+                        case BallHandlingMode.RanTinyBounce:
+                        {
+                            // Do the small bounce and break
+                            if (tinyBounceStepState == 1)
+                            {
+                                // TinyBounce
+                                await SequenceFromCode.GoUpAndDownAsync(
+                                    _machineModel,
+                                    _sequenceCreator,
+                                    commandTime,
+                                    CancellationToken.None,
+                                    useRealMachine,
+                                    zCorrection,
+                                    xCorrection,
+                                    0.18f
+                                );
+
+                                tinyBounceStepState = 2;
+
+                                break;
+                            }
+
+                            if (tinyBounceStepState == 2)
+                            {
+                                // FastBounce
+                                await SequenceFromCode.GoUpAndDownAsync(
+                                    _machineModel,
+                                    _sequenceCreator,
+                                    commandTime,
+                                    CancellationToken.None,
+                                    useRealMachine,
+                                    zCorrection,
+                                    xCorrection,
+                                    0.2f
+                                );
+
+                                tinyBounceStepState = 0;
+
+                                break;
+                            }
+
+                            // SlowBounce (Default)
+                            await SequenceFromCode.GoUpAndDownAsync(
+                                _machineModel,
+                                _sequenceCreator,
+                                commandTime,
+                                CancellationToken.None,
+                                useRealMachine,
+                                zCorrection,
+                                xCorrection,
+                                0.23f
+                            );
+
+                            if (UnityEngine.Random.Range(0f, 1f) > 0.9f)
+                            {
+                                tinyBounceStepState = 1;
+                            }
 
                             break;
                         }
@@ -123,6 +229,7 @@ namespace MachineSimulator.Controlling
                 await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, CancellationToken.None);
             }
         }
+
 
         private void OnValidate()
         {
