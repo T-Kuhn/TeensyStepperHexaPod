@@ -222,9 +222,9 @@
 // - [ ] We need some interesting ways to juggle the ball.
 //     - [X] 150ms move command with 0.2 height
 //     - [X] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
-//     - [ ] every second bounce it a hit style
-//     - [ ] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
-//     - [ ] juggle ball while moving paddle left/right little by little (after each bounce move a bit to left/right when going back down)
+//     - [X] every second bounce it a hit style
+//     - [X] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
+//     - [ ] juggle ball while trying to keep paddle centered below ball
 //     - [ ] maybe try to move paddle to center of current ball position when going back down
 //     - [ ] maybe do a slight screw motion while going up just for funsies?
 
