@@ -223,6 +223,8 @@
 // - [ ] add rest-height-increase to upDownMotion method
 // - [ ] apply rest height increase to the down-motion so that we can stepwise increase the rest height
 // - [ ] use up and down keys to increase/decrease rest height (track the accumolated changes and make sure they are always positive)
+//     - Add a seperate class for this, should be similar to the ModeSwitcher class. 
+//     - just creating the class and a [SerializedField] to setup the reference is enough. I will Add the class as a Component to a gameObject in the scene and set it up in the inspector manually.
 // - [ ] so if the ball is bouncing and we are pressing up, that specific bounce will end up at a higher height (we are incresing the rest height)
 
 // - [ ] check with virtual machine if it's working correctly or not
