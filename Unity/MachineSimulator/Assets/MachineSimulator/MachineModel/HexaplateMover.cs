@@ -147,7 +147,7 @@ namespace MachineSimulator.MachineModel
 
         public void TeleportToRestPose()
         {
-            UpdatePositionAndRotationTo(position: RestPosition, rotation: RestRotation, isTeleportToOriginPoseChange: true);
+            UpdatePositionAndRotationTo(position: RestPosition, rotation: RestRotation, isTeleportToOriginPoseChange: false);
         }
 
         public void CaptureCurrentPoseAsRest()
