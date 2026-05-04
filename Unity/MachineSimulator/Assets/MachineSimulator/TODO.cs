@@ -219,6 +219,14 @@
 //     - [X] we can even add this prediction to our log and check if it's accurate or not after recording some data.
 
 // ↓ Do this!
+// - [ ] Add a UI that shows current rest position height
+// - [ ] add rest-height-increase to upDownMotion method
+// - [ ] apply rest height increase to the down-motion so that we can stepwise increase the rest height
+// - [ ] use up and down keys to increase/decrease rest height (track the accumolated changes and make sure they are always positive)
+// - [ ] so if the ball is bouncing and we are pressing up, that specific bounce will end up at a higher height (we are incresing the rest height)
+
+// - [ ] check with virtual machine if it's working correctly or not
+
 // - [ ] We need some interesting ways to juggle the ball.
 //     - [X] 150ms move command with 0.2 height
 //     - [X] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
