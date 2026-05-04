@@ -51,6 +51,7 @@ namespace MachineSimulator.UI
         private Label _camOneCounterLabel;
         private Label _camTwoCounterLabel;
         private Label _currentModeLabel;
+        private Label _restHeightLabel;
 
         public IObservable<Unit> OnUpOriginManyTimesClicked => _onUpOriginManyTimesClicked;
         public IObservable<Unit> OnUpOriginClicked => _onUpOriginClicked;
@@ -99,6 +100,8 @@ namespace MachineSimulator.UI
         public void SetTextOnCamTwoCounterLabelTo(string text) => _camTwoCounterLabel.text = text;
         
         public void SetTextOnCurrentModeLabelTo(string text) => _currentModeLabel.text = text;
+
+        public void SetTextOnRestHeightLabelTo(string text) => _restHeightLabel.text = text;
 
         private void Awake()
         {
@@ -149,6 +152,7 @@ namespace MachineSimulator.UI
             _camOneCounterLabel = root.Q<Label>("CamOneCounterLabel");
             _camTwoCounterLabel = root.Q<Label>("CamTwoCounterLabel");
             _currentModeLabel = root.Q<Label>("CurrentModeLabel");
+            _restHeightLabel = root.Q<Label>("RestHeightLabel");
         }
 
         private void RegisterButton(Button button, Subject<Unit> subject)

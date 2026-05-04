@@ -16,6 +16,8 @@ namespace MachineSimulator.Controlling
         [SerializeField] private MachineModel.MachineModel _machineModel;
         [SerializeField] private RealMachine _realMachine;
         [SerializeField] private ModeSwitcher _modeSwitcher;
+        [SerializeField] private RestHeightController _restHeightController;
+        private float _appliedRestIncrease;
 
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
@@ -93,6 +95,10 @@ namespace MachineSimulator.Controlling
 
         private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection)
         {
+            var totalIncrease = _restHeightController.AccumulatedIncrease;
+            var deltaThisBounce = totalIncrease - _appliedRestIncrease;
+            _appliedRestIncrease = totalIncrease;
+
             return SequenceFromCode.GoUpAndDownAsync(
                 _machineModel,
                 _sequenceCreator,
@@ -101,7 +107,8 @@ namespace MachineSimulator.Controlling
                 useRealMachine,
                 zCorrection,
                 xCorrection,
-                profile.UpHeightOffset
+                profile.UpHeightOffset,
+                deltaThisBounce
             );
         }
 
