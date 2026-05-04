@@ -217,16 +217,15 @@
 //     - [X] We have no excuse to NOT accurately calculate predicted ball hits paddle time. It's too easy. No excuse.
 //       It has to be done.
 //     - [X] we can even add this prediction to our log and check if it's accurate or not after recording some data.
-
-// ↓ Do this!
-// - [ ] Add a UI that shows current rest position height
-// - [ ] add rest-height-increase to upDownMotion method
-// - [ ] apply rest height increase to the down-motion so that we can stepwise increase the rest height
-// - [ ] use up and down keys to increase/decrease rest height (track the accumolated changes and make sure they are always positive)
+// - [X] Add a UI that shows current rest position height
+// - [X] add rest-height-increase to upDownMotion method
+// - [X] apply rest height increase to the down-motion so that we can stepwise increase the rest height
+// - [X] use up and down keys to increase/decrease rest height (track the accumolated changes and make sure they are always positive)
 //     - Add a seperate class for this, should be similar to the ModeSwitcher class. 
 //     - just creating the class and a [SerializedField] to setup the reference is enough. I will Add the class as a Component to a gameObject in the scene and set it up in the inspector manually.
-// - [ ] so if the ball is bouncing and we are pressing up, that specific bounce will end up at a higher height (we are incresing the rest height)
+// - [X] so if the ball is bouncing and we are pressing up, that specific bounce will end up at a higher height (we are incresing the rest height)
 
+// ↓ Do this!
 // - [ ] check with virtual machine if it's working correctly or not
 
 // - [ ] We need some interesting ways to juggle the ball.
