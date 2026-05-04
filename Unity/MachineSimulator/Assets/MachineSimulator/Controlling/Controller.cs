@@ -42,20 +42,21 @@ namespace MachineSimulator.Controlling
         private readonly struct BounceProfile
         {
             public readonly float CommandTime;
-            public readonly float UpPositionHeight;
+            public readonly float UpHeightOffset;
 
-            public BounceProfile(float commandTime, float upPositionHeight)
+            public BounceProfile(float commandTime, float upHeightOffset)
             {
                 CommandTime = commandTime;
-                UpPositionHeight = upPositionHeight;
+                UpHeightOffset = upHeightOffset;
             }
         }
 
-        // NOTE: AUDIT THESE PAIRS — a too-fast CommandTime for the given UpPositionHeight is dangerous for the machine.
-        private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.23f);
-        private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.25f);
-        private static readonly BounceProfile FastBounce = new BounceProfile(0.15f, 0.2f);
-        private static readonly BounceProfile TinyBounce = new BounceProfile(0.125f, 0.17f);
+        // AUDIT THESE PAIRS — a too-fast CommandTime for the given UpHeightOffset is dangerous for the machine.
+        // UpHeightOffset is added on top of HexaPlateMover.DefaultHeight at execution time.
+        private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.07f);
+        private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.09f);
+        private static readonly BounceProfile FastBounce = new BounceProfile(0.15f,  0.04f);
+        private static readonly BounceProfile TinyBounce = new BounceProfile(0.225f, 0.02f);
 
         private void Start()
         {
@@ -100,7 +101,7 @@ namespace MachineSimulator.Controlling
                 useRealMachine,
                 zCorrection,
                 xCorrection,
-                profile.UpPositionHeight
+                profile.UpHeightOffset
             );
         }
 
@@ -120,8 +121,7 @@ namespace MachineSimulator.Controlling
                     continue;
                 }
 
-                var yMoveMidDiff = (profile.Value.UpPositionHeight - _machineModel.HexaPlateMover.DefaultHeight) / 2f;
-                var plateMidHeight = _machineModel.HexaPlateMover.DefaultHeight + yMoveMidDiff;
+                var plateMidHeight = _machineModel.HexaPlateMover.DefaultHeight + profile.Value.UpHeightOffset / 2f;
                 var timeUntilNextImpact = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, _realTimeVelocity.y, plateMidHeight);
                 var timeThreshold = GetTimeThreshold(profile.Value);
 

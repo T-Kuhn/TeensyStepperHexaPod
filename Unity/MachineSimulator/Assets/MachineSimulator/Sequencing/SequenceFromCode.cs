@@ -407,14 +407,14 @@ namespace MachineSimulator.Sequencing
             bool executeOnRealMachine,
             float zTiltAngle,
             float xTiltAngle,
-            float upPositionHeight)
+            float upHeightOffset)
         {
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
             sequenceCreator.ClearAll();
             var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
-            var upPosition = new Vector3(0f, upPositionHeight, 0f);
+            var upPosition = new Vector3(0f, machineModel.HexaPlateMover.DefaultHeight + upHeightOffset, 0f);
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
