@@ -422,16 +422,21 @@ namespace MachineSimulator.Sequencing
 
             await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
 
-            // go back to rest
+            // go back down
             sequenceCreator.ClearAll();
-            machineModel.HexaPlateMover.TeleportToRestPose();
+
+            // TODO: For now, rest position and rotation are just the old rest position/rotation. Update this to a dynamic height and offset XZ position.
+            var newRestPosition = machineModel.HexaPlateMover.RestPosition;
+            var newRestRotation = Quaternion.identity;
+            machineModel.HexaPlateMover.UpdatePositionAndRotationTo(newRestPosition, newRestRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
             sequenceCreator.StartStringedPlayback(executeOnRealMachine, resetMachineToStartStateAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation));
 
             await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
 
-            machineModel.HexaPlateMover.CaptureCurrentPoseAsRest();
+            // Update rest position/rotation
+            machineModel.HexaPlateMover.UpdateRestPose(newRestPosition, newRestRotation);
         }
 
         private static async UniTask TiltCircleForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)

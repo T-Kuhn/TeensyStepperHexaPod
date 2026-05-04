@@ -150,10 +150,10 @@ namespace MachineSimulator.MachineModel
             UpdatePositionAndRotationTo(position: RestPosition, rotation: RestRotation, isTeleportToOriginPoseChange: false);
         }
 
-        public void CaptureCurrentPoseAsRest()
+        public void UpdateRestPose(Vector3 position, Quaternion rotation)
         {
-            RestPosition = transform.position;
-            RestRotation = transform.rotation;
+            RestPosition = position;
+            RestRotation = rotation;
         }
 
         public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null, bool isTeleportToOriginPoseChange = false)
