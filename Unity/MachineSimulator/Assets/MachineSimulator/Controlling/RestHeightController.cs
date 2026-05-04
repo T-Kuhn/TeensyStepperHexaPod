@@ -4,7 +4,7 @@ namespace MachineSimulator.Controlling
 {
     public sealed class RestHeightController : MonoBehaviour
     {
-        [SerializeField] private float _step = 0.005f;
+        private const float Step = 0.01f;
         private float _accumulatedIncrease;
 
         public float AccumulatedIncrease => _accumulatedIncrease;
@@ -13,12 +13,12 @@ namespace MachineSimulator.Controlling
         {
             if (Input.GetKeyDown(KeyCode.UpArrow))
             {
-                _accumulatedIncrease += _step;
+                _accumulatedIncrease += Step;
                 Debug.Log($"RestHeight increase: {_accumulatedIncrease}");
             }
             else if (Input.GetKeyDown(KeyCode.DownArrow))
             {
-                _accumulatedIncrease = Mathf.Max(0f, _accumulatedIncrease - _step);
+                _accumulatedIncrease = Mathf.Max(0f, _accumulatedIncrease - Step);
                 Debug.Log($"RestHeight increase: {_accumulatedIncrease}");
             }
         }
