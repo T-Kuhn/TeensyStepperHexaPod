@@ -414,22 +414,24 @@ namespace MachineSimulator.Sequencing
             // move up
             sequenceCreator.ClearAll();
             var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
-            var upPosition = new Vector3(0f, machineModel.HexaPlateMover.DefaultHeight + upHeightOffset, 0f);
+            var upPosition = machineModel.HexaPlateMover.RestPosition + Vector3.up * upHeightOffset;
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
-            sequenceCreator.StartStringedPlayback(executeOnRealMachine, resetMachineToStartStateAction: () => machineModel.HexaPlateMover.TeleportToDefaultHeight());
+            sequenceCreator.StartStringedPlayback(executeOnRealMachine, resetMachineToStartStateAction: () => machineModel.HexaPlateMover.TeleportToRestPose());
 
             await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
 
-            // go back to origin
+            // go back to rest
             sequenceCreator.ClearAll();
-            machineModel.HexaPlateMover.TeleportToDefaultHeight();
+            machineModel.HexaPlateMover.TeleportToRestPose();
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
             sequenceCreator.StartStringedPlayback(executeOnRealMachine, resetMachineToStartStateAction: () => machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation));
 
             await UniTask.Delay(commandTimeInMs + 1, cancellationToken: ct);
+
+            machineModel.HexaPlateMover.CaptureCurrentPoseAsRest();
         }
 
         private static async UniTask TiltCircleForeverAsync(MachineModel.MachineModel machineModel, SequenceCreator sequenceCreator, float commandTime, CancellationToken ct, bool executeOnRealMachine)

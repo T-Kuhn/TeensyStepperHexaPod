@@ -52,7 +52,7 @@ namespace MachineSimulator.Controlling
         }
 
         // AUDIT THESE PAIRS — a too-fast CommandTime for the given UpHeightOffset is dangerous for the machine.
-        // UpHeightOffset is added on top of HexaPlateMover.DefaultHeight at execution time.
+        // UpHeightOffset is added on top of HexaPlateMover.RestPosition.y at execution time.
         private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.07f);
         private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.09f);
         private static readonly BounceProfile FastBounce = new BounceProfile(0.15f,  0.04f);
@@ -121,7 +121,7 @@ namespace MachineSimulator.Controlling
                     continue;
                 }
 
-                var plateMidHeight = _machineModel.HexaPlateMover.DefaultHeight + profile.Value.UpHeightOffset / 2f;
+                var plateMidHeight = _machineModel.HexaPlateMover.RestPosition.y + profile.Value.UpHeightOffset / 2f;
                 var timeUntilNextImpact = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, _realTimeVelocity.y, plateMidHeight);
                 var timeThreshold = GetTimeThreshold(profile.Value);
 
@@ -266,12 +266,12 @@ namespace MachineSimulator.Controlling
                 _ballVisualization.position = _ballPosition.Value;
                 _ballVelocityRegression.AddSample(timestamp.Value, _ballPosition.Value);
                 _realTimeVelocity = _ballVelocityRegression.CalculateRealTimeVelocity();
-                var plateDefaultHeight = _machineModel.HexaPlateMover.DefaultHeight;
-                var timeUntilNextImpactAtDefaultHeight = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, _realTimeVelocity.y, plateDefaultHeight);
+                var plateRestHeight = _machineModel.HexaPlateMover.RestPosition.y;
+                var timeUntilNextImpactAtRestHeight = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, _realTimeVelocity.y, plateRestHeight);
 
-                if (_isLogging && timeUntilNextImpactAtDefaultHeight.HasValue)
+                if (_isLogging && timeUntilNextImpactAtRestHeight.HasValue)
                 {
-                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{timeUntilNextImpactAtDefaultHeight.Value}");
+                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{timeUntilNextImpactAtRestHeight.Value}");
                 }
 
                 _lastTimestamp = timestamp.Value;
