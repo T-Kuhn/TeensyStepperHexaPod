@@ -2345,7 +2345,6 @@ MonoBehaviour:
   _realMachine: {fileID: 1065643978}
   _modeSwitcher: {fileID: 1808984088}
   _restHeightController: {fileID: 1808984089}
-  _leftRightController: {fileID: 0}
   _cameOne: {fileID: 1203267605}
   _camTwo: {fileID: 239239970}
   _planeOneOrigin: {fileID: 534457420}
