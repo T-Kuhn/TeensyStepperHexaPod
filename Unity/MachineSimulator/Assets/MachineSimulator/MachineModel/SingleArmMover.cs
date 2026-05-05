@@ -148,7 +148,6 @@ namespace MachineSimulator.MachineModel
             if (isTeleportToOriginPoseChange)
             {
                 _motorOriginOffset = -theta;
-                Debug.Log("Motor origin offset: " + _motorOriginOffset);
             }
 
             _motorRotation = _motorOriginOffset + theta;

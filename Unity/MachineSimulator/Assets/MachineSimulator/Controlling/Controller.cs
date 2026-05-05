@@ -114,7 +114,7 @@ namespace MachineSimulator.Controlling
 
         private async UniTask RunMachineLoopAsync()
         {
-            const bool useRealMachine = false;
+            const bool useRealMachine = true;
             var isFastBounce = false;
             var tinyBounceStepState = 0;
 
