@@ -409,7 +409,8 @@ namespace MachineSimulator.Sequencing
             float xTiltAngle,
             float upHeightOffset,
             float restHeightIncrease,
-            float xOffset)
+            float xOffset,
+            float zOffset)
         {
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
@@ -427,9 +428,8 @@ namespace MachineSimulator.Sequencing
             // go back down
             sequenceCreator.ClearAll();
 
-            // TODO: XZ offset for the rest position is still hardcoded — only height is dynamic for now.
             var newRestPosY = machineModel.HexaPlateMover.RestPosition.y + restHeightIncrease;
-            var newRestPosition = new Vector3(xOffset, newRestPosY, 0f);
+            var newRestPosition = new Vector3(xOffset, newRestPosY, zOffset);
             var newRestRotation = Quaternion.identity;
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(newRestPosition, newRestRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));

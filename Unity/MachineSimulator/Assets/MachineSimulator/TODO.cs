@@ -233,7 +233,7 @@
 //     - [X] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
 //     - [X] every second bounce it a hit style
 //     - [X] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
-//     - [ ] Add offset to left/right with keys (for debug/testing)
+//     - [X] Add offset to left/right with keys (for debug/testing)
 //     - [ ] juggle ball while trying to keep paddle centered below ball
 //     - [ ] maybe try to move paddle to center of current ball position when going back down
 //     - [ ] maybe do a slight screw motion while going up just for funsies?

@@ -17,7 +17,6 @@ namespace MachineSimulator.Controlling
         [SerializeField] private RealMachine _realMachine;
         [SerializeField] private ModeSwitcher _modeSwitcher;
         [SerializeField] private RestHeightController _restHeightController;
-        [SerializeField] private LeftRightController _leftRightController;
         private float _appliedRestIncrease;
 
         [SerializeField] private MonoBehaviour _cameOne;
@@ -58,7 +57,7 @@ namespace MachineSimulator.Controlling
         // UpHeightOffset is added on top of HexaPlateMover.RestPosition.y at execution time.
         private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.07f);
         private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.09f);
-        private static readonly BounceProfile FastBounce = new BounceProfile(0.15f,  0.04f);
+        private static readonly BounceProfile FastBounce = new BounceProfile(0.15f, 0.04f);
         private static readonly BounceProfile TinyBounce = new BounceProfile(0.225f, 0.02f);
 
         private void Start()
@@ -110,7 +109,8 @@ namespace MachineSimulator.Controlling
                 xCorrection,
                 profile.UpHeightOffset,
                 deltaThisBounce,
-                _leftRightController.AccumulatedIncrease
+                0f,
+                0f
             );
         }
 
