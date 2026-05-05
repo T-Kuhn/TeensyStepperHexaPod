@@ -17,6 +17,7 @@ namespace MachineSimulator.Controlling
         [SerializeField] private RealMachine _realMachine;
         [SerializeField] private ModeSwitcher _modeSwitcher;
         [SerializeField] private RestHeightController _restHeightController;
+        [SerializeField] private LeftRightController _leftRightController;
         private float _appliedRestIncrease;
 
         [SerializeField] private MonoBehaviour _cameOne;
@@ -108,7 +109,8 @@ namespace MachineSimulator.Controlling
                 zCorrection,
                 xCorrection,
                 profile.UpHeightOffset,
-                deltaThisBounce
+                deltaThisBounce,
+                _leftRightController.AccumulatedIncrease
             );
         }
 

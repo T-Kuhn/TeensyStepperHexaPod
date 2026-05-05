@@ -224,15 +224,16 @@
 //     - Add a seperate class for this, should be similar to the ModeSwitcher class. 
 //     - just creating the class and a [SerializedField] to setup the reference is enough. I will Add the class as a Component to a gameObject in the scene and set it up in the inspector manually.
 // - [X] so if the ball is bouncing and we are pressing up, that specific bounce will end up at a higher height (we are incresing the rest height)
+// - [X] check with virtual machine if it's working correctly or not
+// - [X] check with real machine if it's working correctly or not
 
 // ↓ Do this!
-// - [ ] check with virtual machine if it's working correctly or not
-
 // - [ ] We need some interesting ways to juggle the ball.
 //     - [X] 150ms move command with 0.2 height
 //     - [X] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
 //     - [X] every second bounce it a hit style
 //     - [X] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
+//     - [ ] Add offset to left/right with keys (for debug/testing)
 //     - [ ] juggle ball while trying to keep paddle centered below ball
 //     - [ ] maybe try to move paddle to center of current ball position when going back down
 //     - [ ] maybe do a slight screw motion while going up just for funsies?
