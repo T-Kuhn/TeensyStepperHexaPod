@@ -60,6 +60,12 @@ namespace MachineSimulator.Controlling
         private static readonly BounceProfile FastBounce = new BounceProfile(0.15f, 0.04f);
         private static readonly BounceProfile TinyBounce = new BounceProfile(0.225f, 0.02f);
 
+        // NOTE: We should be able to go as high as 0.05f, need to be careful though because in the worst case scenario,
+        //       the machine will try to go from X:0.05 to X:-0.05 in one single down-move;
+        //       Steppers might not be able to keep up (this might be too high velocity for some of the arms)
+        //       So because of the above, we limit the maximum X translation to 0.025f for now.
+        private const float XZTranslationMax = 0.025f;
+
         private void Start()
         {
             RunMachineLoopAsync().Forget();
@@ -205,10 +211,10 @@ namespace MachineSimulator.Controlling
 
                             // NOTE: HexaPlate rest position must be at least 0.2f high before applying xz-translations.
                             //       Below that height the arms would hit the table when translating left/right/front/back.
-                            if (_machineModel.HexaPlateMover.RestPosition.y >= 0.2f)
+                            if (_machineModel.HexaPlateMover.RestPosition.y > 0.199f)
                             {
-                                xOffset = Mathf.Clamp(_ballPosition.Value.x, -0.05f, 0.05f);
-                                zOffset = Mathf.Clamp(_ballPosition.Value.z, -0.05f, 0.05f);
+                                xOffset = Mathf.Clamp(_ballPosition.Value.x, -XZTranslationMax, XZTranslationMax);
+                                zOffset = Mathf.Clamp(_ballPosition.Value.z, -XZTranslationMax, XZTranslationMax);
                             }
                             else
                             {
