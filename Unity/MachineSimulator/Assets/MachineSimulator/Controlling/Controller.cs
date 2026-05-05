@@ -81,6 +81,7 @@ namespace MachineSimulator.Controlling
                     if (tinyBounceStepState == 1) return TinyBounce;
                     if (tinyBounceStepState == 2) return FastBounce;
                     return SlowBounce;
+                case BallHandlingMode.XZFollowing: return SlowBounce;
                 default: return SlowBounce;
             }
         }
@@ -93,7 +94,7 @@ namespace MachineSimulator.Controlling
             return profile.CommandTime / 2f + 0.015f;
         }
 
-        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection)
+        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection, float xOffset = 0f, float zOffset = 0f)
         {
             var totalIncrease = _restHeightController.AccumulatedIncrease;
             var deltaThisBounce = totalIncrease - _appliedRestIncrease;
@@ -109,8 +110,8 @@ namespace MachineSimulator.Controlling
                 xCorrection,
                 profile.UpHeightOffset,
                 deltaThisBounce,
-                0f,
-                0f
+                xOffset,
+                zOffset
             );
         }
 
@@ -142,8 +143,13 @@ namespace MachineSimulator.Controlling
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
-                    var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
-                    var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
+                    // NOTE: ballPosition stream is plate-relative (cameras are attached to the HexaPlate).
+                    //       Add the plate's world x/z to recover the absolute ball position for the PID.
+                    var plateWorldPos = _machineModel.HexaPlateTransform.position;
+                    var ballAbsoluteX = _ballPosition.Value.x + plateWorldPos.x;
+                    var ballAbsoluteZ = _ballPosition.Value.z + plateWorldPos.z;
+                    var zCorrection = _xAxisPid.Update(ballAbsoluteX);
+                    var xCorrection = -_zAxisPid.Update(ballAbsoluteZ);
 
 
                     switch (_modeSwitcher.CurrentMode)
@@ -191,6 +197,27 @@ namespace MachineSimulator.Controlling
                             }
 
                             break;
+
+                        case BallHandlingMode.XZFollowing:
+                        {
+                            float xOffset = 0f;
+                            float zOffset = 0f;
+
+                            // NOTE: HexaPlate rest position must be at least 0.2f high before applying xz-translations.
+                            //       Below that height the arms would hit the table when translating left/right/front/back.
+                            if (_machineModel.HexaPlateMover.RestPosition.y > 0.2f)
+                            {
+                                xOffset = Mathf.Clamp(_ballPosition.Value.x, -0.05f, 0.05f);
+                                zOffset = Mathf.Clamp(_ballPosition.Value.z, -0.05f, 0.05f);
+                            }
+                            else
+                            {
+                                Debug.Log("XZFollowing: skipping xz-translations because RestPosition.y is not above 0.2");
+                            }
+
+                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection, xOffset, zOffset);
+                            break;
+                        }
 
                         default:
                             throw new ArgumentOutOfRangeException();
