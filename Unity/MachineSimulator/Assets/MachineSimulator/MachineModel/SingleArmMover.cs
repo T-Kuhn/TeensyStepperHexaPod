@@ -103,7 +103,7 @@ namespace MachineSimulator.MachineModel
             RotateJoint5(realTargetToTarget);
 
             UpdateGizmoData(worldLink2Dir, realTarget);
-            
+
             _llMachineStateProvider.SetRotationStateForArmWithIndex(_armIndex, _motorRotation);
         }
 
@@ -148,6 +148,7 @@ namespace MachineSimulator.MachineModel
             if (isTeleportToOriginPoseChange)
             {
                 _motorOriginOffset = -theta;
+                Debug.Log("Motor origin offset: " + _motorOriginOffset);
             }
 
             _motorRotation = _motorOriginOffset + theta;

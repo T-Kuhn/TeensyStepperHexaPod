@@ -36,8 +36,8 @@ namespace MachineSimulator.MachineModel
             _hexaPlate.InjectRefs(_logger);
             _hexaPlate.DefaultHeight = _hexaplateDefaultHeight;
             _hexaPlate.TeleportToDefaultHeight();
-            
-            _controller.InjectRefs(_hexaPlate.CameraOneTransform, _hexaPlate.CameraTwoTransform );
+
+            _controller.InjectRefs(_hexaPlate.CameraOneTransform, _hexaPlate.CameraTwoTransform);
         }
 
         private void Update()
@@ -77,6 +77,9 @@ namespace MachineSimulator.MachineModel
                 InstantiateTarget(rightArm, rightTargetPosition, armIndex == 1);
                 _arms[armIndex++] = rightArm;
             }
+
+            // Need to teleport to default height after instantiating arms so that _motorOriginOffset gets setup.
+            _hexaPlate.TeleportToDefaultHeight();
         }
 
         private void InstantiateTarget(SingleArmMover arm, Vector3 targetPosition, bool attachLogger)
