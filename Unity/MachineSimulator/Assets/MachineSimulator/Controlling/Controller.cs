@@ -200,12 +200,12 @@ namespace MachineSimulator.Controlling
 
                         case BallHandlingMode.XZFollowing:
                         {
-                            float xOffset = 0f;
-                            float zOffset = 0f;
+                            var xOffset = 0f;
+                            var zOffset = 0f;
 
                             // NOTE: HexaPlate rest position must be at least 0.2f high before applying xz-translations.
                             //       Below that height the arms would hit the table when translating left/right/front/back.
-                            if (_machineModel.HexaPlateMover.RestPosition.y > 0.2f)
+                            if (_machineModel.HexaPlateMover.RestPosition.y >= 0.2f)
                             {
                                 xOffset = Mathf.Clamp(_ballPosition.Value.x, -0.05f, 0.05f);
                                 zOffset = Mathf.Clamp(_ballPosition.Value.z, -0.05f, 0.05f);
