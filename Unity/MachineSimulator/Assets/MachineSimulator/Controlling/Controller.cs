@@ -230,7 +230,7 @@ namespace MachineSimulator.Controlling
                                 Debug.Log("XZFollowing: skipping xz-translations because RestPosition.y is not above 0.2");
                             }
 
-                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection, xOffset, zOffset);
+                            await ExecuteBounceAsync(profile.Value, useRealMachine, zCorrection, xCorrection, xOffset, zOffset);
                             break;
                         }
 

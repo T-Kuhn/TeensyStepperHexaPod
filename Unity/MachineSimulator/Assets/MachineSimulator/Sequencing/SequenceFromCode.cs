@@ -414,17 +414,10 @@ namespace MachineSimulator.Sequencing
         {
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
-            var changeInX = xOffset - machineModel.HexaPlateMover.RestPosition.x;
-            var changeInZ = zOffset - machineModel.HexaPlateMover.RestPosition.z;
-            var halfChangeInX = changeInX / 2f;
-            var halfChangeInZ = changeInZ / 2f;
-            // NOTE: We apply half of the change in x/z on the upwards motion and the other half in the downwards motion.
-            var halfTransitionInXZPlane = new Vector3(halfChangeInX, 0f, halfChangeInZ);
-
             // move up
             sequenceCreator.ClearAll();
             var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
-            var upPosition = machineModel.HexaPlateMover.RestPosition + Vector3.up * upHeightOffset + halfTransitionInXZPlane;
+            var upPosition = machineModel.HexaPlateMover.RestPosition + Vector3.up * upHeightOffset;
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));
 
