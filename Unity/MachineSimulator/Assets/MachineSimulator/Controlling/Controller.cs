@@ -112,6 +112,8 @@ namespace MachineSimulator.Controlling
             var clampedDz = Mathf.Clamp(zOffset - currentRest.z, -XZTranslationPerBounceMax, XZTranslationPerBounceMax);
             var clampedXOffset = currentRest.x + clampedDx;
             var clampedZOffset = currentRest.z + clampedDz;
+            clampedXOffset = Mathf.Clamp(clampedXOffset, -XZTranslationMax, XZTranslationMax);
+            clampedZOffset = Mathf.Clamp(clampedZOffset, -XZTranslationMax, XZTranslationMax);
 
             return SequenceFromCode.GoUpAndDownAsync(
                 _machineModel,
