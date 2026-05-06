@@ -58,13 +58,14 @@ namespace MachineSimulator.Controlling
         private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.07f);
         private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.09f);
         private static readonly BounceProfile FastBounce = new BounceProfile(0.15f, 0.04f);
-        private static readonly BounceProfile TinyBounce = new BounceProfile(0.225f, 0.02f);
+        private static readonly BounceProfile TinyBounce = new BounceProfile(0.15f, 0.0f);
 
         // NOTE: We should be able to go as high as 0.05f, need to be careful though because in the worst case scenario,
         //       the machine will try to go from X:0.05 to X:-0.05 in one single down-move;
         //       Steppers might not be able to keep up (this might be too high velocity for some of the arms)
-        //       So because of the above, we limit the maximum X translation to 0.025f for now.
-        private const float XZTranslationMax = 0.025f;
+        //       So because of the above, we limit the maximum X translation to a lower value for now.
+        private const float XZTranslationMax = 0.0045f;
+        private const float XZTranslationPerBounceMax = 0.002f;
 
         private void Start()
         {
@@ -196,7 +197,7 @@ namespace MachineSimulator.Controlling
                                 break;
                             }
 
-                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection);
+                            await ExecuteBounceAsync(HighBounce, useRealMachine, zCorrection, xCorrection);
                             if (UnityEngine.Random.Range(0f, 1f) > 0.9f)
                             {
                                 tinyBounceStepState = 1;
