@@ -17,7 +17,7 @@ namespace MachineSimulator.Controlling
         //     - Left  -> X-
         // rotating around Z axis in minus direction will make ball go to the Right
         // rotatint around X axis in minus direction will make ball go to the Front
-        public PID(float kP = 0.75f, float kI = 0f, float kD = 0.75f)
+        public PID(float kP = 0.5f, float kI = 0f, float kD = 0.75f)
         {
             _kP = kP;
             _kI = kI;
@@ -43,10 +43,10 @@ namespace MachineSimulator.Controlling
             return Normalize(p + d);
         }
 
-        // Max correction around axis will be +/- 3 degrees
+        // Max correction around axis will be +/- 2.5 degrees
         private float Normalize(float value)
         {
-            return Mathf.Clamp(value, -3f, 3f);
+            return Mathf.Clamp(value, -2.5f, 2.5f);
         }
     }
 }

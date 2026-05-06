@@ -64,8 +64,8 @@ namespace MachineSimulator.Controlling
         //       the machine will try to go from X:0.05 to X:-0.05 in one single down-move;
         //       Steppers might not be able to keep up (this might be too high velocity for some of the arms)
         //       So because of the above, we limit the maximum X translation to a lower value for now.
-        private const float XZTranslationMax = 0.0045f;
-        private const float XZTranslationPerBounceMax = 0.002f;
+        private const float XZTranslationMax = 0.03f;
+        private const float XZTranslationPerBounceMax = 0.01f;
 
         private void Start()
         {
@@ -88,7 +88,7 @@ namespace MachineSimulator.Controlling
                     if (tinyBounceStepState == 1) return TinyBounce;
                     if (tinyBounceStepState == 2) return FastBounce;
                     return SlowBounce;
-                case BallHandlingMode.XZFollowing: return SlowBounce;
+                case BallHandlingMode.XZFollowing: return FastBounce;
                 default: return SlowBounce;
             }
         }
@@ -160,11 +160,11 @@ namespace MachineSimulator.Controlling
                     //       ball movement along z axis is driving PID for correction around X axis
                     // NOTE: ballPosition stream is plate-relative (cameras are attached to the HexaPlate).
                     //       Add the plate's world x/z to recover the absolute ball position for the PID.
-                    var plateWorldPos = _machineModel.HexaPlateTransform.position;
-                    var ballAbsoluteX = _ballPosition.Value.x + plateWorldPos.x;
-                    var ballAbsoluteZ = _ballPosition.Value.z + plateWorldPos.z;
-                    var zCorrection = _xAxisPid.Update(ballAbsoluteX);
-                    var xCorrection = -_zAxisPid.Update(ballAbsoluteZ);
+                    // var plateWorldPos = _machineModel.HexaPlateTransform.position;
+                    // var ballAbsoluteX = _ballPosition.Value.x + plateWorldPos.x;
+                    // var ballAbsoluteZ = _ballPosition.Value.z + plateWorldPos.z;
+                    var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
+                    var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
 
 
                     switch (_modeSwitcher.CurrentMode)
