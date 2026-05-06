@@ -103,7 +103,7 @@ namespace MachineSimulator.MachineModel
             RotateJoint5(realTargetToTarget);
 
             UpdateGizmoData(worldLink2Dir, realTarget);
-            
+
             _llMachineStateProvider.SetRotationStateForArmWithIndex(_armIndex, _motorRotation);
         }
 

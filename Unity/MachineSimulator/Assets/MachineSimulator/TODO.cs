@@ -217,16 +217,28 @@
 //     - [X] We have no excuse to NOT accurately calculate predicted ball hits paddle time. It's too easy. No excuse.
 //       It has to be done.
 //     - [X] we can even add this prediction to our log and check if it's accurate or not after recording some data.
+// - [X] Add a UI that shows current rest position height
+// - [X] add rest-height-increase to upDownMotion method
+// - [X] apply rest height increase to the down-motion so that we can stepwise increase the rest height
+// - [X] use up and down keys to increase/decrease rest height (track the accumolated changes and make sure they are always positive)
+//     - Add a seperate class for this, should be similar to the ModeSwitcher class. 
+//     - just creating the class and a [SerializedField] to setup the reference is enough. I will Add the class as a Component to a gameObject in the scene and set it up in the inspector manually.
+// - [X] so if the ball is bouncing and we are pressing up, that specific bounce will end up at a higher height (we are incresing the rest height)
+// - [X] check with virtual machine if it's working correctly or not
+// - [X] check with real machine if it's working correctly or not
 
 // ↓ Do this!
 // - [ ] We need some interesting ways to juggle the ball.
-//     - [ ] 150ms move command with 0.2 height
-//     - [ ] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
-//     - [ ] every second bounce it a hit style
-//     - [ ] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
-//     - [ ] juggle ball while moving paddle left/right little by little (after each bounce move a bit to left/right when going back down)
+//     - [X] 150ms move command with 0.2 height
+//     - [X] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
+//     - [X] every second bounce it a hit style
+//     - [X] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
+//     - [X] Add offset to left/right with keys (for debug/testing)
+//     - [ ] juggle ball while trying to keep paddle centered below ball
 //     - [ ] maybe try to move paddle to center of current ball position when going back down
 //     - [ ] maybe do a slight screw motion while going up just for funsies?
+
+// - [ ] How about the machine pushes a button the get a new ball?
 
 
 // - [ ] Implement integral component of PID controller.

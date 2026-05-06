@@ -16,6 +16,8 @@ namespace MachineSimulator.Controlling
         [SerializeField] private MachineModel.MachineModel _machineModel;
         [SerializeField] private RealMachine _realMachine;
         [SerializeField] private ModeSwitcher _modeSwitcher;
+        [SerializeField] private RestHeightController _restHeightController;
+        private float _appliedRestIncrease;
 
         [SerializeField] private MonoBehaviour _cameOne;
         private IBallPositionProvider BallPositionProviderOne => _cameOne as IBallPositionProvider;
@@ -35,10 +37,35 @@ namespace MachineSimulator.Controlling
         [SerializeField] private Transform _ballVisualization;
 
         private Vector3? _ballPosition;
-        private float? _timeUntilNextImpact;
         private float _lastTimestamp;
 
         private readonly BallVelocityRegression _ballVelocityRegression = new BallVelocityRegression();
+
+        private readonly struct BounceProfile
+        {
+            public readonly float CommandTime;
+            public readonly float UpHeightOffset;
+
+            public BounceProfile(float commandTime, float upHeightOffset)
+            {
+                CommandTime = commandTime;
+                UpHeightOffset = upHeightOffset;
+            }
+        }
+
+        // AUDIT THESE PAIRS — a too-fast CommandTime for the given UpHeightOffset is dangerous for the machine.
+        // UpHeightOffset is added on top of HexaPlateMover.RestPosition.y at execution time.
+        private static readonly BounceProfile SlowBounce = new BounceProfile(0.225f, 0.07f);
+        private static readonly BounceProfile HighBounce = new BounceProfile(0.225f, 0.09f);
+        private static readonly BounceProfile FastBounce = new BounceProfile(0.15f, 0.04f);
+        private static readonly BounceProfile TinyBounce = new BounceProfile(0.15f, 0.0f);
+
+        // NOTE: We should be able to go as high as 0.05f, need to be careful though because in the worst case scenario,
+        //       the machine will try to go from X:0.05 to X:-0.05 in one single down-move;
+        //       Steppers might not be able to keep up (this might be too high velocity for some of the arms)
+        //       So because of the above, we limit the maximum X translation to a lower value for now.
+        private const float XZTranslationMax = 0.0045f;
+        private const float XZTranslationPerBounceMax = 0.002f;
 
         private void Start()
         {
@@ -48,63 +75,180 @@ namespace MachineSimulator.Controlling
         private readonly PID _zAxisPid = new PID();
         private readonly PID _xAxisPid = new PID();
 
+        private BounceProfile? GetNextBounceProfile(BallHandlingMode currentMode, bool isFastBounce, int tinyBounceStepState)
+        {
+            switch (currentMode)
+            {
+                case BallHandlingMode.None: return null;
+                case BallHandlingMode.SlowBouncing: return SlowBounce;
+                case BallHandlingMode.HighBouncing: return HighBounce;
+                case BallHandlingMode.FastBouncing: return FastBounce;
+                case BallHandlingMode.Alternating: return isFastBounce ? FastBounce : SlowBounce;
+                case BallHandlingMode.RanTinyBounce:
+                    if (tinyBounceStepState == 1) return TinyBounce;
+                    if (tinyBounceStepState == 2) return FastBounce;
+                    return SlowBounce;
+                case BallHandlingMode.XZFollowing: return SlowBounce;
+                default: return SlowBounce;
+            }
+        }
+
+        private float GetTimeThreshold(BounceProfile profile)
+        {
+            // NOTE: In an ideal world, we'd want to start moving up commandTime/2f before ball hits because our up motion takes commandTime in total
+            //       but because it takes a bit of time for our commands to get to the microcontroller, adding 45ms leads to better results.
+            //       So it's basically commandTime/2 + 15ms
+            return profile.CommandTime / 2f + 0.015f;
+        }
+
+        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection, float xOffset = 0f, float zOffset = 0f)
+        {
+            var totalIncrease = _restHeightController.AccumulatedIncrease;
+            var deltaThisBounce = totalIncrease - _appliedRestIncrease;
+            _appliedRestIncrease = totalIncrease;
+
+            var currentRest = _machineModel.HexaPlateMover.RestPosition;
+            var clampedDx = Mathf.Clamp(xOffset - currentRest.x, -XZTranslationPerBounceMax, XZTranslationPerBounceMax);
+            var clampedDz = Mathf.Clamp(zOffset - currentRest.z, -XZTranslationPerBounceMax, XZTranslationPerBounceMax);
+            var clampedXOffset = currentRest.x + clampedDx;
+            var clampedZOffset = currentRest.z + clampedDz;
+            clampedXOffset = Mathf.Clamp(clampedXOffset, -XZTranslationMax, XZTranslationMax);
+            clampedZOffset = Mathf.Clamp(clampedZOffset, -XZTranslationMax, XZTranslationMax);
+
+            return SequenceFromCode.GoUpAndDownAsync(
+                _machineModel,
+                _sequenceCreator,
+                profile.CommandTime,
+                CancellationToken.None,
+                useRealMachine,
+                zCorrection,
+                xCorrection,
+                profile.UpHeightOffset,
+                deltaThisBounce,
+                clampedXOffset,
+                clampedZOffset
+            );
+        }
+
         private async UniTask RunMachineLoopAsync()
         {
             const bool useRealMachine = true;
+            var isFastBounce = false;
+            var tinyBounceStepState = 0;
 
             while (true)
             {
+                var profile = GetNextBounceProfile(_modeSwitcher.CurrentMode, isFastBounce, tinyBounceStepState);
+
+                if (profile == null || _ballPosition == null)
+                {
+                    await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, CancellationToken.None);
+                    continue;
+                }
+
+                var plateMidHeight = _machineModel.HexaPlateMover.RestPosition.y + profile.Value.UpHeightOffset / 2f;
+                var timeUntilNextImpact = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, _realTimeVelocity.y, plateMidHeight);
+                var timeThreshold = GetTimeThreshold(profile.Value);
+
                 if (_ballPosition.HasValue
                     && (BallPositionProviderOne is { IsBallDetected: true } || BallPositionProviderTwo is { IsBallDetected: true })
                     && (!useRealMachine || _realMachine.IsReady)
-                    && _timeUntilNextImpact.HasValue
-                    // NOTE: In an ideal world, we'd want to start moving up 75ms before ball hits because our up motion takes 150ms in total
-                    //       but because it takes a bit of time for our commands to get to the microcontroller, 120ms is better.
-                    //       so it's basically commandTime/2 (115ms) + 45ms = 160ms
-                    && _timeUntilNextImpact.Value < 0.16f)
+                    && timeUntilNextImpact.HasValue
+                    && timeUntilNextImpact.Value < timeThreshold)
                 {
                     // NOTE: ball movement along x axis is driving PID for correction around Z axis
                     //       ball movement along z axis is driving PID for correction around X axis
-                    var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
-                    var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
+                    // NOTE: ballPosition stream is plate-relative (cameras are attached to the HexaPlate).
+                    //       Add the plate's world x/z to recover the absolute ball position for the PID.
+                    var plateWorldPos = _machineModel.HexaPlateTransform.position;
+                    var ballAbsoluteX = _ballPosition.Value.x + plateWorldPos.x;
+                    var ballAbsoluteZ = _ballPosition.Value.z + plateWorldPos.z;
+                    var zCorrection = _xAxisPid.Update(ballAbsoluteX);
+                    var xCorrection = -_zAxisPid.Update(ballAbsoluteZ);
 
-                    // NOTE: defaultTime (3) / 4 = 0.75 (same as "Speed x4" setting)
-                    var commandTime = 0.75f;
+
                     switch (_modeSwitcher.CurrentMode)
                     {
                         case BallHandlingMode.None:
-                        {
-                            await UniTask.Delay(TimeSpan.FromMilliseconds(200));
-
+                            await UniTask.Delay(TimeSpan.FromMilliseconds(150));
                             break;
-                        }
+
                         case BallHandlingMode.SlowBouncing:
-                        {
-                            // command time: 225ms
-                            commandTime *= 0.3f;
-                            var upPositionHeight = 0.23f;
-                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
-
+                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection);
                             break;
-                        }
+
+                        case BallHandlingMode.HighBouncing:
+                            await ExecuteBounceAsync(HighBounce, useRealMachine, zCorrection, xCorrection);
+                            break;
+
                         case BallHandlingMode.FastBouncing:
-                        {
-                            // commandtime: About 150ms
-                            commandTime *= 0.2f; // tested as far down as 0.125.
-                            var upPositionHeight = 0.2f;
-                            await SequenceFromCode.GoUpAndDownAsync(_machineModel, _sequenceCreator, commandTime, CancellationToken.None, useRealMachine, zCorrection, xCorrection, upPositionHeight);
+                            await ExecuteBounceAsync(FastBounce, useRealMachine, zCorrection, xCorrection);
+                            break;
+
+                        case BallHandlingMode.Alternating:
+                            await ExecuteBounceAsync(isFastBounce ? FastBounce : SlowBounce, useRealMachine, zCorrection, xCorrection);
+                            isFastBounce = !isFastBounce;
+                            break;
+
+                        case BallHandlingMode.RanTinyBounce:
+                            if (tinyBounceStepState == 1)
+                            {
+                                await ExecuteBounceAsync(TinyBounce, useRealMachine, zCorrection, xCorrection);
+                                tinyBounceStepState = 2;
+                                break;
+                            }
+
+                            if (tinyBounceStepState == 2)
+                            {
+                                await ExecuteBounceAsync(FastBounce, useRealMachine, zCorrection, xCorrection);
+                                tinyBounceStepState = 0;
+                                break;
+                            }
+
+                            await ExecuteBounceAsync(HighBounce, useRealMachine, zCorrection, xCorrection);
+                            if (UnityEngine.Random.Range(0f, 1f) > 0.9f)
+                            {
+                                tinyBounceStepState = 1;
+                            }
 
                             break;
+
+                        case BallHandlingMode.XZFollowing:
+                        {
+                            var xOffset = 0f;
+                            var zOffset = 0f;
+
+                            // NOTE: HexaPlate rest position must be at least 0.2f high before applying xz-translations.
+                            //       Below that height the arms would hit the table when translating left/right/front/back.
+                            if (_machineModel.HexaPlateMover.RestPosition.y > 0.199f)
+                            {
+                                xOffset = Mathf.Clamp(_ballPosition.Value.x, -XZTranslationMax, XZTranslationMax);
+                                zOffset = Mathf.Clamp(_ballPosition.Value.z, -XZTranslationMax, XZTranslationMax);
+                            }
+                            else
+                            {
+                                Debug.Log("XZFollowing: skipping xz-translations because RestPosition.y is not above 0.2");
+                            }
+
+                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection, xOffset, zOffset);
+                            break;
                         }
+
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                }
+
+                if (_modeSwitcher.CurrentMode != BallHandlingMode.Alternating)
+                {
+                    isFastBounce = false;
                 }
 
                 // NOTE: Needs to run after LateUpdate to ensure that we get newest ball position data.
                 await UniTask.Yield(PlayerLoopTiming.LastPostLateUpdate, CancellationToken.None);
             }
         }
+
 
         private void OnValidate()
         {
@@ -129,6 +273,7 @@ namespace MachineSimulator.Controlling
 
         private bool _isLogging;
         private readonly List<string> _ballPositionLogs = new List<string>();
+        private Vector3 _realTimeVelocity;
 
         // NOTE: LateUpdate because we get newest ball position in Update.
         //       Using LateUpdate to make sure we always get the newest position data.
@@ -171,13 +316,13 @@ namespace MachineSimulator.Controlling
             {
                 _ballVisualization.position = _ballPosition.Value;
                 _ballVelocityRegression.AddSample(timestamp.Value, _ballPosition.Value);
-                var realTimeVelocity = _ballVelocityRegression.CalculateRealTimeVelocity();
-                var plateDefaultHeight = _machineModel.HexaPlateMover.DefaultHeight;
-                _timeUntilNextImpact = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, realTimeVelocity.y, plateDefaultHeight);
+                _realTimeVelocity = _ballVelocityRegression.CalculateRealTimeVelocity();
+                var plateRestHeight = _machineModel.HexaPlateMover.RestPosition.y;
+                var timeUntilNextImpactAtRestHeight = TimeUntilNextImpact.Calculate(_ballPosition.Value.y, _realTimeVelocity.y, plateRestHeight);
 
-                if (_isLogging && _timeUntilNextImpact.HasValue)
+                if (_isLogging && timeUntilNextImpactAtRestHeight.HasValue)
                 {
-                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{_timeUntilNextImpact.Value}");
+                    _ballPositionLogs.Add($"{timestamp};{_ballPosition.Value.x};{_ballPosition.Value.y};{_ballPosition.Value.z};{timeUntilNextImpactAtRestHeight.Value}");
                 }
 
                 _lastTimestamp = timestamp.Value;

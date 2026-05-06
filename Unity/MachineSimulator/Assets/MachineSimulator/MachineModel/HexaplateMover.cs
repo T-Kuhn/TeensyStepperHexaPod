@@ -18,6 +18,8 @@ namespace MachineSimulator.MachineModel
         public IObservable<bool> OnPoseChanged => _onPoseChanged;
 
         public float DefaultHeight { get; set; }
+        public Vector3 RestPosition { get; private set; }
+        public Quaternion RestRotation { get; private set; } = Quaternion.identity;
         private Dictionary<StrategyName, IHexaplateMovementStrategy> _strategies;
 
         public StrategyName CurrentStrategy;
@@ -138,7 +140,20 @@ namespace MachineSimulator.MachineModel
         public void TeleportToDefaultHeight()
         {
             var (defaultPosition, defaultRotation) = GetDefaultHeightPositionAndRotation();
+            RestPosition = defaultPosition;
+            RestRotation = defaultRotation;
             UpdatePositionAndRotationTo(position: defaultPosition, rotation: defaultRotation, isTeleportToOriginPoseChange: true);
+        }
+
+        public void TeleportToRestPose()
+        {
+            UpdatePositionAndRotationTo(position: RestPosition, rotation: RestRotation, isTeleportToOriginPoseChange: false);
+        }
+
+        public void UpdateRestPose(Vector3 position, Quaternion rotation)
+        {
+            RestPosition = position;
+            RestRotation = rotation;
         }
 
         public void UpdatePositionAndRotationTo(Vector3? position = null, Quaternion? rotation = null, bool isTeleportToOriginPoseChange = false)

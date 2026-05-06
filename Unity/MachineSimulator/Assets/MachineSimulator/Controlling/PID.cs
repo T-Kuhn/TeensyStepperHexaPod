@@ -1,5 +1,4 @@
-﻿using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace MachineSimulator.Controlling
 {
@@ -44,10 +43,10 @@ namespace MachineSimulator.Controlling
             return Normalize(p + d);
         }
 
-        // Max correction around axis will be +/- 2 degrees
+        // Max correction around axis will be +/- 3 degrees
         private float Normalize(float value)
         {
-            return Mathf.Clamp(value, -2f, 2f);
+            return Mathf.Clamp(value, -3f, 3f);
         }
     }
 }
