@@ -107,6 +107,12 @@ namespace MachineSimulator.Controlling
             var deltaThisBounce = totalIncrease - _appliedRestIncrease;
             _appliedRestIncrease = totalIncrease;
 
+            var currentRest = _machineModel.HexaPlateMover.RestPosition;
+            var clampedDx = Mathf.Clamp(xOffset - currentRest.x, -XZTranslationPerBounceMax, XZTranslationPerBounceMax);
+            var clampedDz = Mathf.Clamp(zOffset - currentRest.z, -XZTranslationPerBounceMax, XZTranslationPerBounceMax);
+            var clampedXOffset = currentRest.x + clampedDx;
+            var clampedZOffset = currentRest.z + clampedDz;
+
             return SequenceFromCode.GoUpAndDownAsync(
                 _machineModel,
                 _sequenceCreator,
@@ -117,8 +123,8 @@ namespace MachineSimulator.Controlling
                 xCorrection,
                 profile.UpHeightOffset,
                 deltaThisBounce,
-                xOffset,
-                zOffset
+                clampedXOffset,
+                clampedZOffset
             );
         }
 
