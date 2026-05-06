@@ -160,9 +160,6 @@ namespace MachineSimulator.Controlling
                     //       ball movement along z axis is driving PID for correction around X axis
                     // NOTE: ballPosition stream is plate-relative (cameras are attached to the HexaPlate).
                     //       Add the plate's world x/z to recover the absolute ball position for the PID.
-                    // var plateWorldPos = _machineModel.HexaPlateTransform.position;
-                    // var ballAbsoluteX = _ballPosition.Value.x + plateWorldPos.x;
-                    // var ballAbsoluteZ = _ballPosition.Value.z + plateWorldPos.z;
                     var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
                     var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
 

@@ -240,7 +240,6 @@
 
 // - [ ] How about the machine pushes a button the get a new ball?
 
-
 // - [ ] Implement integral component of PID controller.
 //       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
 
