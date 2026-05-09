@@ -235,13 +235,9 @@
 //     - [X] Add offset to left/right with keys (for debug/testing)
 //     - [X] juggle ball while trying to keep paddle centered below ball
 //     - [X] maybe try to move paddle to center of current ball position when going back down
+//     - [X] maybe do a slight screw motion while going up just for funsies?
 
 // ↓ Do this!
-
-// - [ ] Implement integral component of PID controller.
-//       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
-
-// - [ ] maybe do a slight screw motion while going up just for funsies?
 
 // - [ ] Video footage of (maybe improved?) flex.
 // - [ ] Video footage of bouncing (go through some modes)
@@ -254,7 +250,9 @@
 
 
 
-
+// - [/] Implement integral component of PID controller.
+//       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
+//      -> we decided that this isn't really needed (ball isn't constantly hanging around one side of the paddle)
 
 
 // Name: Hexa-Bouncer

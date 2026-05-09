@@ -84,6 +84,7 @@ namespace MachineSimulator.Controlling
                 case BallHandlingMode.HighBouncing: return HighBounce;
                 case BallHandlingMode.FastBouncing: return FastBounce;
                 case BallHandlingMode.Alternating: return isFastBounce ? FastBounce : SlowBounce;
+                case BallHandlingMode.ScrewBouncing: return SlowBounce;
                 case BallHandlingMode.RanTinyBounce:
                     if (tinyBounceStepState == 1) return TinyBounce;
                     if (tinyBounceStepState == 2) return FastBounce;
@@ -101,7 +102,7 @@ namespace MachineSimulator.Controlling
             return profile.CommandTime / 2f + 0.015f;
         }
 
-        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection, float xOffset = 0f, float zOffset = 0f)
+        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection, float xOffset = 0f, float zOffset = 0f, float yRotAngle = 0f)
         {
             var totalIncrease = _restHeightController.AccumulatedIncrease;
             var deltaThisBounce = totalIncrease - _appliedRestIncrease;
@@ -126,7 +127,8 @@ namespace MachineSimulator.Controlling
                 profile.UpHeightOffset,
                 deltaThisBounce,
                 clampedXOffset,
-                clampedZOffset
+                clampedZOffset,
+                yRotAngle
             );
         }
 
@@ -134,6 +136,7 @@ namespace MachineSimulator.Controlling
         {
             const bool useRealMachine = true;
             var isFastBounce = false;
+            var bounceCount = 0;
             var tinyBounceStepState = 0;
 
             while (true)
@@ -187,6 +190,11 @@ namespace MachineSimulator.Controlling
                             isFastBounce = !isFastBounce;
                             break;
 
+                        case BallHandlingMode.ScrewBouncing:
+                            var yRotAngle = bounceCount % 2 == 0 ? 5f : -5f;
+                            await ExecuteBounceAsync(profile.Value, useRealMachine, zCorrection, xCorrection, yRotAngle: yRotAngle);
+                            break;
+
                         case BallHandlingMode.RanTinyBounce:
                             if (tinyBounceStepState == 1)
                             {
@@ -234,6 +242,8 @@ namespace MachineSimulator.Controlling
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
+                    bounceCount++;
                 }
 
                 if (_modeSwitcher.CurrentMode != BallHandlingMode.Alternating)
