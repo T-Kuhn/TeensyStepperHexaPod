@@ -235,13 +235,24 @@
 //     - [X] Add offset to left/right with keys (for debug/testing)
 //     - [X] juggle ball while trying to keep paddle centered below ball
 //     - [X] maybe try to move paddle to center of current ball position when going back down
-// ↓ Do this!
-//     - [ ] maybe do a slight screw motion while going up just for funsies?
 
-// - [ ] How about the machine pushes a button the get a new ball?
+// ↓ Do this!
 
 // - [ ] Implement integral component of PID controller.
 //       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
+
+// - [ ] maybe do a slight screw motion while going up just for funsies?
+
+// - [ ] Video footage of (maybe improved?) flex.
+// - [ ] Video footage of bouncing (go through some modes)
+//     - [ ] with screen capture as well
+
+
+
+
+
+
+
 
 
 
@@ -249,7 +260,6 @@
 // Name: Hexa-Bouncer
 
 // - [ ] we could try to get rid of ball-flickering with averages (if both data streams are relatively fresh)
-
 
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.
