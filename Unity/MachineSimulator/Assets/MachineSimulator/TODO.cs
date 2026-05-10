@@ -242,6 +242,7 @@
 // - [ ] Video footage of (maybe improved?) flex.
 // - [ ] Video footage of bouncing (go through some modes)
 //     - [ ] with screen capture as well
+// lighting too dark. need to redo.
 
 
 
