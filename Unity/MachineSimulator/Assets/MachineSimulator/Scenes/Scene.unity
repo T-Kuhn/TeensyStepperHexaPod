@@ -300,7 +300,7 @@ MonoBehaviour:
     Width: 1280
     Height: 720
     FPS: 120
-    Exposure: -7
+    Exposure: -8
     Gain: 2
     Contrast: 15
 --- !u!4 &239239971
@@ -1531,7 +1531,7 @@ MonoBehaviour:
     Width: 1280
     Height: 720
     FPS: 120
-    Exposure: -7
+    Exposure: -8
     Gain: 2
     Contrast: 15
 --- !u!4 &1203267606

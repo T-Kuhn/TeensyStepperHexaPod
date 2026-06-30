@@ -64,8 +64,8 @@ namespace MachineSimulator.Controlling
         //       the machine will try to go from X:0.05 to X:-0.05 in one single down-move;
         //       Steppers might not be able to keep up (this might be too high velocity for some of the arms)
         //       So because of the above, we limit the maximum X translation to a lower value for now.
-        private const float XZTranslationMax = 0.0045f;
-        private const float XZTranslationPerBounceMax = 0.002f;
+        private const float XZTranslationMax = 0.03f;
+        private const float XZTranslationPerBounceMax = 0.01f;
 
         private void Start()
         {
@@ -84,11 +84,12 @@ namespace MachineSimulator.Controlling
                 case BallHandlingMode.HighBouncing: return HighBounce;
                 case BallHandlingMode.FastBouncing: return FastBounce;
                 case BallHandlingMode.Alternating: return isFastBounce ? FastBounce : SlowBounce;
+                case BallHandlingMode.ScrewBouncing: return SlowBounce;
                 case BallHandlingMode.RanTinyBounce:
                     if (tinyBounceStepState == 1) return TinyBounce;
                     if (tinyBounceStepState == 2) return FastBounce;
                     return SlowBounce;
-                case BallHandlingMode.XZFollowing: return SlowBounce;
+                case BallHandlingMode.XZFollowing: return FastBounce;
                 default: return SlowBounce;
             }
         }
@@ -101,7 +102,7 @@ namespace MachineSimulator.Controlling
             return profile.CommandTime / 2f + 0.015f;
         }
 
-        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection, float xOffset = 0f, float zOffset = 0f)
+        private UniTask ExecuteBounceAsync(BounceProfile profile, bool useRealMachine, float zCorrection, float xCorrection, float xOffset = 0f, float zOffset = 0f, float yRotAngle = 0f)
         {
             var totalIncrease = _restHeightController.AccumulatedIncrease;
             var deltaThisBounce = totalIncrease - _appliedRestIncrease;
@@ -126,7 +127,8 @@ namespace MachineSimulator.Controlling
                 profile.UpHeightOffset,
                 deltaThisBounce,
                 clampedXOffset,
-                clampedZOffset
+                clampedZOffset,
+                yRotAngle
             );
         }
 
@@ -134,6 +136,7 @@ namespace MachineSimulator.Controlling
         {
             const bool useRealMachine = true;
             var isFastBounce = false;
+            var bounceCount = 0;
             var tinyBounceStepState = 0;
 
             while (true)
@@ -160,11 +163,8 @@ namespace MachineSimulator.Controlling
                     //       ball movement along z axis is driving PID for correction around X axis
                     // NOTE: ballPosition stream is plate-relative (cameras are attached to the HexaPlate).
                     //       Add the plate's world x/z to recover the absolute ball position for the PID.
-                    var plateWorldPos = _machineModel.HexaPlateTransform.position;
-                    var ballAbsoluteX = _ballPosition.Value.x + plateWorldPos.x;
-                    var ballAbsoluteZ = _ballPosition.Value.z + plateWorldPos.z;
-                    var zCorrection = _xAxisPid.Update(ballAbsoluteX);
-                    var xCorrection = -_zAxisPid.Update(ballAbsoluteZ);
+                    var zCorrection = _xAxisPid.Update(_ballPosition.Value.x);
+                    var xCorrection = -_zAxisPid.Update(_ballPosition.Value.z);
 
 
                     switch (_modeSwitcher.CurrentMode)
@@ -188,6 +188,11 @@ namespace MachineSimulator.Controlling
                         case BallHandlingMode.Alternating:
                             await ExecuteBounceAsync(isFastBounce ? FastBounce : SlowBounce, useRealMachine, zCorrection, xCorrection);
                             isFastBounce = !isFastBounce;
+                            break;
+
+                        case BallHandlingMode.ScrewBouncing:
+                            var yRotAngle = bounceCount % 2 == 0 ? 5f : -5f;
+                            await ExecuteBounceAsync(profile.Value, useRealMachine, zCorrection, xCorrection, yRotAngle: yRotAngle);
                             break;
 
                         case BallHandlingMode.RanTinyBounce:
@@ -230,13 +235,15 @@ namespace MachineSimulator.Controlling
                                 Debug.Log("XZFollowing: skipping xz-translations because RestPosition.y is not above 0.2");
                             }
 
-                            await ExecuteBounceAsync(SlowBounce, useRealMachine, zCorrection, xCorrection, xOffset, zOffset);
+                            await ExecuteBounceAsync(profile.Value, useRealMachine, zCorrection, xCorrection, xOffset, zOffset);
                             break;
                         }
 
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
+                    bounceCount++;
                 }
 
                 if (_modeSwitcher.CurrentMode != BallHandlingMode.Alternating)

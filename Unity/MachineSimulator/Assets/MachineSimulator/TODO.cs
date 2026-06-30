@@ -227,30 +227,38 @@
 // - [X] check with virtual machine if it's working correctly or not
 // - [X] check with real machine if it's working correctly or not
 
-// ↓ Do this!
 // - [ ] We need some interesting ways to juggle the ball.
 //     - [X] 150ms move command with 0.2 height
 //     - [X] then smoothly (or suddenly?) change to 225ms move time with 0.23 height
 //     - [X] every second bounce it a hit style
 //     - [X] need a way to easily switch between different hit styles (so we can switch with keyboard keys)
 //     - [X] Add offset to left/right with keys (for debug/testing)
-//     - [ ] juggle ball while trying to keep paddle centered below ball
-//     - [ ] maybe try to move paddle to center of current ball position when going back down
-//     - [ ] maybe do a slight screw motion while going up just for funsies?
+//     - [X] juggle ball while trying to keep paddle centered below ball
+//     - [X] maybe try to move paddle to center of current ball position when going back down
+//     - [X] maybe do a slight screw motion while going up just for funsies?
 
-// - [ ] How about the machine pushes a button the get a new ball?
+// ↓ Do this!
+
+// - [ ] Video footage of (maybe improved?) flex.
+// - [ ] Video footage of bouncing (go through some modes)
+//     - [ ] with screen capture as well
+// lighting too dark. need to redo.
 
 
-// - [ ] Implement integral component of PID controller.
+
+
+
+
+
+
+// - [/] Implement integral component of PID controller.
 //       ball sometimes has tendency to stay on right side of paddle for a long time. I component will fix that.
-
-
+//      -> we decided that this isn't really needed (ball isn't constantly hanging around one side of the paddle)
 
 
 // Name: Hexa-Bouncer
 
 // - [ ] we could try to get rid of ball-flickering with averages (if both data streams are relatively fresh)
-
 
 
 // - [ ] make thick cross where the imageProcessing thinks the ball is.

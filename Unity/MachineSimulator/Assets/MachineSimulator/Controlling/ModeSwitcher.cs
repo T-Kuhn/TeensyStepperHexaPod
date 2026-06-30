@@ -38,6 +38,7 @@ namespace MachineSimulator.Controlling
         HighBouncing,
         FastBouncing,
         Alternating,
+        ScrewBouncing,
         RanTinyBounce,
         XZFollowing,
     }

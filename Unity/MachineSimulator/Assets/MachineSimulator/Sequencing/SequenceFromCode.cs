@@ -410,13 +410,14 @@ namespace MachineSimulator.Sequencing
             float upHeightOffset,
             float restHeightIncrease,
             float xOffset,
-            float zOffset)
+            float zOffset,
+            float yRotationAngle)
         {
             var commandTimeInMs = Mathf.RoundToInt(commandTime * 1000f);
 
             // move up
             sequenceCreator.ClearAll();
-            var upRotation = Quaternion.Euler(xTiltAngle, 0f, zTiltAngle);
+            var upRotation = Quaternion.Euler(xTiltAngle, yRotationAngle, zTiltAngle);
             var upPosition = machineModel.HexaPlateMover.RestPosition + Vector3.up * upHeightOffset;
             machineModel.HexaPlateMover.UpdatePositionAndRotationTo(upPosition, upRotation);
             sequenceCreator.Add(HLInstructionFromCurrentMachineState(machineModel, commandTime));

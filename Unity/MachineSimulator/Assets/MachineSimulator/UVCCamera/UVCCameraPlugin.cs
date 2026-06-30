@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -243,7 +241,7 @@ namespace MachineSimulator.UVCCamera
         public double Width = Constants.CameraResolutionWidth;
         public double Height = Constants.CameraResolutionHeight;
         public double FPS = 120;
-        public double Exposure = -7;
+        public double Exposure = -8;
         public double Gain = 2;
         public double Contrast = 15;
     }

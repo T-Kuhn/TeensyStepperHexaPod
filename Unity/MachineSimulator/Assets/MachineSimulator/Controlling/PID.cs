@@ -43,10 +43,10 @@ namespace MachineSimulator.Controlling
             return Normalize(p + d);
         }
 
-        // Max correction around axis will be +/- 3 degrees
+        // Max correction around axis will be +/- 2 degrees
         private float Normalize(float value)
         {
-            return Mathf.Clamp(value, -3f, 3f);
+            return Mathf.Clamp(value, -2f, 2f);
         }
     }
 }
