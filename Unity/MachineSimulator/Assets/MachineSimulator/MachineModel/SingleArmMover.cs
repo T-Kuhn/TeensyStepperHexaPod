@@ -104,7 +104,10 @@ namespace MachineSimulator.MachineModel
 
             UpdateGizmoData(worldLink2Dir, realTarget);
 
-            _llMachineStateProvider.SetRotationStateForArmWithIndex(_armIndex, _motorRotation);
+            if (_llMachineStateProvider != null)
+            {
+                _llMachineStateProvider.SetRotationStateForArmWithIndex(_armIndex, _motorRotation);
+            }
         }
 
         private void UpdateGizmoData(Vector3 worldLink2Dir, Vector3 realTarget)
