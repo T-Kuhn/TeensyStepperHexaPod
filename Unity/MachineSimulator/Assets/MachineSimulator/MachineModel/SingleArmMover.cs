@@ -24,6 +24,11 @@ namespace MachineSimulator.MachineModel
         [SerializeField] private bool _showDebugLog;
         [SerializeField] private bool _showDebugGizmos;
 
+        [SerializeField] private bool _showLink1CircleViz;
+        [SerializeField] private bool _showLink2SphereViz;
+        [SerializeField] private bool _showIntersectionCircleViz;
+        [SerializeField] private bool _showIntersectionPointViz;
+
         [SerializeField] private float _finalJointOffset;
 
         private float _motorRotation;
@@ -41,6 +46,12 @@ namespace MachineSimulator.MachineModel
         private float _motorOriginOffset;
         private LLMachineStateProvider _llMachineStateProvider;
         private int _armIndex;
+        private IkDebugVisualizer _ikVisualizer;
+
+        private void Awake()
+        {
+            _ikVisualizer = GetComponent<IkDebugVisualizer>();
+        }
 
         public void SetupRefs(Transform target, Transform centerRef, Logger logger, LLMachineStateProvider stateProvider)
         {
@@ -79,11 +90,30 @@ namespace MachineSimulator.MachineModel
                 blueDir: null
             );
             */
+            var sphereRadius = Mathf.Abs(_joint4.localPosition.z);
+            var circleRadius = Mathf.Abs(_joint1Tip.localPosition.z);
+
             var ikResult = SphereCircleIntersectIK.Solve(
                 sphereCenter: localTarget,
                 circleCenter: Vector3.zero,
-                sphereRadius: Mathf.Abs(_joint4.localPosition.z),
-                circleRadius: Mathf.Abs(_joint1Tip.localPosition.z));
+                sphereRadius: sphereRadius,
+                circleRadius: circleRadius);
+
+            // NOTE: Update the visualization before the early return below, so that the
+            //       circles and sphere keep tracking the target even when the IK fails
+            //       (only the intersection point highlights disappear then).
+            if (_ikVisualizer != null)
+            {
+                _ikVisualizer.UpdateVisualization(
+                    showLink1Circle: _showLink1CircleViz,
+                    showLink2Sphere: _showLink2SphereViz,
+                    showIntersectionCircle: _showIntersectionCircleViz,
+                    showIntersectionPoints: _showIntersectionPointViz,
+                    localTarget: localTarget,
+                    circleRadius: circleRadius,
+                    sphereRadius: sphereRadius,
+                    ikResult: ikResult);
+            }
 
             if (!ikResult.Success) return;
 
