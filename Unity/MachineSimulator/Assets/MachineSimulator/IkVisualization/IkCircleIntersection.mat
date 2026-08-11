@@ -22,11 +22,16 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _EdgeFade: 0.003
+    - _EdgeFade: 0.002
     - _HighlightRadius: 0.02
-    - _LineWidth: 0.004
+    - _HighlightsOn: 0
+    - _LineWidth: 0.002
+    - _Radius: 0.142
     - _ZTest: 4
     m_Colors:
+    - _Center: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 0.05, b: 0.05, a: 1}
     - _HighlightColor: {r: 0.1, g: 1, b: 0.15, a: 1}
+    - _P1: {r: 0, g: 0, b: 0, a: 0}
+    - _P2: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
