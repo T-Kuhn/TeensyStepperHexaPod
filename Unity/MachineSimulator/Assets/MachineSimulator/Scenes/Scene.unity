@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -281,7 +281,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &239239970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -455,9 +455,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _logger
+      value: 
+      objectReference: {fileID: 326847893}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _hexaPlate
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _controller
+      value: 
+      objectReference: {fileID: 1808984086}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _ArmLeftPrefab
       value: 
@@ -516,7 +524,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &531562918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1512,7 +1520,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1203267605
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1818,6 +1826,10 @@ PrefabInstance:
       propertyPath: _target
       value: 
       objectReference: {fileID: 2070707864}
+    - target: {fileID: 6630815499392698646, guid: 9cf52a33f5e670641a3317d04157db64, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6630815499392698647, guid: 9cf52a33f5e670641a3317d04157db64, type: 3}
       propertyPath: m_RootOrder
       value: 14
@@ -2045,9 +2057,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _logger
+      value: 
+      objectReference: {fileID: 326847893}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _hexaPlate
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _controller
+      value: 
+      objectReference: {fileID: 1808984086}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _armLeftPrefab
       value: 
@@ -2099,7 +2119,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!23 &1657155582
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -2782,6 +2802,10 @@ PrefabInstance:
       propertyPath: _target
       value: 
       objectReference: {fileID: 2070707864}
+    - target: {fileID: 8074416662970105130, guid: ddc2aea8e883b354eaaaf8cd4c1b01f4, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8074416662970105131, guid: ddc2aea8e883b354eaaaf8cd4c1b01f4, type: 3}
       propertyPath: m_RootOrder
       value: 11
@@ -2892,6 +2916,10 @@ PrefabInstance:
       value: Base Simplified v10
       objectReference: {fileID: 0}
     - target: {fileID: 5698308207607062346, guid: 4129ec943e6473446ba1a5f054643e33, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5698308207607062346, guid: 4129ec943e6473446ba1a5f054643e33, type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -2957,9 +2985,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _logger
+      value: 
+      objectReference: {fileID: 326847893}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _hexaPlate
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
+      propertyPath: _controller
+      value: 
+      objectReference: {fileID: 1808984086}
     - target: {fileID: 4993955093609605196, guid: c4433f173ee007f44bc6039a58de0d40, type: 3}
       propertyPath: _ArmLeftPrefab
       value: 
@@ -3134,5 +3170,9 @@ PrefabInstance:
       propertyPath: _target
       value: 
       objectReference: {fileID: 2070707864}
+    - target: {fileID: 7589448562700065535, guid: dc27176599d2fdf4ba6b012ae4dd1bda, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc27176599d2fdf4ba6b012ae4dd1bda, type: 3}
