@@ -31,10 +31,12 @@ namespace MachineSimulator.MachineModel
 
         [SerializeField] private bool _playLink2SphereAnimation;
         [SerializeField] private bool _playLink2IntersectionCircleAnimation;
+        [SerializeField] private bool _playLink1CircleAnimation;
 
         [SerializeField] private float _sphereAnimWanderSpeed = 0.3f;
         [SerializeField] private float _sphereAnimAmplitudeDeg = 40f;
         [SerializeField] private float _circleAnimSpeedDegPerSec = 45f;
+        [SerializeField] private float _link1CircleAnimSpeedDegPerSec = 45f;
 
         [SerializeField] private float _finalJointOffset;
 
@@ -56,6 +58,7 @@ namespace MachineSimulator.MachineModel
         private IkDebugVisualizer _ikVisualizer;
 
         private Link2DetachAnimator _link2Animator;
+        private Link1CircleAnimator _link1Animator;
         private bool _lastIkSuccess;
         private bool _prevPlayLink2SphereAnimation;
         private bool _prevPlayLink2IntersectionCircleAnimation;
@@ -64,6 +67,7 @@ namespace MachineSimulator.MachineModel
         {
             _ikVisualizer = GetComponent<IkDebugVisualizer>();
             _link2Animator = new Link2DetachAnimator(transform, _joint3, _joint4, _joint5);
+            _link1Animator = new Link1CircleAnimator(_joint1, _joint1Tip, _joint2);
         }
 
         public void SetupRefs(Transform target, Transform centerRef, Logger logger, LLMachineStateProvider stateProvider)
@@ -81,11 +85,17 @@ namespace MachineSimulator.MachineModel
         private void Update()
         {
             HandleLink2AnimationToggles();
+            HandleLink1AnimationToggle();
             RunIk();
 
             if (_link2Animator.IsActive)
             {
                 _link2Animator.Tick(Time.deltaTime, _sphereAnimWanderSpeed, _sphereAnimAmplitudeDeg, _circleAnimSpeedDegPerSec);
+            }
+
+            if (_link1Animator.IsActive)
+            {
+                _link1Animator.Tick(Time.deltaTime, _link1CircleAnimSpeedDegPerSec);
             }
         }
 
@@ -96,10 +106,7 @@ namespace MachineSimulator.MachineModel
 
         private void OnDisable()
         {
-            if (_link2Animator != null && _link2Animator.IsActive)
-            {
-                ForceStopLink2Animation();
-            }
+            ForceStopAllAnimations();
         }
 
         // NOTE: The two animation toggles work like the viz toggles above: flip them in the
@@ -165,12 +172,50 @@ namespace MachineSimulator.MachineModel
             _playLink2IntersectionCircleAnimation = false;
         }
 
-        // NOTE: Used when something more important than the demo animation happens (the
-        //       teleport-to-origin recalibration) or when the component gets disabled.
-        private void ForceStopLink2Animation()
+        // NOTE: Independent of the link2 toggles, so both demos can run at once: link1
+        //       sweeping its circle while link2's free end travels the sphere or the
+        //       intersection circle.
+        private void HandleLink1AnimationToggle()
         {
-            _link2Animator.Exit();
+            if (_playLink1CircleAnimation == _link1Animator.IsActive) return;
+
+            if (_link1Animator.IsActive)
+            {
+                _link1Animator.Exit();
+                return;
+            }
+
+            // NOTE: Re-solve against the live target so the sweep starts from a fresh pose.
+            //       While a link2 animation is running the arm is frozen (RunIk returns
+            //       early), so the sweep starts from the frozen pose instead.
+            if (!_link2Animator.IsActive)
+            {
+                RunIk();
+            }
+
+            if (!_link1Animator.TryEnter(out var failReason))
+            {
+                Debug.LogWarning(name + ": cannot start the link1 animation, " + failReason + ".");
+                _playLink1CircleAnimation = false;
+            }
+        }
+
+        // NOTE: Used when something more important than the demo animations happens (the
+        //       teleport-to-origin recalibration) or when the component gets disabled.
+        private void ForceStopAllAnimations()
+        {
+            if (_link2Animator != null)
+            {
+                _link2Animator.Exit();
+            }
+
+            if (_link1Animator != null)
+            {
+                _link1Animator.Exit();
+            }
+
             ClearLink2AnimationToggles();
+            _playLink1CircleAnimation = false;
             _prevPlayLink2SphereAnimation = false;
             _prevPlayLink2IntersectionCircleAnimation = false;
         }
@@ -217,15 +262,18 @@ namespace MachineSimulator.MachineModel
                     ikResult: ikResult);
             }
 
-            // NOTE: While a link2 detach animation runs, the arm pose stays frozen: skip all
-            //       joint writes and motor-state updates, but keep the visualizations above
-            //       tracking. A teleport-to-origin pose change must not be swallowed though
-            //       (it recalibrates the motor origin offset), so it force-stops the animation.
-            if (_link2Animator != null && _link2Animator.IsActive)
+            // NOTE: While a demo animation runs (link2 detach and/or link1 circle sweep),
+            //       the arm pose stays frozen: skip all joint writes and motor-state
+            //       updates, but keep the visualizations above tracking. A teleport-to-origin
+            //       pose change must not be swallowed though (it recalibrates the motor
+            //       origin offset), so it force-stops the animations instead.
+            var demoAnimationActive = (_link2Animator != null && _link2Animator.IsActive)
+                                      || (_link1Animator != null && _link1Animator.IsActive);
+            if (demoAnimationActive)
             {
                 if (isTeleportToOriginPoseChange)
                 {
-                    ForceStopLink2Animation();
+                    ForceStopAllAnimations();
                 }
                 else
                 {
